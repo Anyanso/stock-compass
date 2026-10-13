@@ -37,10 +37,21 @@ Your chosen goal weights these five into a single match score. The formula is de
 
 ## Running it
 
-It's a single, self-contained `index.html` file with no build step.
+It's a single, self-contained `index.html` file with no build step or server. The same file runs in two modes:
 
-- **Inside Claude:** all features work, including live prices, the shared portfolio and AI write-ups.
-- **On its own** (opened locally or on GitHub Pages): the explorer, scoring, comparison, calculator and watchlist all work with built-in reference data. Live prices, the shared portfolio and AI write-ups need the Claude runtime and are hidden or show a notice.
+| | Standalone (GitHub Pages, or opened locally) | Inside Claude |
+|---|---|---|
+| Explorer, scores, comparison, calculator | ✅ | ✅ |
+| Live prices | ✅ with your own free Alpha Vantage key | ✅ via the Alpha Vantage connector |
+| Portfolio and watchlist | ✅ saved on your device | ✅ shared live with family members |
+| AI company write-ups | — | ✅ |
+
+### Live prices in standalone mode
+
+1. Get a free API key at [alphavantage.co](https://www.alphavantage.co/support/#api-key).
+2. Click **Live prices** at the top of the app and paste it in.
+
+Your key is stored only in your browser's local storage and sent only to Alpha Vantage. It is never part of this repository. The free plan allows about 25 requests a day, so the app fetches a price only when you open a stock, and reuses it for 6 hours.
 
 ## Data and limitations
 

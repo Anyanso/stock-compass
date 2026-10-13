@@ -1,3 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Plain-language stock research for everyday and diaspora investors.">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
 <title>Stock Compass</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -210,8 +219,18 @@ form.add .hint{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
       <h1>Stock Compass</h1>
       <p>Find stocks that fit what you want from your money. Each one gets plain-language verdicts, strengths, risks and a calculator in your own currency. It never says buy or sell.</p>
     </div>
-    <button class="btn" id="addToggle" type="button">+ Add a stock</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="keyToggle" type="button" hidden>Live prices</button>
+      <button class="btn" id="addToggle" type="button">+ Add a stock</button>
+    </div>
   </header>
+
+  <form class="add" id="keyForm" hidden>
+    <p class="hint">Live prices come from Alpha Vantage. Get a free key at <a href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener" style="color:var(--accent)">alphavantage.co</a> and paste it here. It's saved only in this browser and sent only to Alpha Vantage. The free plan allows about 25 price checks a day.</p>
+    <div class="field" style="grid-column:1/-1"><label class="label" for="avKey">Your Alpha Vantage key</label><input id="avKey" autocomplete="off" spellcheck="false" placeholder="Paste your key"></div>
+    <p class="err" id="keyMsg" hidden></p>
+    <div class="full"><button class="btn" type="button" id="keyRemove">Remove key</button><button class="btn" type="button" id="keyCancel">Close</button><button class="btn primary" type="submit">Save key</button></div>
+  </form>
 
   <div class="notice" role="note"><b>Check the figures.</b> Prices marked "Live" come from Alpha Vantage, and dividend yield and P/E adjust to them. Profit margins, growth, debt and Nigerian prices are approximate mid-2026 reference values. Use "Check latest figures" before you act. Not financial advice.</div>
 
@@ -383,6 +402,19 @@ const AV={AAPL:["AAPL",1],MSFT:["MSFT",1],NVDA:["NVDA",1],JNJ:["JNJ",1],KO:["KO"
   RY:["RY",1],ENB:["ENB",1],FTS:["FTS",1],CNQ:["CNQ",1],NESN:["NSRGY",1],ASML:["ASML",1],TTE:["TTE",1],ULVR:["UL",1],HSBA:["HSBC",5],"2330":["TSM",5],"7203":["TM",10]};
 BASE.forEach(s=>{ const a=AV[s.t]; if(a){ s.av=a[0]; s.avr=a[1]; } });
 const AVS="Alpha Vantage MCP Server";
+const STANDALONE=!window.claude;
+/* Standalone mode: call Alpha Vantage directly with the visitor's own key, kept only in their browser */
+function directQuoteAdapter(key){
+  return {callTool:async(_s,_t,input)=>{
+    let r; try{ r=await fetch("https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="+encodeURIComponent(input.symbol)+"&apikey="+encodeURIComponent(key)); }
+    catch(e){ throw {code:"network"}; }
+    if(!r.ok) throw {code:"upstream_error"};
+    const j=await r.json();
+    if(j["Error Message"]) return {payload:{error:{type:"nodata"}}};
+    if(j.Information||j.Note) return {payload:{error:{type:/api ?key/i.test(j.Information||j.Note)&&!/rate limit|requests per day/i.test(j.Information||j.Note)?"badkey":"limit"}}};
+    return {payload:j};
+  }};
+}
 let quotes={}, mcp=null, avStatus=null; const triedQuote=new Set();
 /* Approximate units per 1 USD, mid-2026 */
 const FX={USD:1,CAD:1.38,NGN:1320,KES:129,GBP:0.75,EUR:0.86,CHF:0.80,JPY:147,TWD:30};
@@ -497,7 +529,7 @@ async function fetchQuote(sym,force){
   try{
     const r=await mcp.callTool(AVS,"GLOBAL_QUOTE",{symbol:sym,datatype:"json"},{cache:{staleTime:300000,gcTime:86400000}});
     const p=r&&r.payload; const g=p&&typeof p==="object"?p["Global Quote"]:null;
-    if(!g||!g["05. price"]){ avStatus=p&&p.error?"limit":"nodata"; return false; }
+    if(!g||!g["05. price"]){ avStatus=p&&p.error?(p.error.type==="badkey"?"badkey":p.error.type==="nodata"?"nodata":"limit"):"nodata"; return false; }
     const q={price:+g["05. price"],changePct:parseFloat(g["10. change percent"])||0,day:g["07. latest trading day"]||"",fetchedAt:new Date().toISOString()};
     quotes[sym]=q; avStatus="ok";
     if(db&&canWrite) db.doc("quotes/"+sym).set(q).catch(()=>{});
@@ -505,6 +537,9 @@ async function fetchQuote(sym,force){
   }catch(e){ avStatus=e&&e.code||"upstream_error"; return false; }
 }
 function avMessage(){
+  if(STANDALONE&&!mcp) return "Add your free Alpha Vantage key under \"Live prices\" at the top to see live prices.";
+  if(STANDALONE&&avStatus==="badkey") return "Alpha Vantage didn't accept your key. Check it under \"Live prices\".";
+  if(STANDALONE&&avStatus==="network") return "Couldn't reach Alpha Vantage. Check your internet connection.";
   switch(avStatus){
     case "server_not_connected": return "Connect Alpha Vantage in Claude's Settings → Connectors to see live prices.";
     case "needs_reauth": return "Reconnect Alpha Vantage in Claude's Settings → Connectors to refresh prices.";
@@ -921,8 +956,30 @@ $("membersForm").addEventListener("submit",async e=>{
   catch(err){ $("mErr").textContent="Couldn't save the names. Try again."; }
 });
 
+/* Device-only store with the same shape the page uses for the shared database */
+function localDB(){
+  const KEY="sc_localdb"; let data=store.get(KEY,{}); const subs=[];
+  const save=()=>{ store.set(KEY,data); subs.forEach(f=>f()); };
+  const snap=p=>({id:p.split("/").pop(),exists:p in data,data:()=>data[p]});
+  const doc=p=>({ get:async()=>snap(p), set:async d=>{ data[p]=JSON.parse(JSON.stringify(d)); save(); }, delete:async()=>{ delete data[p]; save(); },
+    onSnapshot(next){ const f=()=>next(snap(p)); subs.push(f); setTimeout(f); return ()=>{}; } });
+  const col=c=>({ doc:id=>doc(c+"/"+(id||Math.random().toString(36).slice(2,12))),
+    add:async d=>{ const r=doc(c+"/"+Math.random().toString(36).slice(2,12)); await r.set(d); return r; },
+    onSnapshot(next){ const f=()=>{ const docs=Object.keys(data).filter(k=>k.startsWith(c+"/")&&k.split("/").length===2).map(snap); next({docs,size:docs.length,empty:!docs.length}); }; subs.push(f); setTimeout(f); return ()=>{}; } });
+  return {doc,collection:col};
+}
+
 async function initShared(){
   try{
+    if(STANDALONE){
+      db=localDB();
+      $("pfOffline").hidden=false;
+      $("pfOffline").innerHTML="<b>Saved on this device only.</b> Your holdings stay in this browser. Real-time family sharing works in the Claude version of Stock Compass.";
+      db.doc("portfolio/settings").onSnapshot(s=>{ const m=s.exists?s.data().members:null; pf.members=Array.isArray(m)&&m.length?m:DEFAULT_MEMBERS; renderPortfolio(); });
+      db.collection("holdings").onSnapshot(q=>{ pf.holdings=q.docs.map(d=>({id:d.id,...d.data()})); pf.loaded=true; renderPortfolio(); });
+      db.collection("quotes").onSnapshot(q=>{ let ch=false; q.docs.forEach(d=>{ const v=d.data(); if(v&&v.price>0&&(!quotes[d.id]||quotes[d.id].fetchedAt!==v.fetchedAt)){ quotes[d.id]=v; ch=true; } }); if(ch){ render(); renderPortfolio(); } });
+      return;
+    }
     db=await window.claude?.use?.("db");
     if(!db){ $("pfOffline").hidden=false; renderPortfolio(); return; }
     const u=await window.claude.use("user"); const w=u?await u.can("data.write"):null; if(w===false) canWrite=false;
@@ -937,5 +994,22 @@ buildStatic(); render(); renderPortfolio();
 if(location.hash==="#portfolio") showTab("pf");
 (async()=>{ try{ const s=await window.claude?.use?.("sample"); if(s){ sampleFn=s; renderFile(all().find(x=>x.t===selected)); } }catch(e){} })();
 initShared();
-(async()=>{ try{ const m=await window.claude?.use?.("mcp"); if(m){ mcp=m; render(); renderPortfolio(); } }catch(e){} })();
+if(STANDALONE){
+  const k=store.get("sc_avkey","");
+  if(k){ mcp=directQuoteAdapter(k); }
+  $("keyToggle").hidden=false; $("keyToggle").textContent=k?"Live prices: on":"Live prices";
+  $("keyToggle").onclick=()=>{ const f=$("keyForm"); f.hidden=!f.hidden; $("keyMsg").hidden=true; $("avKey").value=store.get("sc_avkey",""); if(!f.hidden) $("avKey").focus(); };
+  $("keyCancel").onclick=()=>{ $("keyForm").hidden=true; };
+  const applyKey=k=>{ store.set("sc_avkey",k); mcp=k?directQuoteAdapter(k):null; avStatus=null; triedQuote.clear(); $("keyToggle").textContent=k?"Live prices: on":"Live prices"; render(); renderPortfolio(); };
+  $("keyForm").addEventListener("submit",e=>{ e.preventDefault(); const k=$("avKey").value.trim(); const m=$("keyMsg");
+    if(!/^[A-Za-z0-9]{8,}$/.test(k)){ m.hidden=false; m.textContent="That doesn't look like an Alpha Vantage key. It's a string of letters and numbers."; return; }
+    applyKey(k); $("keyForm").hidden=true; });
+  $("keyRemove").onclick=()=>{ applyKey(""); $("avKey").value=""; $("keyForm").hidden=true; };
+  render(); renderPortfolio();
+} else {
+  (async()=>{ try{ const m=await window.claude?.use?.("mcp"); if(m){ mcp=m; render(); renderPortfolio(); } }catch(e){} })();
+}
 </script>
+
+</body>
+</html>
