@@ -1,0 +1,941 @@
+<title>Stock Compass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: goal picker on top; ranked list left, the selected stock's file right (full-screen sheet on phones); compare tray pinned to the bottom */
+:root{
+  --bg:#EEF2F2; --surface:#FFFFFF; --sunk:#E3EAEA; --ink:#10201F; --muted:#56696A; --line:#D3DDDC;
+  --accent:#0B6B70; --accent-ink:#FFFFFF; --accent-soft:#D6ECEC;
+  --good:#1D7A4C; --warn:#A86A12; --bad:#B03A2E; --star:#C8901A;
+  --good-soft:#DDF0E5; --warn-soft:#F6E9D2; --bad-soft:#F6DEDA;
+  --shadow:0 10px 30px rgb(16 32 31 / .14);
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Public Sans","Segoe UI",system-ui,sans-serif;
+  --f-data:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1416; --surface:#132024; --sunk:#0F1A1D; --ink:#E2EDEC; --muted:#8EA3A3; --line:#233539;
+  --accent:#4CC3C5; --accent-ink:#06191A; --accent-soft:#163B3E;
+  --good:#53C28E; --warn:#E2AE4C; --bad:#EC7B6E; --star:#E8B544;
+  --good-soft:#163527; --warn-soft:#3A2D14; --bad-soft:#3D1D1A; --shadow:0 10px 30px rgb(0 0 0 / .45); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1416; --surface:#132024; --sunk:#0F1A1D; --ink:#E2EDEC; --muted:#8EA3A3; --line:#233539;
+  --accent:#4CC3C5; --accent-ink:#06191A; --accent-soft:#163B3E;
+  --good:#53C28E; --warn:#E2AE4C; --bad:#EC7B6E; --star:#E8B544;
+  --good-soft:#163527; --warn-soft:#3A2D14; --bad-soft:#3D1D1A; --shadow:0 10px 30px rgb(0 0 0 / .45); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 18px 110px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+.num{font-family:var(--f-data);font-variant-numeric:tabular-nums}
+.label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.muted{color:var(--muted)}
+
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+header.top h1{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-.02em}
+header.top p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.notice{background:var(--warn-soft);border-radius:10px;padding:9px 14px;font-size:13px;margin-bottom:18px}
+.notice b{color:var(--warn)}
+
+/* goal picker */
+.step{display:flex;align-items:baseline;gap:10px;margin:0 0 10px}
+.step h2{font-size:18px}
+.goals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:20px}
+@media (max-width:820px){.goals{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.goal{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.goal:hover{border-color:var(--accent)}
+.goal[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.goal .g-t{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.goal .g-d{font-size:12.5px;color:var(--muted)}
+.goal svg{width:18px;height:18px;flex:none;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.search{flex:1 1 200px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
+.sortsel{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 13px;cursor:pointer;font-weight:600;font-size:13px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+
+.ledger{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ledger-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);gap:8px;flex-wrap:wrap}
+.rows{list-style:none;margin:0;padding:0}
+.rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;border-bottom:1px solid var(--line);border-left:3px solid transparent}
+.rows li:last-child{border-bottom:0}
+.rows li.cur{background:var(--accent-soft);border-left-color:var(--accent)}
+.row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 4px 12px 12px;cursor:pointer;background:transparent;border:0;text-align:left;min-width:0}
+.rows li:not(.cur):hover{background:var(--sunk)}
+.rank{font-family:var(--f-data);color:var(--muted);font-size:13px;text-align:right}
+.who{min-width:0}
+.nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{color:var(--muted);font-size:12px;display:flex;gap:8px;flex-wrap:wrap}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;white-space:nowrap}
+.good{background:var(--good-soft);color:var(--good)}
+.warn{background:var(--warn-soft);color:var(--warn)}
+.bad{background:var(--bad-soft);color:var(--bad)}
+.plain{background:var(--sunk);color:var(--muted)}
+.match{text-align:right}
+.match .big{font-family:var(--f-data);font-weight:600;font-size:19px}
+.match .sub{font-size:11px;color:var(--muted)}
+.acts{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 10px 0 4px}
+.icon-btn{border:1px solid transparent;background:transparent;border-radius:8px;width:34px;height:30px;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+.icon-btn:hover{border-color:var(--line);background:var(--surface)}
+.icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.icon-btn.on{color:var(--star)}
+.icon-btn.on svg{fill:currentColor}
+.icon-btn.cmp.on{color:var(--accent)}
+.icon-btn.cmp.on svg{fill:none}
+.empty{padding:28px 16px;color:var(--muted);text-align:center}
+
+/* stock file */
+.file{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto}
+.back{display:none}
+@media (max-width:900px){
+  .file{position:fixed;inset:0;z-index:30;border-radius:0;border:0;max-height:none;padding:calc(env(safe-area-inset-top,0px) + 14px) 18px calc(env(safe-area-inset-bottom,0px) + 100px)}
+  .file:not(.open){display:none}
+  .back{display:inline-flex;margin-bottom:12px}
+}
+.file-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.file-head h2{font-size:26px;letter-spacing:-.01em}
+.overall{display:flex;align-items:center;gap:10px}
+.dial{width:66px;height:66px}
+.dial text{font-family:var(--f-data);font-weight:600;fill:var(--ink)}
+.summary{margin:14px 0 0;font-size:16px;font-weight:500;max-width:62ch}
+.blurb{margin:6px 0 0;color:var(--muted);max-width:68ch;font-size:14px}
+.head-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+section.block{margin-top:24px}
+section.block>h3{font-size:16px;margin-bottom:10px;font-weight:700}
+.verdicts{display:grid;gap:8px}
+.verdict{display:grid;grid-template-columns:110px 74px minmax(0,1fr);gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--sunk)}
+.verdict .vt{font-weight:700;font-size:13.5px}
+.verdict .vw{font-size:12px;font-weight:700;padding:2px 0;border-radius:6px;text-align:center}
+.verdict .vx{font-size:13px;color:var(--muted)}
+@media (max-width:520px){.verdict{grid-template-columns:96px 66px;}.verdict .vx{grid-column:1/-1}}
+.calc{background:var(--sunk);border-radius:12px;padding:14px;display:grid;gap:12px}
+.calc-in{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field input,.field select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;width:100%}
+.calc-in .field{flex:1 1 120px}
+.calc-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.calc-out div{background:var(--surface);border-radius:10px;padding:10px 12px}
+.calc-out .v{font-family:var(--f-data);font-weight:600;font-size:18px}
+.small{font-size:12px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:600px){.cols{grid-template-columns:1fr}}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.list li{padding:8px 10px 8px 12px;border-radius:8px;font-size:13.5px;border-left:3px solid}
+.list.pros li{background:var(--good-soft);border-color:var(--good)}
+.list.cons li{background:var(--bad-soft);border-color:var(--bad)}
+.list.checks{counter-reset:c}
+.list.checks li{background:var(--sunk);border-color:var(--line)}
+details.nums{margin-top:24px;border-top:1px solid var(--line);padding-top:14px}
+details summary{cursor:pointer;font-weight:700;font-family:var(--f-display)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.metric{background:var(--sunk);border-radius:10px;padding:10px 12px;min-width:0}
+.metric .v{font-family:var(--f-data);font-weight:600;font-size:17px;margin-top:2px}
+.metric .h{font-size:12px;color:var(--muted);margin-top:2px}
+.ai{background:var(--sunk);border-radius:10px;padding:14px;font-size:14px;white-space:pre-wrap;max-height:420px;overflow:auto;margin-top:10px}
+.foot-links{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:13px;margin-top:18px}
+.foot-links a{color:var(--accent);font-weight:600}
+.asof{font-size:12px;color:var(--muted);margin-top:12px}
+.glossary dl{display:grid;gap:8px;margin:12px 0 0}
+.glossary dt{font-weight:700;font-size:13.5px}
+.glossary dd{margin:0 0 4px;font-size:13.5px;color:var(--muted)}
+
+/* compare */
+.tray{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 18px calc(env(safe-area-inset-bottom,0px) + 10px);background:var(--surface);border-top:1px solid var(--line);box-shadow:var(--shadow);display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+.tray .names{font-size:13px;color:var(--muted);min-width:0}
+.overlay{position:fixed;inset:0;z-index:50;background:rgb(0 0 0 / .45);display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.modal{background:var(--surface);border-radius:16px;max-width:900px;width:100%;max-height:100%;overflow:auto;padding:20px;box-shadow:var(--shadow)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.tbl-wrap{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;min-width:480px;font-size:14px}
+table.cmp th,table.cmp td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.cmp thead th{font-family:var(--f-display);font-size:15px}
+table.cmp td.best{background:var(--good-soft);font-weight:700}
+table.cmp th[scope=row]{color:var(--muted);font-weight:600;font-size:13px;white-space:nowrap}
+
+/* tabs + portfolio */
+.tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:12px;width:fit-content;max-width:100%;margin-bottom:20px;flex-wrap:wrap}
+.tab{border:0;background:transparent;padding:9px 16px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
+.pf-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:space-between;margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+@media (max-width:760px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.tile .v{font-family:var(--f-data);font-weight:600;font-size:clamp(17px,2.4vw,22px);margin-top:4px;overflow-wrap:anywhere}
+.tile .s{font-size:12px;color:var(--muted);margin-top:2px}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.panel-head h3{font-size:17px}
+.split{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--sunk);margin:8px 0 10px}
+.split i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13.5px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend b{width:10px;height:10px;border-radius:3px;display:inline-block}
+.holdings{display:grid;gap:12px}
+.holding{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:8px;min-width:0}
+.h-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.h-top h4{margin:0;font-family:var(--f-display);font-size:17px}
+.h-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.h-grid div{background:var(--sunk);border-radius:8px;padding:8px 10px;min-width:0}
+.h-grid .v{font-family:var(--f-data);font-weight:600;overflow-wrap:anywhere}
+.h-acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn.danger{color:var(--bad)}
+.btn.danger.armed{background:var(--bad);color:var(--surface);border-color:var(--bad)}
+.members-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:10px}
+form.hform{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+form.hform .full{grid-column:1/-1}
+form.hform .row-end{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.status-note{font-size:13px;color:var(--muted)}
+form.add{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+form.add .full{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+form.add .err{grid-column:1/-1;color:var(--bad);font-size:13px;margin:0}
+form.add .hint{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Stock Compass</h1>
+      <p>Find stocks that fit what you want from your money. Each one gets plain-language verdicts, strengths, risks and a calculator in your own currency. It never says buy or sell.</p>
+    </div>
+    <button class="btn" id="addToggle" type="button">+ Add a stock</button>
+  </header>
+
+  <div class="notice" role="note"><b>Check the figures.</b> Prices marked "Live" come from Alpha Vantage, and dividend yield and P/E adjust to them. Profit margins, growth, debt and Nigerian prices are approximate mid-2026 reference values. Use "Check latest figures" before you act. Not financial advice.</div>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" type="button" role="tab" id="tabExplore" aria-selected="true" aria-controls="explore">Explore stocks</button>
+    <button class="tab" type="button" role="tab" id="tabPf" aria-selected="false" aria-controls="portfolio">Our portfolio</button>
+  </div>
+
+  <section id="portfolio" role="tabpanel" aria-labelledby="tabPf" hidden>
+    <div class="notice" id="pfOffline" hidden><b>Shared portfolio unavailable here.</b> Open this page in Claude while signed in to see and edit the holdings you share.</div>
+    <div class="pf-bar">
+      <div><h2 style="font-size:24px">Our portfolio</h2><p class="small" style="margin:2px 0 0">Shared with everyone you invite to this page. Changes show up for both of you straight away.</p></div>
+      <div class="field" style="min-width:200px"><label class="label" for="pfCur">Show totals in</label><select id="pfCur"></select></div>
+    </div>
+    <div class="tiles" id="pfTiles"></div>
+    <div class="panel">
+      <div class="panel-head"><h3>Who put in what</h3><button class="btn" type="button" id="editMembers">Edit names</button></div>
+      <div id="pfSplit"></div>
+      <form id="membersForm" class="members-form" hidden></form>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Holdings</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="pfRefresh" hidden>Refresh live prices</button><button class="btn primary" type="button" id="addHolding">+ Add a holding</button></div></div>
+      <p class="status-note" id="pfRefreshNote" hidden></p>
+      <form class="hform" id="hForm" hidden></form>
+      <div class="holdings" id="pfList"></div>
+    </div>
+    <p class="asof">Values use the price you enter for each holding and approximate exchange rates. Update the "price now" on a holding to refresh its value.</p>
+  </section>
+
+  <div id="explore" role="tabpanel" aria-labelledby="tabExplore">
+  <form class="add" id="addForm" hidden>
+    <p class="hint">Add any stock you're researching. You'll find these numbers on the company's results or a quote site. Leave blank anything you don't know.</p>
+    <div class="field"><label class="label" for="a_name">Company</label><input id="a_name" placeholder="e.g. MTN Nigeria"></div>
+    <div class="field"><label class="label" for="a_ticker">Ticker</label><input id="a_ticker" placeholder="MTNN"></div>
+    <div class="field"><label class="label" for="a_country">Country</label><input id="a_country" placeholder="Nigeria"></div>
+    <div class="field"><label class="label" for="a_region">Region</label><select id="a_region"><option>Africa</option><option>North America</option><option>Europe</option><option>Asia</option></select></div>
+    <div class="field"><label class="label" for="a_sector">Sector</label><input id="a_sector" placeholder="Telecoms"></div>
+    <div class="field"><label class="label" for="a_price">Share price</label><input id="a_price" type="number" step="any" inputmode="decimal"></div>
+    <div class="field"><label class="label" for="a_cur">Price currency</label><select id="a_cur"></select></div>
+    <div class="field"><label class="label" for="a_yield">Dividend yield %</label><input id="a_yield" type="number" step="0.1" inputmode="decimal"></div>
+    <div class="field"><label class="label" for="a_margin">Profit margin %</label><input id="a_margin" type="number" step="0.1" inputmode="decimal"></div>
+    <div class="field"><label class="label" for="a_growth">Sales growth %</label><input id="a_growth" type="number" step="0.1" inputmode="decimal"></div>
+    <div class="field"><label class="label" for="a_pe">P/E ratio</label><input id="a_pe" type="number" step="0.1" inputmode="decimal"></div>
+    <div class="field"><label class="label" for="a_de">Debt / equity</label><input id="a_de" type="number" step="0.01" inputmode="decimal"></div>
+    <div class="field"><label class="label" for="a_payout">Payout ratio %</label><input id="a_payout" type="number" step="1" inputmode="decimal"></div>
+    <div class="field"><label class="label" for="a_beta">Volatility (beta)</label><input id="a_beta" type="number" step="0.1" inputmode="decimal" placeholder="1.0 = market"></div>
+    <div class="field"><label class="label" for="a_em">Emerging market?</label><select id="a_em"><option value="1">Yes</option><option value="0">No</option></select></div>
+    <p class="err" id="addErr" hidden></p>
+    <div class="full"><button class="btn" type="button" id="addCancel">Cancel</button><button class="btn primary" type="submit">Add to list</button></div>
+  </form>
+
+  <div class="step"><span class="label">Step 1</span><h2>What do you want from this money?</h2></div>
+  <div class="goals" id="goals" role="group" aria-label="Your goal"></div>
+
+  <div class="step"><span class="label">Step 2</span><h2>Browse your matches</h2></div>
+  <div class="controls">
+    <div class="chips" id="regionChips" role="group" aria-label="Region"></div>
+  </div>
+  <div class="controls">
+    <input class="search" id="q" type="search" placeholder="Search by name or ticker" aria-label="Search">
+    <select class="sortsel" id="sortBy" aria-label="Sort by">
+      <option value="match">Sort: best match for my goal</option>
+      <option value="yield">Sort: highest dividend</option>
+      <option value="margin">Sort: highest profit margin</option>
+      <option value="growth">Sort: fastest sales growth</option>
+      <option value="pe">Sort: cheapest vs earnings</option>
+    </select>
+    <select class="sortsel" id="sector" aria-label="Sector"><option value="">All sectors</option></select>
+  </div>
+
+  <div class="main">
+    <div class="ledger">
+      <div class="ledger-head"><strong id="listTitle"></strong><span class="small num" id="count"></span></div>
+      <ul class="rows" id="rows"></ul>
+    </div>
+    <article class="file" id="file" aria-live="polite"></article>
+  </div>
+  </div>
+</div>
+
+<div class="tray" id="tray" hidden>
+  <span class="names" id="trayNames"></span>
+  <button class="btn" type="button" id="trayClear">Clear</button>
+  <button class="btn primary" type="button" id="trayGo">Compare side by side</button>
+</div>
+<div class="overlay" id="overlay" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="cmpTitle" id="modal"></div></div>
+
+<script>
+/* ---------- Reference data (approximate, mid-2026). pr = share price in cu; y/m/g/p in %; de = debt/equity; b = beta ---------- */
+const BASE = [
+ {t:"DANGCEM",x:"NGX",n:"Dangote Cement",c:"Nigeria",r:"Africa",s:"Materials",pr:1066.7,cu:"NGN",y:4.2,m:22,g:20,pe:10.2,de:0.6,p:45,b:1.3,em:1,
+  d:"Africa's largest cement maker, with plants across Nigeria and about 10 other African countries.",
+  pro:["Dominant market share in Nigeria with strong pricing power."],con:["Share price swung about 37% in 2026."],
+  url:"https://www.google.com/search?q=Dangote+Cement+DANGCEM+share+price"},
+ {t:"DANGSUGAR",x:"NGX",n:"Dangote Sugar Refinery",c:"Nigeria",r:"Africa",s:"Consumer staples",pr:68,cu:"NGN",y:0,m:10.6,g:-8.9,pe:9.9,de:1.2,p:0,b:1.2,em:1,
+  d:"Nigeria's largest sugar refiner, turning imported raw sugar into table and industrial sugar.",
+  pro:["Swung back to profit in H1 2026 after losses in 2024 and 2025."],con:["Raw sugar is bought in dollars, so a weaker naira squeezes margins.","A proposed merger with NASCON could change what shareholders own."],
+  url:"https://www.google.com/search?q=Dangote+Sugar+DANGSUGAR+share+price"},
+ {t:"NASCON",x:"NGX",n:"NASCON Allied Industries",c:"Nigeria",r:"Africa",s:"Consumer staples",pr:188.9,cu:"NGN",y:null,m:24,g:0,pe:12,de:0.3,p:null,b:1.0,em:1,
+  d:"Nigeria's leading producer of salt, seasonings and tomato paste, part of the Dangote Group.",
+  pro:["H1 2026 profit after tax rose 26%."],con:["Share price fell about 14% in Q3 2026 despite higher profits."],
+  url:"https://www.google.com/search?q=NASCON+Allied+Industries+share+price"},
+ {t:"SCOM",x:"NSE Kenya",n:"Safaricom",c:"Kenya",r:"Africa",s:"Telecoms",pr:25,cu:"KES",y:7,m:10,g:10,pe:15,de:0.6,p:100,b:0.7,em:1,
+  d:"Kenya's largest mobile network and owner of the M-Pesa mobile money service.",
+  pro:["M-Pesa gives it a deep moat in African payments."],con:["Heavy spending on its Ethiopia expansion weighs on profits."],url:"https://www.google.com/finance/quote/SCOM:NAI"},
+ {t:"AAPL",x:"NASDAQ",n:"Apple",c:"United States",r:"North America",s:"Technology",pr:230,cu:"USD",y:0.5,m:24,g:5,pe:33,de:1.5,p:15,b:1.2,em:0,
+  d:"Maker of the iPhone and Mac, with a fast-growing services business (App Store, iCloud, Apple Pay).",
+  pro:["Large share buybacks shrink the share count every year."],con:["Heavily reliant on iPhone sales and on manufacturing in China."],url:"https://www.google.com/finance/quote/AAPL:NASDAQ"},
+ {t:"MSFT",x:"NASDAQ",n:"Microsoft",c:"United States",r:"North America",s:"Technology",pr:480,cu:"USD",y:0.7,m:36,g:15,pe:35,de:0.3,p:25,b:0.9,em:0,
+  d:"Software and cloud giant behind Windows, Office 365 and the Azure cloud platform.",
+  pro:["Has raised its dividend every year for over 20 years."],con:["Very large spending on AI data centres needs to pay off."],url:"https://www.google.com/finance/quote/MSFT:NASDAQ"},
+ {t:"NVDA",x:"NASDAQ",n:"NVIDIA",c:"United States",r:"North America",s:"Technology",pr:170,cu:"USD",y:0.03,m:53,g:60,pe:45,de:0.1,p:1,b:1.8,em:0,
+  d:"Designs the chips that power most AI training and data centres.",
+  pro:["Leading position in AI chips with very high margins."],con:["Depends on a few huge customers keeping up AI spending.","US export limits on chip sales to China."],url:"https://www.google.com/finance/quote/NVDA:NASDAQ"},
+ {t:"JNJ",x:"NYSE",n:"Johnson & Johnson",c:"United States",r:"North America",s:"Healthcare",pr:170,cu:"USD",y:3.2,m:18,g:5,pe:17,de:0.6,p:50,b:0.5,em:0,
+  d:"Pharmaceutical and medical-device company.",
+  pro:["Has raised its dividend for over 60 years in a row."],con:["Ongoing legal claims over talc products."],url:"https://www.google.com/finance/quote/JNJ:NYSE"},
+ {t:"KO",x:"NYSE",n:"Coca-Cola",c:"United States",r:"North America",s:"Consumer staples",pr:70,cu:"USD",y:2.9,m:23,g:3,pe:24,de:1.6,p:70,b:0.5,em:0,
+  d:"The world's largest soft-drink company, selling in over 200 countries.",
+  pro:["Over 60 straight years of dividend increases."],con:["Slow growth; sugary drinks face health taxes in many countries."],url:"https://www.google.com/finance/quote/KO:NYSE"},
+ {t:"PG",x:"NYSE",n:"Procter & Gamble",c:"United States",r:"North America",s:"Consumer staples",pr:155,cu:"USD",y:2.5,m:19,g:2,pe:24,de:0.7,p:60,b:0.4,em:0,
+  d:"Maker of household brands such as Tide, Pampers and Gillette.",
+  pro:["Everyday products sell steadily in good and bad economies."],con:["Growth is slow and depends on price increases."],url:"https://www.google.com/finance/quote/PG:NYSE"},
+ {t:"JPM",x:"NYSE",n:"JPMorgan Chase",c:"United States",r:"North America",s:"Financials",pr:290,cu:"USD",y:2.0,m:30,g:5,pe:14,de:null,p:28,b:1.1,em:0,
+  d:"The largest US bank by assets, spanning consumer, business and investment banking.",
+  pro:["Widely seen as one of the best-run large banks."],con:["Bank profits fall when the economy slows and loan losses rise."],url:"https://www.google.com/finance/quote/JPM:NYSE"},
+ {t:"XOM",x:"NYSE",n:"ExxonMobil",c:"United States",r:"North America",s:"Energy",pr:112,cu:"USD",y:3.6,m:10,g:-3,pe:15,de:0.15,p:50,b:0.9,em:0,
+  d:"One of the world's largest oil and gas producers and refiners.",
+  pro:["Low debt and over 40 years of dividend increases."],con:["Profits rise and fall with oil prices."],url:"https://www.google.com/finance/quote/XOM:NYSE"},
+ {t:"VZ",x:"NYSE",n:"Verizon",c:"United States",r:"North America",s:"Telecoms",pr:43,cu:"USD",y:6.3,m:13,g:1,pe:10,de:1.6,p:60,b:0.4,em:0,
+  d:"One of the two largest US mobile and broadband carriers.",
+  pro:["High dividend backed by steady subscription income."],con:["Large debt load and very little growth."],url:"https://www.google.com/finance/quote/VZ:NYSE"},
+ {t:"RY",x:"TSX",n:"Royal Bank of Canada",c:"Canada",r:"North America",s:"Financials",pr:190,cu:"CAD",y:3.3,m:28,g:8,pe:14,de:null,p:45,b:0.9,em:0,
+  d:"Canada's largest bank, with wealth management and capital-markets arms.",
+  pro:["Canadian banks have long records of steady dividends."],con:["Exposed to Canadian housing and consumer debt."],url:"https://www.google.com/finance/quote/RY:TSE"},
+ {t:"ENB",x:"TSX",n:"Enbridge",c:"Canada",r:"North America",s:"Energy",pr:63,cu:"CAD",y:6.0,m:10,g:10,pe:20,de:1.5,p:120,b:0.8,em:0,
+  d:"Operates oil and gas pipelines and a gas utility across North America.",
+  pro:["Pipeline fees come from long-term contracts, so cash flow is steady."],con:["Relies on cash flow, not accounting profit, to cover the dividend."],url:"https://www.google.com/finance/quote/ENB:TSE"},
+ {t:"FTS",x:"TSX",n:"Fortis",c:"Canada",r:"North America",s:"Utilities",pr:70,cu:"CAD",y:3.8,m:14,g:3,pe:19,de:1.4,p:70,b:0.4,em:0,
+  d:"Regulated electricity and gas utility in Canada, the US and the Caribbean.",
+  pro:["Has raised its dividend for 50 years in a row."],con:["Utilities are hurt when interest rates rise."],url:"https://www.google.com/finance/quote/FTS:TSE"},
+ {t:"CNQ",x:"TSX",n:"Canadian Natural Resources",c:"Canada",r:"North America",s:"Energy",pr:44,cu:"CAD",y:5.0,m:18,g:0,pe:13,de:0.4,p:65,b:1.1,em:0,
+  d:"One of Canada's largest oil and gas producers, with long-life oil sands assets.",
+  pro:["Oil sands reserves last for decades with little decline."],con:["Profits follow oil prices; climate rules add cost."],url:"https://www.google.com/finance/quote/CNQ:TSE"},
+ {t:"NESN",x:"SIX",n:"Nestlé",c:"Switzerland",r:"Europe",s:"Consumer staples",pr:80,cu:"CHF",y:3.8,m:11,g:-1,pe:18,de:1.3,p:75,b:0.5,em:0,
+  d:"The world's largest food company: Nescafé, KitKat, Purina and more.",
+  pro:["Has raised its dividend every year for decades."],con:["Sales have been flat and the share price has lagged since 2022."],url:"https://www.google.com/finance/quote/NESN:SWX"},
+ {t:"ASML",x:"Euronext",n:"ASML",c:"Netherlands",r:"Europe",s:"Technology",pr:700,cu:"EUR",y:1.0,m:28,g:10,pe:32,de:0.2,p:35,b:1.3,em:0,
+  d:"The only maker of the EUV machines needed to produce the most advanced chips.",
+  pro:["A near-monopoly in advanced chipmaking equipment."],con:["Export limits on sales to China; orders are lumpy."],url:"https://www.google.com/finance/quote/ASML:AMS"},
+ {t:"TTE",x:"Euronext",n:"TotalEnergies",c:"France",r:"Europe",s:"Energy",pr:55,cu:"EUR",y:5.5,m:8,g:-5,pe:9,de:0.5,p:55,b:0.8,em:0,
+  d:"French oil, gas and electricity group with a growing renewables business.",
+  pro:["High dividend plus share buybacks."],con:["Earnings follow oil and gas prices."],url:"https://www.google.com/finance/quote/TTE:EPA"},
+ {t:"ULVR",x:"LSE",n:"Unilever",c:"United Kingdom",r:"Europe",s:"Consumer staples",pr:45,cu:"GBP",y:3.2,m:11,g:2,pe:20,de:1.5,p:70,b:0.4,em:0,
+  d:"Consumer goods group behind Dove, Knorr and Hellmann's; sells heavily in emerging markets.",
+  pro:["Steady demand for everyday products."],con:["Restructuring and slow volume growth."],url:"https://www.google.com/finance/quote/ULVR:LON"},
+ {t:"HSBA",x:"LSE",n:"HSBC",c:"United Kingdom",r:"Europe",s:"Financials",pr:9.5,cu:"GBP",y:5.5,m:30,g:2,pe:9,de:null,p:55,b:0.9,em:0,
+  d:"Global bank that earns most of its profit in Asia, especially Hong Kong.",
+  pro:["High dividend and low valuation."],con:["Exposed to China and Hong Kong property and politics."],url:"https://www.google.com/finance/quote/HSBA:LON"},
+ {t:"2330",x:"TWSE",n:"Taiwan Semiconductor (TSMC)",c:"Taiwan",r:"Asia",s:"Technology",pr:1100,cu:"TWD",y:1.3,m:42,g:30,pe:22,de:0.25,p:30,b:1.2,em:1,
+  d:"Makes chips for Apple, NVIDIA and most other chip designers; the world's largest contract chipmaker.",
+  pro:["Makes most of the world's most advanced chips."],con:["Geopolitical risk around Taiwan."],url:"https://www.google.com/finance/quote/2330:TPE"},
+ {t:"7203",x:"TSE",n:"Toyota Motor",c:"Japan",r:"Asia",s:"Consumer discretionary",pr:2800,cu:"JPY",y:3.0,m:9,g:3,pe:9,de:1.1,p:30,b:0.6,em:0,
+  d:"The world's best-selling carmaker and a leader in hybrid vehicles.",
+  pro:["Strong in hybrids and very cash-rich."],con:["Car sales are cyclical; tariffs and the shift to electric cars add uncertainty."],url:"https://www.google.com/finance/quote/7203:TYO"}
+];
+/* US listings used for live prices: [symbol, local shares per US share] */
+const AV={AAPL:["AAPL",1],MSFT:["MSFT",1],NVDA:["NVDA",1],JNJ:["JNJ",1],KO:["KO",1],PG:["PG",1],JPM:["JPM",1],XOM:["XOM",1],VZ:["VZ",1],
+  RY:["RY",1],ENB:["ENB",1],FTS:["FTS",1],CNQ:["CNQ",1],NESN:["NSRGY",1],ASML:["ASML",1],TTE:["TTE",1],ULVR:["UL",1],HSBA:["HSBC",5],"2330":["TSM",5],"7203":["TM",10]};
+BASE.forEach(s=>{ const a=AV[s.t]; if(a){ s.av=a[0]; s.avr=a[1]; } });
+const AVS="Alpha Vantage MCP Server";
+let quotes={}, mcp=null, avStatus=null; const triedQuote=new Set();
+/* Approximate units per 1 USD, mid-2026 */
+const FX={USD:1,CAD:1.38,NGN:1320,KES:129,GBP:0.75,EUR:0.86,CHF:0.80,JPY:147,TWD:30};
+const CUR_NAME={USD:"US dollar",CAD:"Canadian dollar",NGN:"Nigerian naira",KES:"Kenyan shilling",GBP:"British pound",EUR:"Euro",CHF:"Swiss franc",JPY:"Japanese yen",TWD:"Taiwan dollar"};
+const AS_OF="Reference figures are approximate as of mid-2026; exchange rates are approximate too.";
+
+/* ---------- Goals ---------- */
+const GOALS={
+  income:{t:"Steady income",d:"Regular dividend payments",w:{income:2.6,safety:1.4,profit:1,value:.8,growth:.3},
+    icon:'<path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'},
+  growth:{t:"Grow my money",d:"Fast-growing companies",w:{growth:2.6,profit:1.5,value:.5,safety:.6,income:.2},
+    icon:'<path d="M3 17l6-6 4 4 8-8M14 7h7v7"/>'},
+  steady:{t:"Play it safe",d:"Less risk, smaller swings",w:{safety:2.6,income:1.2,profit:1.2,value:.8,growth:.3},
+    icon:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'},
+  balanced:{t:"A bit of everything",d:"Balanced mix",w:{income:1,profit:1.2,growth:1,value:.8,safety:1.2},
+    icon:'<path d="M12 3v18M5 7h14M5 7l-3 7a4 4 0 0 0 6 0zM19 7l-3 7a4 4 0 0 0 6 0z"/>'}
+};
+const DIMS=[["income","Dividend income"],["profit","Profitability"],["growth","Growth"],["value","Price vs earnings"],["safety","Risk level"]];
+
+/* ---------- Scoring ---------- */
+const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
+function scores(s){
+  const o={};
+  if(s.y==null) o.income=null;
+  else { let v=clamp(s.y/7*100); if(s.p!=null&&s.p>100) v-=30; else if(s.p!=null&&s.p>85) v-=12; if(s.y===0) v=0; o.income=Math.round(clamp(v)); }
+  o.profit=s.m==null?null:Math.round(clamp(s.m*2.5));
+  o.growth=s.g==null?null:Math.round(clamp((s.g+10)/40*100));
+  o.value=s.pe==null||s.pe<=0?null:Math.round(clamp(100-(s.pe-8)*2.6));
+  const parts=[]; if(s.de!=null) parts.push(clamp(100-s.de*35)); if(s.b!=null) parts.push(clamp(100-(s.b-0.4)*55));
+  let saf=parts.length?parts.reduce((a,b)=>a+b)/parts.length:55; if(s.em) saf-=15;
+  o.safety=Math.round(clamp(saf));
+  return o;
+}
+function matchScore(sc,goal){ const w=GOALS[goal].w; let t=0,wt=0; for(const k in w){ if(sc[k]!=null){t+=sc[k]*w[k];wt+=w[k];} } return Math.round(t/wt); }
+const lvl=v=>v==null?"plain":v>=65?"good":v>=40?"warn":"bad";
+const col=v=>v==null?"var(--line)":v>=65?"var(--good)":v>=40?"var(--warn)":"var(--bad)";
+function word(k,v){
+  if(v==null) return "No data";
+  if(k==="safety") return v>=65?"Lower risk":v>=40?"Medium risk":"Higher risk";
+  if(k==="value") return v>=65?"Cheap":v>=40?"Fair price":"Expensive";
+  if(k==="income"&&v===0) return "None";
+  return v>=65?"Strong":v>=40?"Fair":"Weak";
+}
+const fmt=(v,suf="%")=>v==null?"No data":(Math.round(v*10)/10)+suf;
+const money=(v,cu)=>{ try{ return new Intl.NumberFormat(undefined,{style:"currency",currency:cu,maximumFractionDigits:v>=100?0:2}).format(v);}catch(e){ return cu+" "+v.toFixed(2);} };
+
+function explain(s){
+  return {
+    income: s.y==null?"No dividend data.":s.y===0?"Pays no regular dividend right now.":`Pays about ${s.y}% a year at today's price${s.p!=null?`, using ${s.p}% of its profit`:""}.`,
+    profit: s.m==null?"No margin data.":`Keeps about ${Math.round(s.m)} of every 100 in sales as profit.`,
+    growth: s.g==null?"No growth data.":s.g<0?`Sales shrank about ${Math.abs(s.g)}% last year.`:`Sales grew about ${s.g}% last year.`,
+    value: s.pe==null?"No P/E data.":`You pay about ${s.pe} years of current profit for the shares.`,
+    safety: [s.de!=null?(s.de>=1.3?"carries a lot of debt":s.de<=0.4?"carries little debt":"carries moderate debt"):null,
+             s.b!=null?(s.b>=1.3?"price swings more than the market":s.b<=0.6?"price swings less than the market":"price moves about with the market"):null,
+             s.em?"emerging-market and currency risk":null].filter(Boolean).join("; ").replace(/^./,c=>c.toUpperCase())+"."
+  };
+}
+function summary(s,sc){
+  const nice={income:"pays a good dividend",profit:"is very profitable",growth:"is growing fast",value:"is cheaply priced",safety:"is relatively low-risk"};
+  const bad={income:"pays little or no dividend",profit:"has thin profit margins",growth:"has shrinking or slow sales",value:"is expensive for its earnings",safety:"carries higher risk"};
+  const ks=DIMS.map(d=>d[0]).filter(k=>sc[k]!=null);
+  const best=ks.filter(k=>sc[k]>=65).sort((a,b)=>sc[b]-sc[a]).slice(0,2);
+  const worst=ks.filter(k=>sc[k]<40).sort((a,b)=>sc[a]-sc[b]).slice(0,1);
+  let t=best.length?`A company that ${best.map(k=>nice[k]).join(" and ")}`:"A middle-of-the-road company on most measures";
+  if(worst.length) t+=`, but ${bad[worst[0]]}`;
+  return t+".";
+}
+function prosCons(s){
+  const pros=[...(s.pro||[])],cons=[...(s.con||[])];
+  if(s.y!=null&&s.y>=4) pros.push(`High dividend: about ${s.y}% a year at today's price.`);
+  if(s.y>0&&s.p!=null&&s.p<=70) pros.push(`Dividend looks affordable: it pays out ${s.p}% of profit and keeps the rest.`);
+  if(s.p!=null&&s.p>90) cons.push(`Pays out ${s.p}% of profit as dividends; if profit falls, the dividend could be cut.`);
+  if(s.y===0||s.y==null) cons.push("No regular dividend; your return depends on the share price rising.");
+  if(s.m!=null&&s.m>=20) pros.push(`Strong profit margin of about ${Math.round(s.m)}%.`);
+  if(s.m!=null&&s.m<9) cons.push(`Thin profit margin (about ${s.m}%), so rising costs hurt quickly.`);
+  if(s.g!=null&&s.g>=10) pros.push(`Sales growing fast (about ${s.g}% a year).`);
+  if(s.g!=null&&s.g<0) cons.push(`Sales fell about ${Math.abs(s.g)}% last year.`);
+  if(s.pe!=null&&s.pe<=12) pros.push(`Low price for its earnings (P/E about ${s.pe}), though a low price can mean the market expects trouble.`);
+  if(s.pe!=null&&s.pe>=30) cons.push(`Expensive for its earnings (P/E about ${s.pe}); the price assumes strong growth continues.`);
+  if(s.de!=null&&s.de>=1.3) cons.push(`High debt (about ${s.de}× equity) makes it sensitive to interest rates.`);
+  if(s.de!=null&&s.de<=0.4) pros.push("Low debt gives it room to handle a downturn.");
+  if(s.b!=null&&s.b>=1.3) cons.push(`Share price swings more than the market (beta about ${s.b}).`);
+  if(s.b!=null&&s.b<=0.6) pros.push("Share price tends to move less than the overall market.");
+  if(s.em) cons.push("Emerging market: currency swings, thinner trading and policy changes can hit returns in your own currency.");
+  return {pros,cons};
+}
+function checks(s){
+  const c=["Read the latest quarterly results and compare them with a year ago.","Confirm today's price and dividend on the exchange or a quote site."];
+  if(s.y>0) c.push("Look at the dividend history: raised, held or cut over the past 5 years?");
+  if(s.s==="Financials") c.push("For banks, check loan losses and capital ratios rather than debt.");
+  if(s.s==="Energy") c.push("Ask how the business does if oil prices drop 20–30%.");
+  if(s.s==="Technology") c.push("Check how much revenue comes from the top few customers or products.");
+  if(s.em) c.push("Work out your return in your own currency, not just the local one.");
+  c.push("Decide what share of your savings this would be, and how long you can leave it invested.");
+  return c;
+}
+
+/* ---------- State ---------- */
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+let custom=store.get("sc_custom",[]), watch=store.get("sc_watch",[]), goal=store.get("sc_goal","balanced"),
+    myCur=store.get("sc_cur","CAD"), region=store.get("sc_region",""), cmp=[], selected=null, aiCache={}, sampleFn=null, calcState={};
+function liveOf(s){ if(!s.av) return null; const q=quotes[s.av]; if(!q||!(q.price>0)||!FX[s.cu]) return null; return {local:q.price/(s.avr||1)*FX[s.cu],q}; }
+const all=()=>[...BASE,...custom].map(s0=>{
+  let s=s0; const L=liveOf(s0);
+  if(L&&s0.pr){ const f=L.local/s0.pr; s={...s0,pr:L.local,y:s0.y==null?null:Math.round(s0.y/f*100)/100,pe:s0.pe==null?null:Math.round(s0.pe*f*10)/10,live:L.q}; }
+  const sc=scores(s); return {...s,sc,match:matchScore(sc,goal)};
+});
+function needsQuote(s){ if(!s.av) return false; const q=quotes[s.av]; return !q||!q.fetchedAt||Date.now()-Date.parse(q.fetchedAt)>6*3600e3; }
+async function fetchQuote(sym,force){
+  if(!mcp||(!force&&triedQuote.has(sym))) return false;
+  triedQuote.add(sym);
+  try{
+    const r=await mcp.callTool(AVS,"GLOBAL_QUOTE",{symbol:sym,datatype:"json"},{cache:{staleTime:300000,gcTime:86400000}});
+    const p=r&&r.payload; const g=p&&typeof p==="object"?p["Global Quote"]:null;
+    if(!g||!g["05. price"]){ avStatus=p&&p.error?"limit":"nodata"; return false; }
+    const q={price:+g["05. price"],changePct:parseFloat(g["10. change percent"])||0,day:g["07. latest trading day"]||"",fetchedAt:new Date().toISOString()};
+    quotes[sym]=q; avStatus="ok";
+    if(db&&canWrite) db.doc("quotes/"+sym).set(q).catch(()=>{});
+    return true;
+  }catch(e){ avStatus=e&&e.code||"upstream_error"; return false; }
+}
+function avMessage(){
+  switch(avStatus){
+    case "server_not_connected": return "Connect Alpha Vantage in Claude's Settings → Connectors to see live prices.";
+    case "needs_reauth": return "Reconnect Alpha Vantage in Claude's Settings → Connectors to refresh prices.";
+    case "not_in_manifest": return "Live prices are turned off for this page. You can allow Alpha Vantage from the page's permissions.";
+    case "limit": return "Alpha Vantage's free daily limit is used up. Showing the last saved price; try again tomorrow.";
+    case "nodata": return "Alpha Vantage has no price for this stock.";
+    case null: case "ok": return "";
+    default: return "Couldn't get a live price just now.";
+  }
+}
+const $=id=>document.getElementById(id);
+const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ICON={star:'<svg viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>',
+  cmp:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/></svg>',
+  cmpOn:'<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>'};
+
+function buildStatic(){
+  $("goals").innerHTML=Object.entries(GOALS).map(([k,g])=>`<button class="goal" type="button" data-g="${k}" aria-pressed="${k===goal}">
+    <span class="g-t"><svg viewBox="0 0 24 24">${g.icon}</svg>${g.t}</span><span class="g-d">${g.d}</span></button>`).join("");
+  const regs=["","Africa","North America","Europe","Asia","★ Watchlist"];
+  $("regionChips").innerHTML=regs.map(r=>`<button class="chip" type="button" data-r="${r}" aria-pressed="${r===region}">${r||"All regions"}</button>`).join("");
+  $("a_cur").innerHTML=Object.keys(FX).map(c=>`<option>${c}</option>`).join("");
+  fillSectors();
+}
+function fillSectors(){
+  const sel=$("sector"),cur=sel.value,secs=[...new Set(all().map(s=>s.s))].sort();
+  sel.innerHTML='<option value="">All sectors</option>'+secs.map(s=>`<option>${esc(s)}</option>`).join(""); sel.value=secs.includes(cur)?cur:"";
+}
+const SORT={match:{v:s=>s.match,show:s=>[s.match,"match"]},yield:{v:s=>s.y??-1,show:s=>[fmt(s.y),"dividend"]},
+  margin:{v:s=>s.m??-99,show:s=>[fmt(s.m),"margin"]},growth:{v:s=>s.g??-99,show:s=>[fmt(s.g),"growth"]},
+  pe:{v:s=>s.pe==null?-999:-s.pe,show:s=>[s.pe==null?"–":s.pe+"×","P/E"]}};
+
+function filtered(){
+  const q=$("q").value.trim().toLowerCase(),sec=$("sector").value,sortBy=$("sortBy").value;
+  return all().filter(s=>(region===""||(region==="★ Watchlist"?watch.includes(s.t):s.r===region))&&(!sec||s.s===sec)&&(!q||(s.n+" "+s.t).toLowerCase().includes(q)))
+    .sort((a,b)=>SORT[sortBy].v(b)-SORT[sortBy].v(a));
+}
+function render(keepSheet){
+  document.querySelectorAll("#goals .goal").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===goal));
+  document.querySelectorAll("#regionChips .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.r===region));
+  const sortBy=$("sortBy").value, list=filtered();
+  $("listTitle").textContent=sortBy==="match"?`Best matches for "${GOALS[goal].t}"`:$("sortBy").selectedOptions[0].text.replace("Sort: ","").replace(/^./,c=>c.toUpperCase());
+  $("count").textContent=`${list.length} stocks`;
+  if(!list.length){
+    $("rows").innerHTML=`<li class="empty" style="display:block">${region==="★ Watchlist"?"Your watchlist is empty. Tap the star next to any stock to save it here.":"No stocks match. Clear the search or pick another region."}</li>`;
+  } else {
+    if(!selected||!all().find(s=>s.t===selected)) selected=list[0].t;
+    $("rows").innerHTML=list.map((s,i)=>{
+      const [big,sub]=SORT[sortBy].show(s), w=watch.includes(s.t), c=cmp.includes(s.t);
+      const tagKeys=goal==="income"?["income","safety","profit"]:goal==="growth"?["growth","profit","value"]:goal==="steady"?["safety","income","profit"]:["profit","income","safety"];
+      return `<li class="${s.t===selected?"cur":""}">
+        <button class="row" type="button" data-t="${esc(s.t)}">
+          <span class="rank">${i+1}</span>
+          <span class="who"><div class="nm">${esc(s.n)}</div>
+            <div class="meta"><span class="num">${esc(s.t)}</span><span>${esc(s.c)}</span>${s.live?`<span class="tag good">Live price</span>`:""}</div>
+            <div class="tags">${tagKeys.map(k=>`<span class="tag ${lvl(s.sc[k])}">${DIMS.find(d=>d[0]===k)[1].replace("Dividend income","Dividend").replace("Profitability","Profit")}: ${word(k,s.sc[k])}</span>`).join("")}</div></span>
+          <span class="match"><div class="big">${esc(big)}</div><div class="sub">${sub}</div></span>
+        </button>
+        <span class="acts">
+          <button class="icon-btn star ${w?"on":""}" type="button" data-star="${esc(s.t)}" aria-pressed="${w}" aria-label="${w?"Remove from":"Add to"} watchlist" title="Watchlist">${ICON.star}</button>
+          <button class="icon-btn cmp ${c?"on":""}" type="button" data-cmp="${esc(s.t)}" aria-pressed="${c}" aria-label="${c?"Remove from":"Add to"} comparison" title="Compare">${c?ICON.cmpOn:ICON.cmp}</button>
+        </span></li>`;
+    }).join("");
+  }
+  renderFile(all().find(s=>s.t===selected));
+  if(!keepSheet) {}
+  renderTray();
+}
+
+function dial(v){
+  const r=26,c=2*Math.PI*r,off=c*(1-v/100);
+  return `<svg class="dial" viewBox="0 0 64 64" role="img" aria-label="Match ${v} out of 100">
+    <circle cx="32" cy="32" r="${r}" fill="none" stroke="var(--sunk)" stroke-width="7"/>
+    <circle cx="32" cy="32" r="${r}" fill="none" stroke="${col(v)}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 32 32)"/>
+    <text x="32" y="37" text-anchor="middle" font-size="16">${v}</text></svg>`;
+}
+
+function renderFile(s){
+  const f=$("file");
+  if(!s){ f.innerHTML='<p class="empty">Pick a stock from the list to see its file.</p>'; return; }
+  const sc=s.sc, why=explain(s), pc=prosCons(s), w=watch.includes(s.t);
+  const cs=calcState[s.t]||{price:s.pr??"",amount:1000};
+  f.innerHTML=`
+  <button class="btn back" type="button" id="backBtn">← Back to list</button>
+  <div class="file-head">
+    <div style="min-width:0"><h2>${esc(s.n)}</h2><div class="meta"><span class="num">${esc(s.t)}</span><span>${esc(s.x||"")}</span><span>${esc(s.c)}</span><span>${esc(s.s)}</span></div></div>
+    <div class="overall">${dial(s.match)}<div><div class="label">Match</div><div class="small">for "${GOALS[goal].t}"</div></div></div>
+  </div>
+  <div class="small" style="margin-top:8px" id="priceLine">${s.live
+    ?`<span class="tag good">Live</span> <strong class="num" style="color:var(--ink)">${money(s.pr,s.cu)}</strong> <span class="${s.live.changePct>=0?"pos":"neg"}">${s.live.changePct>=0?"▲":"▼"} ${Math.abs(s.live.changePct).toFixed(2)}%</span> · price on ${esc(s.live.day)} · Alpha Vantage${s.cu!=="USD"||s.avr>1?" (from the US-listed share, converted)":""}`
+    :`<span class="tag plain">Not live</span> Reference price ${s.pr!=null?money(s.pr,s.cu):"not available"}${s.av?"":" · no live feed for this market"}`}
+    ${avMessage()&&!s.live&&s.av?`<div style="margin-top:4px">${esc(avMessage())}</div>`:""}</div>
+  <p class="summary">${esc(summary(s,sc))}</p>
+  ${s.d?`<p class="blurb">${esc(s.d)}</p>`:""}
+  <div class="head-acts">
+    <button class="btn" type="button" id="fStar" aria-pressed="${w}">${w?"★ On your watchlist":"☆ Add to watchlist"}</button>
+    <button class="btn" type="button" id="fCmp">${cmp.includes(s.t)?"✓ In comparison":"Add to comparison"}</button>
+    <button class="btn" type="button" id="fPf">+ Add to our portfolio</button>
+  </div>
+
+  <section class="block"><h3>At a glance</h3><div class="verdicts">
+    ${DIMS.map(([k,l])=>`<div class="verdict"><span class="vt">${l}</span><span class="vw ${lvl(sc[k])}">${word(k,sc[k])}</span><span class="vx">${esc(why[k])}</span></div>`).join("")}
+  </div></section>
+
+  <section class="block"><h3>What would it cost me?</h3>
+    <div class="calc">
+      <div class="calc-in">
+        <div class="field"><label class="label" for="cAmt">I want to invest</label><input id="cAmt" type="number" min="0" step="any" inputmode="decimal" value="${esc(cs.amount)}"></div>
+        <div class="field"><label class="label" for="cCur">In my currency</label><select id="cCur">${Object.keys(FX).map(c=>`<option value="${c}" ${c===myCur?"selected":""}>${c} · ${CUR_NAME[c]}</option>`).join("")}</select></div>
+        <div class="field"><label class="label" for="cPrice">Share price (${esc(s.cu||"")})</label><input id="cPrice" type="number" min="0" step="any" inputmode="decimal" value="${esc(cs.price)}"></div>
+      </div>
+      <div class="calc-out" id="calcOut"></div>
+      <p class="small" style="margin:0">Price shown is approximate; type in today's price for an exact answer. Excludes broker fees and tax on dividends.</p>
+    </div>
+  </section>
+
+  <section class="block cols">
+    <div><h3>Strengths</h3><ul class="list pros">${pc.pros.map(t=>`<li>${esc(t)}</li>`).join("")||"<li>None stand out from the numbers.</li>"}</ul></div>
+    <div><h3>Risks</h3><ul class="list cons">${pc.cons.map(t=>`<li>${esc(t)}</li>`).join("")||"<li>No major flags from the numbers.</li>"}</ul></div>
+  </section>
+
+  <section class="block"><h3>Check before you decide</h3><ul class="list checks">${checks(s).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></section>
+
+  <section class="block" id="aiBlock" hidden><h3>Ask Claude for a deeper write-up</h3>
+    <p class="small" style="margin:0 0 10px">A neutral brief on the business, its track record and what to watch, from Claude's general knowledge. It doesn't see live prices, so check anything recent.</p>
+    <button class="btn primary" type="button" id="aiBtn">Write a deeper analysis</button>
+    <div class="ai" id="aiOut" hidden></div>
+  </section>
+
+  <details class="nums"><summary>See the numbers behind this</summary>
+    <div class="metrics">
+    ${[["Dividend yield",fmt(s.y),"Yearly dividend ÷ share price"],["Profit margin",fmt(s.m),"Profit kept from each 100 of sales"],
+       ["Sales growth",fmt(s.g),"Change in sales over a year"],["P/E ratio",s.pe==null?"No data":s.pe+"×","Share price ÷ yearly profit per share"],
+       ["Payout ratio",fmt(s.p),"Share of profit paid as dividends"],["Debt / equity",s.de==null?(s.s==="Financials"?"N/A for banks":"No data"):s.de+"×","Borrowing vs owners' money"],
+       ["Volatility (beta)",s.b==null?"No data":s.b+"×","1.0 moves with the market"],["Share price",s.pr==null?"No data":money(s.pr,s.cu),"Approximate, mid-2026"]]
+      .map(([l,v,h])=>`<div class="metric"><div class="label">${l}</div><div class="v">${v}</div><div class="h">${h}</div></div>`).join("")}
+    </div>
+  </details>
+  <details class="nums glossary"><summary>What do these words mean?</summary><dl>
+    <dt>Dividend</dt><dd>Cash a company pays shareholders out of its profit, usually once to four times a year.</dd>
+    <dt>Dividend yield</dt><dd>The yearly dividend as a percentage of the share price. 4% means about 4 back each year for every 100 invested.</dd>
+    <dt>Profit margin</dt><dd>How much of each sale the company keeps as profit after all costs.</dd>
+    <dt>P/E ratio</dt><dd>Share price divided by profit per share. Lower can mean cheaper, or that the market expects problems.</dd>
+    <dt>Payout ratio</dt><dd>How much of its profit the company pays out as dividends. Above 100% means it pays more than it earns.</dd>
+    <dt>Beta</dt><dd>How much the price tends to swing compared with the overall market. 1.5 means about 50% bigger swings.</dd>
+    <dt>Emerging market</dt><dd>A developing economy. Often more growth, but more currency and political risk.</dd>
+  </dl></details>
+
+  <div class="foot-links">${s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener">Check latest figures ↗</a>`:""}
+    ${s.custom?`<button class="btn" type="button" id="removeBtn">Remove this stock</button>`:""}</div>
+  <p class="asof">${s.custom?"Figures entered by you.":AS_OF} Scores are a simple formula over these numbers, meant to start your research, not replace it.</p>`;
+
+  $("backBtn").onclick=()=>{ f.classList.remove("open"); document.body.style.overflow=""; };
+  $("fStar").onclick=()=>toggleWatch(s.t);
+  $("fCmp").onclick=()=>toggleCmp(s.t);
+  $("fPf").onclick=()=>{ f.classList.remove("open"); document.body.style.overflow=""; showTab("pf"); openHoldingForm(null,{name:s.n,ticker:s.t,market:s.x||"",currency:s.cu||"USD",pricePaid:s.pr??"",currentPrice:s.pr??"",status:"planned"}); };
+  const rb=$("removeBtn"); if(rb) rb.onclick=()=>{ custom=custom.filter(c=>c.t!==s.t); store.set("sc_custom",custom); watch=watch.filter(t=>t!==s.t); cmp=cmp.filter(t=>t!==s.t); selected=null; f.classList.remove("open"); fillSectors(); render(); };
+  const upd=()=>{ calcState[s.t]={amount:$("cAmt").value,price:$("cPrice").value}; myCur=$("cCur").value; store.set("sc_cur",myCur); renderCalc(s); };
+  ["cAmt","cPrice"].forEach(id=>$(id).addEventListener("input",upd)); $("cCur").addEventListener("change",upd);
+  renderCalc(s);
+  if(sampleFn){ $("aiBlock").hidden=false; wireAI(s); }
+  if(mcp&&needsQuote(s)&&!triedQuote.has(s.av)){ const sym=s.av; fetchQuote(sym).then(ok=>{ if(selected===s.t){ if(ok) delete calcState[s.t]; render(); } }); }
+}
+
+function renderCalc(s){
+  const amt=parseFloat($("cAmt").value), price=parseFloat($("cPrice").value), out=$("calcOut");
+  if(!(amt>0)||!(price>0)||!FX[s.cu]){ out.innerHTML=`<div><div class="label">Result</div><div class="small">Enter an amount and a share price.</div></div>`; return; }
+  const priceMine=price/FX[s.cu]*FX[myCur], shares=Math.floor(amt/priceMine), spent=shares*priceMine;
+  const divYear=s.y?spent*s.y/100:0;
+  out.innerHTML=`
+    <div><div class="label">1 share costs</div><div class="v">${money(priceMine,myCur)}</div><div class="small">${money(price,s.cu)} locally</div></div>
+    <div><div class="label">You could buy</div><div class="v">${shares.toLocaleString()} shares</div><div class="small">for ${money(spent,myCur)}</div></div>
+    <div><div class="label">Dividends a year</div><div class="v">${s.y?"≈ "+money(divYear,myCur):"None"}</div><div class="small">${s.y?"if the dividend holds":"no regular dividend"}</div></div>`;
+}
+
+/* ---------- Watchlist & compare ---------- */
+function toggleWatch(t){
+  watch=watch.includes(t)?watch.filter(x=>x!==t):[...watch,t]; store.set("sc_watch",watch); render();
+  if(db&&canWrite) db.doc("portfolio/watchlist").set({tickers:watch}).catch(()=>{});
+}
+function toggleCmp(t){
+  if(cmp.includes(t)) cmp=cmp.filter(x=>x!==t);
+  else { if(cmp.length>=3) cmp.shift(); cmp.push(t); }
+  render();
+}
+function renderTray(){
+  const tray=$("tray"); tray.hidden=cmp.length===0;
+  const names=cmp.map(t=>all().find(s=>s.t===t)?.n).filter(Boolean);
+  $("trayNames").textContent=cmp.length===1?`${names[0]} selected. Pick 1 or 2 more to compare.`:`Comparing: ${names.join(", ")}`;
+  $("trayGo").disabled=cmp.length<2;
+}
+function openCompare(){
+  const ss=cmp.map(t=>all().find(s=>s.t===t)).filter(Boolean);
+  const rows=[
+    ["Match for your goal",s=>s.match,"hi",s=>s.match],
+    ["Dividend yield",s=>s.y,"hi",s=>fmt(s.y)],
+    ["Profit margin",s=>s.m,"hi",s=>fmt(s.m)],
+    ["Sales growth",s=>s.g,"hi",s=>fmt(s.g)],
+    ["P/E ratio",s=>s.pe,"lo",s=>s.pe==null?"No data":s.pe+"×"],
+    ["Payout ratio",s=>null,"",s=>fmt(s.p)],
+    ["Risk level",s=>s.sc.safety,"hi",s=>word("safety",s.sc.safety)],
+    ["Price swings (beta)",s=>s.b,"lo",s=>s.b==null?"No data":s.b+"×"],
+  ];
+  const body=rows.map(([l,val,dir,show])=>{
+    const vals=ss.map(val).filter(v=>v!=null); const best=dir==="hi"?Math.max(...vals):dir==="lo"?Math.min(...vals):null;
+    return `<tr><th scope="row">${l}</th>${ss.map(s=>`<td class="num ${dir&&vals.length>1&&val(s)===best?"best":""}">${esc(show(s))}</td>`).join("")}</tr>`;
+  }).join("");
+  const sumRow=`<tr><th scope="row">In short</th>${ss.map(s=>`<td>${esc(summary(s,s.sc))}</td>`).join("")}</tr>`;
+  $("modal").innerHTML=`<div class="modal-head"><h2 id="cmpTitle" style="font-size:20px">Side-by-side comparison</h2><button class="btn" type="button" id="cmpClose">Close</button></div>
+    <div class="tbl-wrap"><table class="cmp"><thead><tr><th></th>${ss.map(s=>`<th>${esc(s.n)}<div class="small num">${esc(s.t)}</div></th>`).join("")}</tr></thead><tbody>${body}${sumRow}</tbody></table></div>
+    <p class="small">Green marks the best value in each row for your goal. Lower is better for P/E and price swings.</p>`;
+  $("overlay").hidden=false; $("cmpClose").focus();
+  $("cmpClose").onclick=closeCompare;
+}
+function closeCompare(){ $("overlay").hidden=true; }
+
+/* ---------- Claude write-up ---------- */
+function wireAI(s){
+  const btn=$("aiBtn"),out=$("aiOut");
+  if(aiCache[s.t]){ out.hidden=false; out.textContent=aiCache[s.t]; btn.textContent="Write it again"; }
+  btn.onclick=async()=>{
+    btn.disabled=true; btn.textContent="Writing…"; out.hidden=false; out.textContent="Thinking…";
+    const facts=`Company: ${s.n} (${s.t}, ${s.x||""}), ${s.c}, sector ${s.s}. Approx figures: dividend yield ${fmt(s.y)}, net margin ${fmt(s.m)}, revenue growth ${fmt(s.g)}, P/E ${s.pe??"n/a"}, payout ${fmt(s.p)}, debt/equity ${s.de??"n/a"}, beta ${s.b??"n/a"}. The reader's goal: ${GOALS[goal].t} (${GOALS[goal].d}).`;
+    const prompt=`You are helping a beginner investor research a stock. Do NOT tell them to buy, sell or hold, and give no price target. Give concrete, neutral information in plain English.
+${facts}
+Write under 350 words with these short sections, each title on its own line: What the business does; Track record (profits and dividends in recent years, as far as you know); How it fits the reader's goal; Main opportunities; Main risks; Questions to answer before deciding. Plain text only, no markdown symbols. Say clearly where your knowledge may be out of date.`;
+    try{
+      const r=await sampleFn(prompt,{modelTier:"default",onText:({text})=>{ out.textContent=text; }});
+      aiCache[s.t]=r.text; out.textContent=r.text; btn.textContent="Write it again";
+    }catch(e){
+      if(e&&e.code==="not_granted"){ $("aiBlock").hidden=true; return; }
+      out.textContent=e&&e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":"Couldn't write the analysis. Try again.";
+      btn.textContent="Try again";
+    }finally{ btn.disabled=false; }
+  };
+}
+
+/* ---------- Add your own ---------- */
+const numOrNull=id=>{ const v=$(id).value.trim(); return v===""?null:Number(v); };
+$("addToggle").onclick=()=>{ $("addForm").hidden=!$("addForm").hidden; if(!$("addForm").hidden) $("a_name").focus(); };
+$("addCancel").onclick=()=>{ $("addForm").hidden=true; };
+$("addForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const t=$("a_ticker").value.trim().toUpperCase(),n=$("a_name").value.trim(),err=$("addErr");
+  const fail=m=>{ err.hidden=false; err.textContent=m; };
+  if(!t||!n) return fail("Enter a company name and ticker.");
+  if(all().some(s=>s.t===t)) return fail(`${t} is already in the list.`);
+  if(["a_yield","a_margin","a_growth","a_pe"].filter(id=>$(id).value.trim()!=="").length<2) return fail("Fill in at least two of: dividend yield, profit margin, sales growth, P/E.");
+  err.hidden=true;
+  custom.push({t,n,x:"",c:$("a_country").value.trim()||"—",r:$("a_region").value,s:$("a_sector").value.trim()||"Other",
+    pr:numOrNull("a_price"),cu:$("a_cur").value,y:numOrNull("a_yield"),m:numOrNull("a_margin"),g:numOrNull("a_growth"),pe:numOrNull("a_pe"),
+    de:numOrNull("a_de"),p:numOrNull("a_payout"),b:numOrNull("a_beta"),em:+$("a_em").value,custom:true,
+    url:`https://www.google.com/search?q=${encodeURIComponent(n+" "+t+" share price")}`});
+  store.set("sc_custom",custom); $("addForm").reset(); $("addForm").hidden=true; selected=t; fillSectors(); render();
+});
+
+/* ---------- Events ---------- */
+$("goals").addEventListener("click",e=>{ const b=e.target.closest(".goal"); if(!b) return; goal=b.dataset.g; store.set("sc_goal",goal); $("sortBy").value="match"; render(); });
+$("regionChips").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; region=b.dataset.r; store.set("sc_region",region); render(); });
+["sortBy","sector"].forEach(id=>$(id).addEventListener("change",()=>render()));
+$("q").addEventListener("input",()=>render());
+$("rows").addEventListener("click",e=>{
+  const st=e.target.closest("[data-star]"); if(st) return toggleWatch(st.dataset.star);
+  const cp=e.target.closest("[data-cmp]"); if(cp) return toggleCmp(cp.dataset.cmp);
+  const b=e.target.closest(".row"); if(!b) return;
+  selected=b.dataset.t; render();
+  if(window.matchMedia("(max-width:900px)").matches){ $("file").classList.add("open"); $("file").scrollTop=0; document.body.style.overflow="hidden"; }
+});
+$("trayClear").onclick=()=>{ cmp=[]; render(); };
+$("trayGo").onclick=openCompare;
+$("overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closeCompare(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!$("overlay").hidden) closeCompare(); else if($("file").classList.contains("open")){ $("file").classList.remove("open"); document.body.style.overflow=""; } } });
+
+/* ---------- Shared family portfolio (db capability) ---------- */
+let db=null, canWrite=true, tab="explore";
+const DEFAULT_MEMBERS=[{k:"m1",name:"You"},{k:"m2",name:"Your partner"}];
+const MCOL=["var(--accent)","var(--star)","var(--good)","var(--bad)"];
+const STATUS={planned:["Planned","plain"],applied:["Applied, awaiting shares","warn"],held:["Holding","good"],sold:["Sold","plain"]};
+let pf={members:DEFAULT_MEMBERS,holdings:[],loaded:false}, pfCur=store.get("sc_pfcur","CAD"), editingId=null, armedDelete=null;
+const conv=(v,from,to)=>FX[from]&&FX[to]?v/FX[from]*FX[to]:null;
+
+function showTab(t){
+  tab=t; const pfOn=t==="pf";
+  $("tabExplore").setAttribute("aria-selected",!pfOn); $("tabPf").setAttribute("aria-selected",pfOn);
+  $("explore").hidden=pfOn; $("portfolio").hidden=!pfOn;
+  renderTray(); if(pfOn) renderPortfolio();
+}
+$("tabExplore").onclick=()=>showTab("explore");
+$("tabPf").onclick=()=>showTab("pf");
+const _renderTray=renderTray; renderTray=function(){ _renderTray(); if(tab==="pf") $("tray").hidden=true; };
+
+function holdingPrice(h){
+  const s=all().find(x=>x.t===h.ticker);
+  if(s&&s.live){ const p=conv(s.pr,s.cu,h.currency); if(p) return {p,live:true,day:s.live.day}; }
+  return {p:+(h.currentPrice||h.pricePaid)||0,live:false};
+}
+function renderPortfolio(){
+  const sel=$("pfCur"); if(!sel.options.length){ sel.innerHTML=Object.keys(FX).map(c=>`<option value="${c}">${c} · ${CUR_NAME[c]}</option>`).join(""); }
+  sel.value=pfCur;
+  const active=pf.holdings.filter(h=>h.status!=="sold");
+  let invested=0,value=0,divs=0,pending=0; const byMember={}; pf.members.forEach(m=>byMember[m.k]=0); let unassigned=0;
+  for(const h of active){
+    const cost=(+h.shares||0)*(+h.pricePaid||0), now=(+h.shares||0)*holdingPrice(h).p;
+    invested+=conv(cost,h.currency,pfCur)||0; value+=conv(now,h.currency,pfCur)||0;
+    if(h.status==="applied"||h.status==="planned") pending++;
+    const ref=BASE.concat(custom).find(s=>s.t===h.ticker); if(ref&&ref.y) divs+=(conv(now,h.currency,pfCur)||0)*ref.y/100;
+    let assigned=0; for(const m of pf.members){ const a=+(h.contributions?.[m.k]||0); byMember[m.k]+=conv(a,h.currency,pfCur)||0; assigned+=a; }
+    unassigned+=Math.max(0,conv(cost-assigned,h.currency,pfCur)||0);
+  }
+  const gain=value-invested, gp=invested?gain/invested*100:0;
+  $("pfTiles").innerHTML=`
+    <div class="tile"><div class="label">Put in</div><div class="v">${money(invested,pfCur)}</div><div class="s">${active.length} holding${active.length===1?"":"s"}${pending?`, ${pending} not yet bought`:""}</div></div>
+    <div class="tile"><div class="label">Worth now</div><div class="v">${money(value,pfCur)}</div><div class="s">at the prices you entered</div></div>
+    <div class="tile"><div class="label">Gain or loss</div><div class="v ${gain>=0?"pos":"neg"}">${gain>=0?"+":""}${money(gain,pfCur)}</div><div class="s">${gp>=0?"+":""}${gp.toFixed(1)}%</div></div>
+    <div class="tile"><div class="label">Dividends a year</div><div class="v">≈ ${money(divs,pfCur)}</div><div class="s">estimate, if dividends hold</div></div>`;
+  const tot=Object.values(byMember).reduce((a,b)=>a+b,0)+unassigned;
+  $("pfSplit").innerHTML=tot>0?`
+    <div class="split" role="img" aria-label="Contribution split">${pf.members.map((m,i)=>`<i style="width:${byMember[m.k]/tot*100}%;background:${MCOL[i%4]}"></i>`).join("")}<i style="width:${unassigned/tot*100}%;background:var(--line)"></i></div>
+    <div class="legend">${pf.members.map((m,i)=>`<span><b style="background:${MCOL[i%4]}"></b>${esc(m.name)}: <strong class="num">${money(byMember[m.k],pfCur)}</strong> (${Math.round(byMember[m.k]/tot*100)}%)</span>`).join("")}
+    ${unassigned>0.5?`<span><b style="background:var(--line)"></b>Not recorded yet: <strong class="num">${money(unassigned,pfCur)}</strong></span>`:""}</div>`
+    :`<p class="status-note">Add a holding and record each person's share to see the split.</p>`;
+
+  const list=[...pf.holdings].sort((a,b)=>(a.status==="sold")-(b.status==="sold")||String(b.date||"").localeCompare(String(a.date||"")));
+  $("pfList").innerHTML=!pf.loaded&&db?`<p class="status-note">Loading your holdings…</p>`:!list.length?`<p class="status-note">No holdings yet. Use "+ Add a holding" to record what you've bought or applied for.</p>`:list.map(h=>{
+    const hp=holdingPrice(h), cost=(+h.shares||0)*(+h.pricePaid||0), cp=hp.p, now=(+h.shares||0)*cp, g=now-cost;
+    const [sl,sc]=STATUS[h.status]||STATUS.held;
+    const contrib=pf.members.map(m=>({m,a:+(h.contributions?.[m.k]||0)})).filter(x=>x.a>0);
+    const left=cost-contrib.reduce((a,x)=>a+x.a,0);
+    return `<article class="holding">
+      <div class="h-top"><div style="min-width:0"><h4>${esc(h.name)}</h4><div class="meta"><span class="num">${esc(h.ticker||"")}</span>${h.market?`<span>${esc(h.market)}</span>`:""}${h.date?`<span>${esc(h.date)}</span>`:""}</div></div>
+        <span class="tag ${sc}">${sl}</span></div>
+      <div class="h-grid">
+        <div><div class="label">Shares</div><div class="v">${(+h.shares||0).toLocaleString()}</div></div>
+        <div><div class="label">Paid</div><div class="v">${money(cost,h.currency)}</div><div class="small">${money(+h.pricePaid||0,h.currency)} each</div></div>
+        <div><div class="label">Worth now</div><div class="v">${money(now,h.currency)}</div><div class="small">≈ ${money(conv(now,h.currency,pfCur)||0,pfCur)}</div></div>
+        <div><div class="label">Gain / loss</div><div class="v ${g>=0?"pos":"neg"}">${g>=0?"+":""}${money(g,h.currency)}</div><div class="small">price now ${money(cp,h.currency)}${hp.live?` · <span class="pos">live, ${esc(hp.day)}</span>`:" · entered by you"}</div></div>
+      </div>
+      <div class="small">${contrib.length?contrib.map(x=>`${esc(x.m.name)}: ${money(x.a,h.currency)}`).join(" · "):"Who paid isn't recorded yet."}${contrib.length&&left>0.5?` · Not recorded: ${money(left,h.currency)}`:""}</div>
+      ${h.notes?`<div class="small" style="color:var(--ink)">${esc(h.notes)}</div>`:""}
+      ${canWrite&&db?`<div class="h-acts"><button class="btn" type="button" data-edit="${esc(h.id)}">Edit</button>
+        <button class="btn danger ${armedDelete===h.id?"armed":""}" type="button" data-del="${esc(h.id)}">${armedDelete===h.id?"Tap again to delete":"Delete"}</button></div>`:""}
+    </article>`;
+  }).join("");
+  $("addHolding").hidden=!(db&&canWrite); $("editMembers").hidden=!(db&&canWrite);
+  $("pfRefresh").hidden=!(mcp&&pf.holdings.some(h=>all().find(x=>x.t===h.ticker&&x.av)));
+}
+$("pfRefresh").onclick=async()=>{
+  const btn=$("pfRefresh"), note=$("pfRefreshNote");
+  const syms=[...new Set(pf.holdings.filter(h=>h.status!=="sold").map(h=>BASE.find(x=>x.t===h.ticker)?.av).filter(Boolean))];
+  btn.disabled=true; btn.textContent="Refreshing…"; let ok=0;
+  for(const s of syms){ if(await fetchQuote(s,true)) ok++; }
+  btn.disabled=false; btn.textContent="Refresh live prices";
+  note.hidden=false; note.textContent=ok===syms.length?`Updated ${ok} price${ok===1?"":"s"}. Nigerian holdings use the price you enter.`:(avMessage()||"Some prices couldn't be updated.");
+  render(); renderPortfolio();
+};
+
+function openHoldingForm(id,prefill){
+  if(!db){ $("pfOffline").hidden=false; return; }
+  if(!canWrite) return;
+  editingId=id; const h=id?pf.holdings.find(x=>x.id===id):{status:"held",currency:"NGN",date:new Date().toISOString().slice(0,10),...(prefill||{})};
+  const f=$("hForm"); f.hidden=false;
+  f.innerHTML=`
+    <div class="field full"><label class="label" for="h_name">Company</label><input id="h_name" required value="${esc(h.name||"")}" placeholder="e.g. Dangote Cement"></div>
+    <div class="field"><label class="label" for="h_ticker">Ticker</label><input id="h_ticker" value="${esc(h.ticker||"")}"></div>
+    <div class="field"><label class="label" for="h_market">Exchange</label><input id="h_market" value="${esc(h.market||"")}" placeholder="NGX"></div>
+    <div class="field"><label class="label" for="h_status">Status</label><select id="h_status">${Object.entries(STATUS).map(([k,[l]])=>`<option value="${k}" ${h.status===k?"selected":""}>${l}</option>`).join("")}</select></div>
+    <div class="field"><label class="label" for="h_date">Date</label><input id="h_date" type="date" value="${esc(h.date||"")}"></div>
+    <div class="field"><label class="label" for="h_shares">Number of shares</label><input id="h_shares" type="number" min="0" step="any" inputmode="decimal" required value="${esc(h.shares??"")}"></div>
+    <div class="field"><label class="label" for="h_cur">Currency</label><select id="h_cur">${Object.keys(FX).map(c=>`<option ${h.currency===c?"selected":""}>${c}</option>`).join("")}</select></div>
+    <div class="field"><label class="label" for="h_paid">Price paid per share</label><input id="h_paid" type="number" min="0" step="any" inputmode="decimal" required value="${esc(h.pricePaid??"")}"></div>
+    <div class="field"><label class="label" for="h_now">Price now per share</label><input id="h_now" type="number" min="0" step="any" inputmode="decimal" value="${esc(h.currentPrice??"")}" placeholder="same as paid"></div>
+    ${pf.members.map(m=>`<div class="field"><label class="label" for="h_c_${m.k}">${esc(m.name)} put in</label><input id="h_c_${m.k}" type="number" min="0" step="any" inputmode="decimal" value="${esc(h.contributions?.[m.k]??"")}" placeholder="amount in holding currency"></div>`).join("")}
+    <div class="field full"><label class="label" for="h_notes">Notes</label><input id="h_notes" value="${esc(h.notes||"")}" placeholder="e.g. Bought through partner's bank, CHN number kept with her"></div>
+    <div class="row-end"><span class="status-note" id="hErr" role="alert"></span><button class="btn" type="button" id="hCancel">Cancel</button><button class="btn primary" type="submit">${id?"Save changes":"Add holding"}</button></div>`;
+  $("hCancel").onclick=()=>{ f.hidden=true; editingId=null; };
+  $("h_name").focus(); f.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+$("addHolding").onclick=()=>openHoldingForm(null);
+$("hForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const n=v=>{ const x=$(v).value.trim(); return x===""?null:Number(x); };
+  const data={name:$("h_name").value.trim(),ticker:$("h_ticker").value.trim().toUpperCase(),market:$("h_market").value.trim(),
+    status:$("h_status").value,date:$("h_date").value,shares:n("h_shares"),currency:$("h_cur").value,pricePaid:n("h_paid"),
+    currentPrice:n("h_now"),notes:$("h_notes").value.trim(),contributions:{},updatedAt:new Date().toISOString()};
+  pf.members.forEach(m=>{ const v=n("h_c_"+m.k); if(v) data.contributions[m.k]=v; });
+  if(!data.name||!(data.shares>0)||!(data.pricePaid>0)){ $("hErr").textContent="Enter the company, number of shares and price paid."; return; }
+  const btn=e.submitter; if(btn) btn.disabled=true;
+  try{
+    if(editingId) await db.doc("holdings/"+editingId).set(data); else await db.collection("holdings").add(data);
+    $("hForm").hidden=true; editingId=null;
+  }catch(err){
+    $("hErr").textContent=err?.code==="quota_exceeded"?"The portfolio is full. Delete old holdings and try again.":err?.code==="invalid_argument"?"You can view this portfolio but not change it.":"Couldn't save. Check your connection and try again.";
+  }finally{ if(btn) btn.disabled=false; }
+});
+$("pfList").addEventListener("click",async e=>{
+  const ed=e.target.closest("[data-edit]"); if(ed) return openHoldingForm(ed.dataset.edit);
+  const dl=e.target.closest("[data-del]"); if(!dl) return;
+  const id=dl.dataset.del;
+  if(armedDelete!==id){ armedDelete=id; renderPortfolio(); setTimeout(()=>{ if(armedDelete===id){ armedDelete=null; renderPortfolio(); } },4000); return; }
+  armedDelete=null; try{ await db.doc("holdings/"+id).delete(); }catch(err){ renderPortfolio(); }
+});
+$("pfCur").addEventListener("change",()=>{ pfCur=$("pfCur").value; store.set("sc_pfcur",pfCur); renderPortfolio(); });
+$("editMembers").onclick=()=>{
+  const f=$("membersForm"); f.hidden=!f.hidden; if(f.hidden) return;
+  const ms=[...pf.members]; while(ms.length<4) ms.push({k:"m"+(ms.length+1),name:""});
+  f.innerHTML=ms.map((m,i)=>`<div class="field"><label class="label" for="mem_${m.k}">Person ${i+1}${i>=2?" (optional)":""}</label><input id="mem_${m.k}" value="${esc(m.name)}" placeholder="${i===0?"Your name":i===1?"Partner's name":"Leave blank if not needed"}"></div>`).join("")+
+    `<div class="row-end" style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;align-items:center"><span class="status-note" id="mErr"></span><button class="btn" type="button" id="mCancel">Cancel</button><button class="btn primary" type="submit">Save names</button></div>`;
+  $("mCancel").onclick=()=>{ f.hidden=true; };
+};
+$("membersForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const ms=[]; for(let i=1;i<=4;i++){ const el=$("mem_m"+i); const v=el?.value.trim(); if(v) ms.push({k:"m"+i,name:v}); else if(i<=2) ms.push({k:"m"+i,name:i===1?"You":"Your partner"}); }
+  try{ await db.doc("portfolio/settings").set({members:ms}); $("membersForm").hidden=true; }
+  catch(err){ $("mErr").textContent="Couldn't save the names. Try again."; }
+});
+
+async function initShared(){
+  try{
+    db=await window.claude?.use?.("db");
+    if(!db){ $("pfOffline").hidden=false; renderPortfolio(); return; }
+    const u=await window.claude.use("user"); const w=u?await u.can("data.write"):null; if(w===false) canWrite=false;
+    db.doc("portfolio/settings").onSnapshot(s=>{ const m=s.exists?s.data().members:null; pf.members=Array.isArray(m)&&m.length?m:DEFAULT_MEMBERS; renderPortfolio(); },()=>{});
+    db.collection("holdings").onSnapshot(q=>{ pf.holdings=q.docs.map(d=>({id:d.id,...d.data()})); pf.loaded=true; renderPortfolio(); },()=>{ pf.loaded=true; renderPortfolio(); });
+    db.collection("quotes").onSnapshot(q=>{ let ch=false; q.docs.forEach(d=>{ const v=d.data(); if(v&&v.price>0&&(!quotes[d.id]||quotes[d.id].fetchedAt!==v.fetchedAt)){ quotes[d.id]=v; ch=true; } }); if(ch){ render(); renderPortfolio(); } },()=>{});
+    db.doc("portfolio/watchlist").onSnapshot(s=>{ if(s.exists&&Array.isArray(s.data().tickers)){ watch=[...s.data().tickers]; store.set("sc_watch",watch); render(); } },()=>{});
+  }catch(e){ $("pfOffline").hidden=false; renderPortfolio(); }
+}
+
+buildStatic(); render(); renderPortfolio();
+if(location.hash==="#portfolio") showTab("pf");
+(async()=>{ try{ const s=await window.claude?.use?.("sample"); if(s){ sampleFn=s; renderFile(all().find(x=>x.t===selected)); } }catch(e){} })();
+initShared();
+(async()=>{ try{ const m=await window.claude?.use?.("mcp"); if(m){ mcp=m; render(); renderPortfolio(); } }catch(e){} })();
+</script>
