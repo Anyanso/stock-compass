@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Download Stock Compass</title>
+<meta name="description" content="Download Stock Compass for Windows or Mac: plain-language stock research with encrypted keys, AI insights and a Questrade connection.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one centred column; the button for the visitor's computer leads, other platforms and install help follow */
+:root{
+  --bg:#EEF2F2; --surface:#FFFFFF; --sunk:#E3EAEA; --ink:#10201F; --muted:#56696A; --line:#D3DDDC;
+  --accent:#0B6B70; --accent-ink:#FFFFFF; --accent-soft:#D6ECEC; --star:#C8901A; --warn-soft:#F6E9D2; --warn:#A86A12;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --f-body:"Public Sans","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1416; --surface:#132024; --sunk:#0F1A1D; --ink:#E2EDEC; --muted:#8EA3A3; --line:#233539;
+  --accent:#4CC3C5; --accent-ink:#06191A; --accent-soft:#163B3E; --star:#E8B544; --warn-soft:#3A2D14; --warn:#E2AE4C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1416; --surface:#132024; --sunk:#0F1A1D; --ink:#E2EDEC; --muted:#8EA3A3; --line:#233539;
+  --accent:#4CC3C5; --accent-ink:#06191A; --accent-soft:#163B3E; --star:#E8B544; --warn-soft:#3A2D14; --warn:#E2AE4C; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+[hidden]{display:none!important}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+.bar{background:var(--surface);border-bottom:1px solid var(--line)}
+.bar-in{max-width:960px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:18px;color:var(--ink);text-decoration:none}
+.brand svg{width:34px;height:34px}
+.wrap{max-width:960px;margin:0 auto;padding:40px 18px 64px;display:grid;gap:28px}
+.hero{display:grid;gap:14px;justify-items:start}
+.hero h1{font-size:clamp(30px,5vw,46px);letter-spacing:-.02em}
+.hero p{margin:0;color:var(--muted);max-width:60ch;font-size:16.5px}
+.dl{display:inline-flex;align-items:center;gap:12px;background:var(--accent);color:var(--accent-ink);border-radius:14px;padding:14px 22px;font-weight:700;font-size:17px;text-decoration:none;border:0;cursor:pointer}
+.dl svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.dl[aria-disabled="true"]{opacity:.55;pointer-events:none}
+.meta{font-size:13px;color:var(--muted)}
+.others{display:flex;gap:14px;flex-wrap:wrap;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:8px;align-content:start;min-width:0}
+.card h3{font-size:16.5px}
+.card p{margin:0;color:var(--muted);font-size:14px}
+.icon{width:36px;height:36px;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center}
+.icon svg{width:20px;height:20px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.steps{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;gap:14px}
+.tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:12px;width:fit-content;flex-wrap:wrap}
+.tab{border:0;background:transparent;padding:8px 14px;border-radius:9px;font:inherit;font-weight:700;cursor:pointer;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
+ol{margin:0;padding-left:20px;display:grid;gap:8px}
+li::marker{color:var(--accent);font-weight:700}
+.note{background:var(--warn-soft);border-radius:12px;padding:12px 14px;font-size:14px}
+.note b{color:var(--warn)}
+code{background:var(--sunk);padding:2px 6px;border-radius:6px;font-size:13px;overflow-wrap:anywhere}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{color:var(--muted);font-size:13px;text-align:center;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><circle cx="16" cy="16" r="9.5" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" opacity=".55"/><path d="M16 7.5l3.2 8.5L16 24.5 12.8 16z" fill="var(--accent-ink)"/><path d="M16 7.5l3.2 8.5h-6.4z" fill="var(--star)"/></svg>Stock Compass</a>
+  <a href="./">Use it in your browser instead →</a>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1 id="heroTitle">Stock Compass for your computer</h1>
+    <p>Plain-language stock research, your portfolio and live prices in one app. Your keys are encrypted on your computer, and there's no account to create.</p>
+    <a class="dl" id="mainBtn" href="https://github.com/Anyanso/stock-compass/releases/latest" aria-disabled="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span id="mainLabel">Finding the latest version…</span></a>
+    <div class="meta" id="mainMeta"></div>
+    <div class="others" id="others"></div>
+    <p class="note" id="mobileNote" hidden><b>On a phone?</b> The desktop app is for Windows and Mac. On your phone, <a href="./">use Stock Compass in your browser</a>.</p>
+  </section>
+
+  <section class="grid" aria-label="What you get">
+    <div class="card"><div class="icon"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><h3>Private by design</h3><p>API keys are encrypted with your computer's own secure storage. Add a passcode lock to encrypt your holdings too.</p></div>
+    <div class="card"><div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9.3l-4 4 1 5.7-5-2.8-5 2.8 1-5.7-4-4 5.5-.8z"/></svg></div><h3>AI insights</h3><p>Add your Anthropic API key for a deeper, neutral write-up on any stock from Claude. Pay only for what you use.</p></div>
+    <div class="card"><div class="icon"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg></div><h3>Works with your broker</h3><p>Import your Wealthsimple holdings, or link Questrade to sync your TFSA, RRSP and FHSA automatically (read-only).</p></div>
+  </section>
+
+  <section class="steps" aria-labelledby="installTitle">
+    <h2 id="installTitle" style="font-size:22px">Installing</h2>
+    <div class="tabs" role="tablist" aria-label="Your computer">
+      <button class="tab" type="button" role="tab" id="t-win" aria-selected="true">Windows</button>
+      <button class="tab" type="button" role="tab" id="t-mac" aria-selected="false">Mac</button>
+    </div>
+    <div id="p-win">
+      <ol>
+        <li>Open the downloaded <b>Stock-Compass-Setup</b> file.</li>
+        <li>If Windows shows <b>"Windows protected your PC"</b>, click <b>More info</b>, then <b>Run anyway</b>. This appears because Stock Compass is a new independent app that isn't code-signed yet.</li>
+        <li>Follow the installer. It adds Stock Compass to your Start menu and desktop.</li>
+        <li>Open Stock Compass and follow the short setup.</li>
+      </ol>
+    </div>
+    <div id="p-mac" hidden>
+      <ol>
+        <li>Open the downloaded <b>.dmg</b> file and drag Stock Compass into your <b>Applications</b> folder.</li>
+        <li>The first time, <b>right-click</b> (or Control-click) Stock Compass in Applications and choose <b>Open</b>, then <b>Open</b> again. macOS asks this because the app isn't notarized by Apple yet.</li>
+        <li>If macOS still blocks it, go to <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>.</li>
+        <li>If it says the app "is damaged", open Terminal and run <code>xattr -cr "/Applications/Stock Compass.app"</code>, then open it again.</li>
+      </ol>
+    </div>
+    <p class="meta" style="margin:0">Stock Compass is built automatically by GitHub from its public source code. It has no server: it never collects your data, and it only connects to the market data, AI and broker services you set up.</p>
+  </section>
+</main>
+<footer>Information to help you decide, never buy or sell advice. <a href="https://github.com/Anyanso/stock-compass">Source on GitHub</a></footer>
+
+<script>
+const REPO="Anyanso/stock-compass", ALL="https://github.com/"+REPO+"/releases/latest";
+const ua=navigator.userAgent, plat=(navigator.userAgentData&&navigator.userAgentData.platform)||navigator.platform||"";
+const mobile=/Android|iPhone|iPad|iPod/i.test(ua);
+const os=mobile?"mobile":/Win/i.test(plat+ua)?"win":/Mac/i.test(plat+ua)?"mac":/Linux/i.test(plat+ua)?"linux":"win";
+const NAMES={win:"Windows",mac:"Mac",linux:"Linux"};
+function showTab(t){ ["win","mac"].forEach(k=>{ document.getElementById("t-"+k).setAttribute("aria-selected",k===t); document.getElementById("p-"+k).hidden=k!==t; }); }
+document.getElementById("t-win").onclick=()=>showTab("win");
+document.getElementById("t-mac").onclick=()=>showTab("mac");
+showTab(os==="mac"?"mac":"win");
+if(mobile) document.getElementById("mobileNote").hidden=false;
+
+const btn=document.getElementById("mainBtn"), label=document.getElementById("mainLabel"), meta=document.getElementById("mainMeta"), others=document.getElementById("others");
+const mb=n=>Math.round(n/1048576)+" MB";
+fetch("https://api.github.com/repos/"+REPO+"/releases/latest").then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(rel=>{
+  const find={win:a=>/\.exe$/i.test(a.name),mac:a=>/\.dmg$/i.test(a.name),linux:a=>/\.AppImage$/i.test(a.name)};
+  const assets={}; for(const k in find){ const a=(rel.assets||[]).find(find[k]); if(a) assets[k]=a; }
+  const primary=os==="mobile"?null:(assets[os]?os:assets.win?"win":null);
+  if(primary){ const a=assets[primary];
+    btn.href=a.browser_download_url; btn.removeAttribute("aria-disabled");
+    label.textContent="Download for "+NAMES[primary];
+    meta.textContent="Version "+rel.tag_name.replace(/^v/,"")+" · "+mb(a.size)+" · Free";
+    document.getElementById("heroTitle").textContent="Stock Compass for "+NAMES[primary]; }
+  else if(os==="mobile"){ btn.hidden=true; }
+  else { label.textContent="The installers are still being built"; meta.innerHTML='Check back in a few minutes, or see <a href="'+ALL+'">all downloads</a>.'; }
+  const rest=Object.keys(assets).filter(k=>k!==primary);
+  others.innerHTML=rest.map(k=>'<a href="'+assets[k].browser_download_url+'">Download for '+NAMES[k]+' ('+mb(assets[k].size)+')</a>').join("")+(rest.length?'<a href="'+ALL+'">All downloads</a>':"");
+}).catch(()=>{
+  label.textContent="The first version is on its way";
+  meta.innerHTML='The installers are being built. Check back in a few minutes, or see <a href="'+ALL+'">GitHub releases</a>.';
+});
+</script>
+</body>
+</html>
