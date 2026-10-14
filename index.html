@@ -173,6 +173,12 @@ table.cmp thead th{font-family:var(--f-display);font-size:15px}
 table.cmp td.best{background:var(--good-soft);font-weight:700}
 table.cmp th[scope=row]{color:var(--muted);font-weight:600;font-size:13px;white-space:nowrap}
 
+/* about */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:14px}
+@media (max-width:600px){.about-grid{grid-template-columns:1fr}}
+.about-grid p{margin:4px 0 0}
+.about-list{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
+.about-local{margin:12px 0 0;padding:10px 12px;background:var(--accent-soft);border-radius:10px;font-size:14px}
 /* outlook */
 .ol{display:grid;gap:16px}
 .ol-row{display:grid;gap:6px}
@@ -343,7 +349,7 @@ const BASE = [
   pro:["Swung back to profit in H1 2026 after losses in 2024 and 2025."],con:["Raw sugar is bought in dollars, so a weaker naira squeezes margins.","A proposed merger with NASCON could change what shareholders own."],
   url:"https://www.google.com/search?q=Dangote+Sugar+DANGSUGAR+share+price"},
  {t:"NASCON",x:"NGX",n:"NASCON Allied Industries",c:"Nigeria",r:"Africa",s:"Consumer staples",pr:188.9,cu:"NGN",y:null,m:24,g:0,pe:12,de:0.3,p:null,b:1.0,em:1,
-  d:"Nigeria's leading producer of salt, seasonings and tomato paste, part of the Dangote Group.",
+  d:"Nigeria's leading producer of salt and seasonings, part of the Dangote Group.",
   pro:["H1 2026 profit after tax rose 26%."],con:["Share price fell about 14% in Q3 2026 despite higher profits."],
   url:"https://www.google.com/search?q=NASCON+Allied+Industries+share+price"},
  {t:"SCOM",x:"NSE Kenya",n:"Safaricom",c:"Kenya",r:"Africa",s:"Telecoms",pr:25,cu:"KES",y:7,m:10,g:10,pe:15,de:0.6,p:100,b:0.7,em:1,
@@ -410,6 +416,129 @@ const BASE = [
   d:"The world's best-selling carmaker and a leader in hybrid vehicles.",
   pro:["Strong in hybrids and very cash-rich."],con:["Car sales are cyclical; tariffs and the shift to electric cars add uncertainty."],url:"https://www.google.com/finance/quote/7203:TYO"}
 ];
+/* Company profiles: what = plain description; money = main revenue sources; known = brands/products; base = origins; local = Nigeria/Africa connection */
+const ABOUT={
+ DANGCEM:{what:"Dangote Cement makes and sells cement, the grey powder mixed with sand and water to make concrete for houses, roads, bridges and office blocks. It is the biggest cement company in Africa.",
+  money:["Selling bagged and bulk cement to builders, distributors and government projects","Nigeria brings in most of its sales, from big plants at Obajana, Ibese, Gboko and Okpella","Factories and import terminals in about 10 other African countries, including Senegal, Ethiopia, Zambia, Cameroon, Tanzania and South Africa"],
+  known:"Dangote cement bags on building sites across Nigeria; roughly 55 million tonnes a year of capacity",
+  base:"Started in 1992 as Obajana Cement. Headquartered in Lagos. Majority owned by Aliko Dangote's Dangote Industries.",
+  local:"Every new house, road and estate in Nigeria needs cement, so the company's fortunes follow Nigeria's building activity and the naira."},
+ DANGSUGAR:{what:"Dangote Sugar refines raw sugar into the white sugar Nigerians buy in shops and that food and drink makers use in their products.",
+  money:["Selling 50kg bags of sugar to industrial users such as soft-drink bottlers, bakeries and food companies","Selling smaller retail packs of Dangote Sugar to households"],
+  known:"Its refinery in Apapa, Lagos is one of the largest in Africa",
+  base:"Part of the Dangote Group since the 2000s; listed on the Nigerian Exchange in 2007.",
+  local:"It is investing in sugar cane farms in Adamawa, Nasarawa and Taraba states, so Nigeria can grow its own cane instead of importing raw sugar in dollars."},
+ NASCON:{what:"NASCON refines salt and makes seasonings used in Nigerian kitchens and by food and industrial companies.",
+  money:["Table salt for households","Salt for food processing and industry","Seasoning products"],
+  known:"Dangote salt and Dangote Classic seasoning",
+  base:"Began as the government-owned National Salt Company of Nigeria (NASCON) before joining the Dangote Group. Headquartered in Lagos.",
+  local:"Everyday household staples, so demand stays fairly steady even when the economy is weak."},
+ SCOM:{what:"Safaricom is Kenya's biggest mobile phone company and the owner of M-Pesa, the mobile money service that lets people send, save and pay money from a basic phone.",
+  money:["M-Pesa fees, now its biggest money-maker","Mobile data","Voice calls and SMS","Home and business internet"],
+  known:"M-Pesa, used by tens of millions of people across East Africa",
+  base:"Founded in 1997 and headquartered in Nairobi. Major shareholders include Vodacom (part of Vodafone) and the Kenyan government.",
+  local:"M-Pesa, launched in 2007, inspired mobile money services across Africa, including in Nigeria. Safaricom expanded into Ethiopia in 2022."},
+ AAPL:{what:"Apple designs phones, computers and other devices, and sells services that run on them. It is one of the most valuable companies in the world.",
+  money:["iPhone, about half of all sales","Services such as the App Store, iCloud, Apple Music, Apple Pay and AppleCare","Mac computers and iPad tablets","Wearables such as Apple Watch and AirPods"],
+  known:"iPhone, MacBook, AirPods, Apple Watch",
+  base:"Founded in 1976 by Steve Jobs, Steve Wozniak and Ronald Wayne. Headquartered in Cupertino, California.",
+  local:""},
+ MSFT:{what:"Microsoft makes software and runs one of the world's largest cloud computing businesses, renting out computing power and storage to companies.",
+  money:["Azure cloud services, its fastest-growing business","Office 365 and Teams subscriptions for businesses and homes","LinkedIn","Windows licences, Xbox gaming and Bing search"],
+  known:"Windows, Word, Excel, Teams, Xbox, LinkedIn and GitHub, where your Stock Compass code lives",
+  base:"Founded in 1975 by Bill Gates and Paul Allen. Headquartered in Redmond, Washington.",
+  local:"A major backer of OpenAI and a big spender on AI data centres."},
+ NVDA:{what:"NVIDIA designs the powerful chips that train and run artificial intelligence. It started out making graphics cards for video games and now powers most of the world's AI data centres.",
+  money:["Data-centre chips used to build AI systems, by far its biggest business","GeForce graphics cards for gaming PCs","Chips for designers, engineers and self-driving cars"],
+  known:"GeForce graphics cards, and the AI chips behind tools like ChatGPT and Claude",
+  base:"Founded in 1993 by Jensen Huang, who is still CEO. Headquartered in Santa Clara, California. It designs chips but doesn't make them; TSMC manufactures them.",
+  local:"Its CUDA software is a big reason customers stick with it: AI programs are written to run on NVIDIA chips."},
+ JNJ:{what:"Johnson & Johnson makes prescription medicines and medical devices used in hospitals.",
+  money:["Prescription drugs for cancer, immune diseases and brain disorders","Medical devices such as surgical tools, joint replacements and heart devices"],
+  known:"Its former consumer brands, Tylenol, Band-Aid and Neutrogena, were spun off in 2023 into a separate company called Kenvue",
+  base:"Founded in 1886. Headquartered in New Brunswick, New Jersey.",
+  local:""},
+ KO:{what:"Coca-Cola makes the syrups and concentrates for soft drinks and owns the brands. Partner bottling companies around the world turn them into the finished drinks you buy.",
+  money:["Selling concentrate to bottlers in over 200 countries","Running some bottling operations itself"],
+  known:"Coca-Cola, Fanta, Sprite, Schweppes, Minute Maid, Powerade and Costa Coffee",
+  base:"Created in 1886 in Atlanta, Georgia, where it is still headquartered. Warren Buffett's Berkshire Hathaway is a large long-time shareholder.",
+  local:"In Nigeria its drinks are bottled by the Nigerian Bottling Company, part of the Coca-Cola HBC group."},
+ PG:{what:"Procter & Gamble makes everyday household and personal care products found in most homes.",
+  money:["Laundry and cleaning products, its biggest business","Nappies and baby care","Razors","Hair, skin and oral care"],
+  known:"Tide, Ariel, Pampers, Gillette, Oral-B, Head & Shoulders, Pantene and Always",
+  base:"Founded in 1837 by a candle maker and a soap maker. Headquartered in Cincinnati, Ohio.",
+  local:""},
+ JPM:{what:"JPMorgan Chase is the largest bank in the United States, serving everyday customers, businesses and big investors.",
+  money:["Chase consumer banking: current accounts, mortgages, credit cards and car loans","Investment banking: helping companies raise money and trade","Wealth and asset management","Lending to businesses"],
+  known:"Chase bank and credit cards",
+  base:"Roots go back to 1799. Headquartered in New York City, led for many years by Jamie Dimon.",
+  local:""},
+ XOM:{what:"ExxonMobil finds and produces oil and natural gas, refines it into fuels and makes chemicals and plastics.",
+  money:["Producing oil and gas, especially in Texas's Permian Basin and offshore Guyana","Refining crude into petrol, diesel and jet fuel","Chemicals and plastics"],
+  known:"Exxon and Mobil petrol stations and Mobil 1 motor oil",
+  base:"Descends from John D. Rockefeller's Standard Oil, founded in 1870. Headquartered near Houston, Texas.",
+  local:"Produced oil in Nigeria for decades through Mobil Producing Nigeria, which it sold to Nigeria's Seplat Energy in 2024; it still has deep-water interests there."},
+ VZ:{what:"Verizon is one of the two biggest mobile phone networks in the United States, and also sells home internet.",
+  money:["Monthly mobile phone plans, most of its income","Fios fibre and wireless home internet","Network services for businesses"],
+  known:"Verizon mobile plans",
+  base:"Formed in 2000 from the merger of Bell Atlantic and GTE. Headquartered in New York City.",
+  local:""},
+ RY:{what:"Royal Bank of Canada is Canada's largest bank, offering everyday banking, investments and insurance.",
+  money:["Personal and business banking in Canada","Wealth management, including City National Bank in the US","Capital markets: trading and advising big companies","Insurance"],
+  known:"RBC branches and the RBC Royal Bank app",
+  base:"Founded in 1864 in Halifax. Headquartered in Toronto. Bought HSBC's Canadian business in 2024.",
+  local:"A familiar name if you bank in Canada."},
+ ENB:{what:"Enbridge runs one of the largest networks of oil and gas pipelines in North America, and gas utilities that heat homes.",
+  money:["Pipelines carrying a large share of Canada's oil exports to the US","Natural gas pipelines","Gas utilities serving homes in Ontario and several US states","Wind and solar power"],
+  known:"Enbridge Gas, which supplies many Ontario homes",
+  base:"Roots go back to 1949. Headquartered in Calgary, Alberta.",
+  local:"It earns fees for moving oil and gas whatever the price, a bit like a toll road, which is why its income is steady."},
+ FTS:{what:"Fortis owns electricity and gas utilities that supply power to homes and businesses in Canada, the US and the Caribbean.",
+  money:["Regulated electricity and gas bills from millions of customers","Electricity transmission lines in the US"],
+  known:"FortisBC and FortisAlberta in Canada; Tucson Electric Power and Central Hudson in the US",
+  base:"Roots go back to 1885 in Newfoundland. Headquartered in St. John's.",
+  local:"Regulators set what utilities can charge, so profits are steady and predictable, and so are its dividends."},
+ CNQ:{what:"Canadian Natural Resources is one of Canada's largest oil and gas producers, best known for its oil sands mines in northern Alberta.",
+  money:["Oil sands mining and upgrading into synthetic crude","Heavy and light crude oil","Natural gas","Offshore oil in the UK North Sea and off the coast of Africa"],
+  known:"The Horizon oil sands project in Alberta",
+  base:"Founded in 1989. Headquartered in Calgary, Alberta.",
+  local:"Has offshore oil operations in Côte d'Ivoire, in West Africa."},
+ NESN:{what:"Nestlé is the world's largest food and drink company, making coffee, chocolate, baby food, pet food and seasonings.",
+  money:["Coffee: Nescafé and Nespresso","Pet food: Purina","Baby and nutrition products","Seasonings, confectionery, milk and drinks"],
+  known:"Nescafé, Milo, Maggi, KitKat, Cerelac, Golden Morn and Nespresso",
+  base:"Founded in 1866. Headquartered in Vevey, Switzerland.",
+  local:"Maggi cubes, Milo and Golden Morn are household names in Nigeria. Its local company, Nestlé Nigeria, is listed on the Nigerian Exchange."},
+ ASML:{what:"ASML makes the giant machines that print the tiny circuits onto computer chips. Its most advanced machines, which use extreme ultraviolet (EUV) light, are made by no one else.",
+  money:["Selling chip-making machines that can cost over $150 million each","Servicing and upgrading machines already installed"],
+  known:"Its customers include TSMC, Samsung and Intel; almost every advanced chip is made on its equipment",
+  base:"Founded in 1984. Headquartered in Veldhoven, the Netherlands.",
+  local:""},
+ TTE:{what:"TotalEnergies is a French energy company producing oil and natural gas, selling fuel, and growing a business in solar, wind and electricity.",
+  money:["Oil and gas production","Liquefied natural gas (LNG), where it is one of the world's largest sellers","Refining and fuel stations","Electricity and renewables"],
+  known:"Total and TotalEnergies petrol stations",
+  base:"Founded in 1924. Headquartered in Paris.",
+  local:"One of the biggest oil producers in Nigeria, with deep-water fields such as Egina and Akpo, and TotalEnergies filling stations across the country."},
+ ULVR:{what:"Unilever makes everyday personal care, beauty, household and food products, selling heavily in emerging markets.",
+  money:["Personal care: soaps, deodorants and skin care","Beauty and wellbeing","Home care: cleaning and laundry products","Foods: Knorr and Hellmann's"],
+  known:"Dove, Vaseline, Rexona, Axe, Knorr, Hellmann's and Omo",
+  base:"Formed in 1929 from the merger of Lever Brothers and Margarine Unie. Headquartered in London.",
+  local:"Unilever Nigeria is listed on the Nigerian Exchange, and brands like Close-Up, Pears and Knorr are well known there."},
+ HSBA:{what:"HSBC is one of the world's largest banks, operating in about 60 countries and earning most of its profit in Asia.",
+  money:["Personal banking and wealth management","Banking for businesses of all sizes","Investment banking and trading for big companies and governments"],
+  known:"HSBC bank branches and its global network for international transfers",
+  base:"Founded in 1865 in Hong Kong as The Hongkong and Shanghai Banking Corporation. Headquartered in London.",
+  local:"Sold its Canadian banking business to Royal Bank of Canada in 2024."},
+ "2330":{what:"TSMC (Taiwan Semiconductor Manufacturing Company) manufactures computer chips designed by other companies. It is the world's largest contract chipmaker, and makes the most advanced chips in the world.",
+  money:["Making chips for Apple, NVIDIA, AMD, Qualcomm and others","Its most advanced production lines earn the highest prices"],
+  known:"The chips inside iPhones and NVIDIA's AI chips",
+  base:"Founded in 1987 by Morris Chang. Headquartered in Hsinchu, Taiwan. Building new factories in Arizona, Japan and Germany.",
+  local:"Most of its factories are in Taiwan, which is why tension between China and Taiwan is its biggest risk."},
+ "7203":{what:"Toyota is the world's best-selling car maker, known for reliable cars and for leading the way in hybrid engines.",
+  money:["Selling cars, SUVs and trucks around the world","Car loans and leasing through Toyota Financial Services","Parts and servicing"],
+  known:"Corolla, Camry, RAV4, Hilux, Land Cruiser, Prius and Lexus",
+  base:"Founded in 1937. Headquartered in Toyota City, Japan.",
+  local:"Toyota cars, new and 'tokunbo' (imported used), are among the most popular on Nigerian roads."}
+};
 /* US listings used for live prices: [symbol, local shares per US share] */
 const AV={AAPL:["AAPL",1],MSFT:["MSFT",1],NVDA:["NVDA",1],JNJ:["JNJ",1],KO:["KO",1],PG:["PG",1],JPM:["JPM",1],XOM:["XOM",1],VZ:["VZ",1],
   RY:["RY",1],ENB:["ENB",1],FTS:["FTS",1],CNQ:["CNQ",1],NESN:["NSRGY",1],ASML:["ASML",1],TTE:["TTE",1],ULVR:["UL",1],HSBA:["HSBC",5],"2330":["TSM",5],"7203":["TM",10]};
@@ -652,6 +781,16 @@ function renderFile(s){
     <button class="btn" type="button" id="fCmp">${cmp.includes(s.t)?"✓ In comparison":"Add to comparison"}</button>
     <button class="btn" type="button" id="fPf">+ Add to our portfolio</button>
   </div>
+
+  ${ABOUT[s.t]?`<section class="block about"><h3>About ${esc(s.n)}</h3>
+    <p style="margin:0 0 10px;max-width:68ch">${esc(ABOUT[s.t].what)}</p>
+    <div class="about-grid">
+      <div><div class="label">How it makes money</div><ul class="about-list">${ABOUT[s.t].money.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
+      <div><div class="label">Names you might know</div><p>${esc(ABOUT[s.t].known)}</p>
+        <div class="label" style="margin-top:10px">Background</div><p>${esc(ABOUT[s.t].base)}</p></div>
+    </div>
+    ${ABOUT[s.t].local?`<p class="about-local">${esc(ABOUT[s.t].local)}</p>`:""}
+  </section>`:""}
 
   <section class="block"><h3>At a glance</h3><div class="verdicts">
     ${DIMS.map(([k,l])=>`<div class="verdict"><span class="vt">${l}</span><span class="vw ${lvl(sc[k])}">${word(k,sc[k])}</span><span class="vx">${esc(why[k])}</span></div>`).join("")}
