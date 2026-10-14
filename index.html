@@ -34,7 +34,7 @@
   --good-soft:#163527; --warn-soft:#3A2D14; --bad-soft:#3D1D1A; --shadow:0 10px 30px rgb(0 0 0 / .45); color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
-.wrap{max-width:1240px;margin:0 auto;padding:24px 18px 110px}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 18px 110px}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
 .num{font-family:var(--f-data);font-variant-numeric:tabular-nums}
 .label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -42,11 +42,74 @@ button,select,input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .muted{color:var(--muted)}
 
-header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
-header.top h1{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-.02em}
-header.top p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+/* app bar */
+.appbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.appbar-in{max-width:1240px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand-mark{width:34px;height:34px;flex:none}
+.brand-name{font-family:var(--f-display);font-weight:700;font-size:18px;letter-spacing:-.01em;line-height:1.1}
+.brand-sub{font-size:12px;color:var(--muted)}
+.appbar-status{display:flex;gap:6px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink)}
+.pill:hover{border-color:var(--accent)}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.pill .dot.on{background:var(--good)} .pill .dot.warn{background:var(--warn)}
+@media (max-width:760px){.appbar-in{gap:10px}.brand-sub{display:none}.appbar-status{order:3;width:100%}}
+.trust{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:12.5px;color:var(--muted);margin-bottom:22px}
+.trust>span{display:inline-flex;align-items:center;gap:6px}
+.trust svg{width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 24px;flex-wrap:wrap;margin-bottom:20px}
+.page-head h1{font-size:clamp(26px,3.6vw,36px);font-weight:700;letter-spacing:-.02em}
+.page-head p{margin:6px 0 0;color:var(--muted);max-width:64ch}
 .notice{background:var(--warn-soft);border-radius:10px;padding:9px 14px;font-size:13px;margin-bottom:18px}
 .notice b{color:var(--warn)}
+.notice.info{background:var(--accent-soft)} .notice.info b{color:var(--accent)}
+
+/* settings */
+.set-head{margin-bottom:18px} .set-head h2{font-size:clamp(24px,3vw,30px)} .set-head p{margin:4px 0 0}
+.set-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+@media (max-width:860px){.set-grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:12px;min-width:0}
+.card h3{font-size:17px;display:flex;align-items:center;gap:8px}
+.card .desc{margin:0;color:var(--muted);font-size:14px}
+.card.wide{grid-column:1/-1}
+.choice-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:600px){.choice-row{grid-template-columns:minmax(0,1fr)}}
+.choice{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px;text-align:left;cursor:pointer;display:grid;gap:3px;min-width:0}
+.choice:hover{border-color:var(--accent)}
+.choice[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.choice b{font-size:14.5px} .choice span{font-size:12.5px;color:var(--muted)}
+.choice[disabled]{opacity:.55;cursor:not-allowed}
+.keyrow{display:grid;gap:6px}
+.keyline{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.keyline input{flex:1 1 220px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-family:var(--f-data);font-size:13px}
+.state{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
+.state.ok{color:var(--good)} .state.off{color:var(--muted)} .state.err{color:var(--bad)}
+.steps-list{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px}
+.steps-list li::marker{color:var(--accent);font-weight:700}
+.link{color:var(--accent);font-weight:600}
+
+/* sheet (onboarding, import) */
+.modal.sheet{max-width:640px}
+.ob-dots{display:flex;gap:6px;margin-bottom:14px}
+.ob-dots i{width:28px;height:4px;border-radius:2px;background:var(--line)} .ob-dots i.on{background:var(--accent)}
+.promise{display:grid;gap:10px;margin:14px 0}
+.promise div{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;font-size:14.5px}
+.promise svg{width:24px;height:24px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sheet-acts{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:22px;text-align:center;display:grid;gap:8px;justify-items:center;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.preview{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.preview table{width:100%;border-collapse:collapse;font-size:13px;min-width:460px}
+.preview th,.preview td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left}
+.preview th{position:sticky;top:0;background:var(--sunk);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.broker-panel{margin-bottom:16px}
+.broker-panel .card{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px}
+@media (max-width:700px){.broker-panel .card{grid-template-columns:minmax(0,1fr)}}
+.broker-logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:18px;background:var(--accent-soft);color:var(--accent)}
+.acct{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--accent-soft);color:var(--accent);letter-spacing:.03em}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 80px);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.buy-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 
 /* goal picker */
 .step{display:flex;align-items:baseline;gap:10px;margin:0 0 10px}
@@ -106,7 +169,7 @@ header.top p{margin:4px 0 0;color:var(--muted);max-width:62ch}
 .empty{padding:28px 16px;color:var(--muted);text-align:center}
 
 /* stock file */
-.file{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto}
+.file{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);max-height:calc(100vh - 92px);overflow:auto}
 .back{display:none}
 @media (max-width:900px){
   .file{position:fixed;inset:0;z-index:30;border-radius:0;border:0;max-height:none;padding:calc(env(safe-area-inset-top,0px) + 14px) 18px calc(env(safe-area-inset-bottom,0px) + 100px)}
@@ -193,7 +256,7 @@ table.cmp th[scope=row]{color:var(--muted);font-weight:600;font-size:13px;white-
 .ol-nums div:nth-child(2){text-align:center}
 .ol-nums div:nth-child(3){text-align:right}
 /* tabs + portfolio */
-.tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:12px;width:fit-content;max-width:100%;margin-bottom:20px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:12px;width:fit-content;max-width:100%;flex-wrap:wrap}
 .tab{border:0;background:transparent;padding:9px 16px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--muted)}
 .tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
 .pf-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:space-between;margin-bottom:14px}
@@ -232,38 +295,43 @@ form.add .err{grid-column:1/-1;color:var(--bad);font-size:13px;margin:0}
 form.add .hint{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
 </style>
 
-<div class="wrap">
-  <header class="top">
-    <div>
-      <h1>Stock Compass</h1>
-      <p>Find stocks that fit what you want from your money. Each one gets plain-language verdicts, strengths, risks and a calculator in your own currency. It never says buy or sell.</p>
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><circle cx="16" cy="16" r="9.5" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" opacity=".55"/><path d="M16 7.5l3.2 8.5L16 24.5 12.8 16z" fill="var(--accent-ink)"/><path d="M16 7.5l3.2 8.5h-6.4z" fill="var(--star)"/></svg>
+      <div><div class="brand-name">Stock Compass</div><div class="brand-sub">Plain-language stock research</div></div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn" id="keyToggle" type="button" hidden>Live prices</button>
-      <button class="btn" id="addToggle" type="button">+ Add a stock</button>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" type="button" role="tab" id="tabExplore" aria-selected="true" aria-controls="explore">Explore</button>
+      <button class="tab" type="button" role="tab" id="tabPf" aria-selected="false" aria-controls="portfolio">Portfolio</button>
+      <button class="tab" type="button" role="tab" id="tabSet" aria-selected="false" aria-controls="settings">Settings</button>
+    </nav>
+    <div class="appbar-status">
+      <button class="pill" type="button" id="dataPill" title="Market data status"></button>
+      <button class="pill" type="button" id="brokerPill" title="Your broker"></button>
     </div>
-  </header>
-
-  <form class="add" id="keyForm" hidden>
-    <p class="hint">Live prices come from Alpha Vantage. Get a free key at <a href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener" style="color:var(--accent)">alphavantage.co</a> and paste it here. It's saved only in this browser and sent only to Alpha Vantage. The free plan allows about 25 price checks a day.</p>
-    <div class="field" style="grid-column:1/-1"><label class="label" for="avKey">Your Alpha Vantage key</label><input id="avKey" autocomplete="off" spellcheck="false" placeholder="Paste your key"></div>
-    <p class="err" id="keyMsg" hidden></p>
-    <div class="full"><button class="btn" type="button" id="keyRemove">Remove key</button><button class="btn" type="button" id="keyCancel">Close</button><button class="btn primary" type="submit">Save key</button></div>
-  </form>
-
-  <div class="notice" role="note"><b>Check the figures.</b> Prices marked "Live" come from Alpha Vantage, and dividend yield and P/E adjust to them. Profit margins, growth, debt and Nigerian prices are approximate mid-2026 reference values. Use "Check latest figures" before you act. Not financial advice.</div>
-
-  <div class="tabs" role="tablist" aria-label="Sections">
-    <button class="tab" type="button" role="tab" id="tabExplore" aria-selected="true" aria-controls="explore">Explore stocks</button>
-    <button class="tab" type="button" role="tab" id="tabPf" aria-selected="false" aria-controls="portfolio">Our portfolio</button>
   </div>
+</header>
+
+<div class="wrap">
+  <div class="trust" role="note">
+    <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span id="trustPrivacy">Your keys and holdings stay on this device</span></span>
+    <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Information to help you decide, never buy or sell advice</span>
+    <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg><span id="trustData">Fundamentals are approximate mid-2026 figures</span></span>
+  </div>
+
+  <section id="settings" role="tabpanel" aria-labelledby="tabSet" hidden>
+    <div class="set-head"><h2>Settings</h2><p class="muted">Choose your broker, connect live prices and AI insights, and control your data.</p></div>
+    <div class="set-grid" id="setGrid"></div>
+  </section>
 
   <section id="portfolio" role="tabpanel" aria-labelledby="tabPf" hidden>
     <div class="notice" id="pfOffline" hidden><b>Shared portfolio unavailable here.</b> Open this page in Claude while signed in to see and edit the holdings you share.</div>
     <div class="pf-bar">
-      <div><h2 style="font-size:24px">Our portfolio</h2><p class="small" style="margin:2px 0 0">Shared with everyone you invite to this page. Changes show up for both of you straight away.</p></div>
+      <div><h2 style="font-size:24px">Portfolio</h2><p class="small" style="margin:2px 0 0" id="pfSub">Shared with everyone you invite to this page. Changes show up for both of you straight away.</p></div>
       <div class="field" style="min-width:200px"><label class="label" for="pfCur">Show totals in</label><select id="pfCur"></select></div>
     </div>
+    <div class="broker-panel" id="brokerPanel"></div>
     <div class="tiles" id="pfTiles"></div>
     <div class="panel">
       <div class="panel-head"><h3>Who put in what</h3><button class="btn" type="button" id="editMembers">Edit names</button></div>
@@ -280,6 +348,10 @@ form.add .hint{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
   </section>
 
   <div id="explore" role="tabpanel" aria-labelledby="tabExplore">
+  <div class="page-head">
+    <div><h1>Find stocks that fit your goals</h1><p>Every stock gets plain-language verdicts, strengths, risks, a 1- and 5-year outlook and a cost calculator in your own currency.</p></div>
+    <button class="btn" id="addToggle" type="button">+ Add a stock</button>
+  </div>
   <form class="add" id="addForm" hidden>
     <p class="hint">Add any stock you're researching. You'll find these numbers on the company's results or a quote site. Leave blank anything you don't know.</p>
     <div class="field"><label class="label" for="a_name">Company</label><input id="a_name" placeholder="e.g. MTN Nigeria"></div>
@@ -336,6 +408,8 @@ form.add .hint{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
   <button class="btn primary" type="button" id="trayGo">Compare side by side</button>
 </div>
 <div class="overlay" id="overlay" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="cmpTitle" id="modal"></div></div>
+<div class="overlay" id="sheet" hidden><div class="modal sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" id="sheetBody"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
 /* ---------- Reference data (approximate, mid-2026). pr = share price in cu; y/m/g/p in %; de = debt/equity; b = beta ---------- */
@@ -545,6 +619,38 @@ const AV={AAPL:["AAPL",1],MSFT:["MSFT",1],NVDA:["NVDA",1],JNJ:["JNJ",1],KO:["KO"
 BASE.forEach(s=>{ const a=AV[s.t]; if(a){ s.av=a[0]; s.avr=a[1]; } });
 const AVS="Alpha Vantage MCP Server";
 const STANDALONE=!window.claude;
+const DESKTOP=!!window.scDesktop;
+const DOWNLOAD_URL="https://anyanso.github.io/stock-compass/download.html";
+const BROKERS={
+  wealthsimple:{name:"Wealthsimple",short:"W",buy:true,url:"https://my.wealthsimple.com/app/home"},
+  questrade:{name:"Questrade",short:"Q",buy:true,url:"https://my.questrade.com/"},
+  none:{name:"No broker",short:"–",buy:false}
+};
+let broker=null; try{ broker=JSON.parse(localStorage.getItem("sc_broker")||"null"); }catch(e){}
+/* The symbol to search for at the broker: US and TSX stocks as-is, other markets via their US listing, African exchanges not available */
+function brokerSymbol(s,b){
+  if(!s||s.r==="Africa") return null;
+  if(s.cu==="USD"||s.cu==="CAD") return s.t;
+  if(b==="wealthsimple"&&s.av==="NSRGY") return null;
+  return s.av||null;
+}
+function finnhubAdapter(key){
+  return {callTool:async(_s,_t,input)=>{
+    let r; try{ r=await fetch("https://finnhub.io/api/v1/quote?symbol="+encodeURIComponent(input.symbol)+"&token="+encodeURIComponent(key)); }catch(e){ throw {code:"network"}; }
+    if(r.status===401||r.status===403) return {payload:{error:{type:"badkey"}}};
+    if(r.status===429) return {payload:{error:{type:"limit"}}};
+    if(!r.ok) throw {code:"upstream_error"};
+    const j=await r.json(); if(!j||!(j.c>0)) return {payload:{error:{type:"nodata"}}};
+    return {payload:{"Global Quote":{"05. price":String(j.c),"10. change percent":(j.dp||0)+"%","07. latest trading day":j.t?new Date(j.t*1000).toISOString().slice(0,10):""}}};
+  }};
+}
+function desktopAdapter(){
+  return {callTool:async(_s,_t,input)=>{
+    const q=await window.scDesktop.quote(input.symbol);
+    if(!q||q.error){ if(q&&q.error==="network") throw {code:"network"}; return {payload:{error:{type:(q&&q.error)||"nodata"}}}; }
+    return {payload:{"Global Quote":{"05. price":String(q.price),"10. change percent":(q.changePct||0)+"%","07. latest trading day":q.day||""}}};
+  }};
+}
 /* Standalone mode: call Alpha Vantage directly with the visitor's own key, kept only in their browser */
 function directQuoteAdapter(key){
   return {callTool:async(_s,_t,input)=>{
@@ -679,9 +785,10 @@ async function fetchQuote(sym,force){
   }catch(e){ avStatus=e&&e.code||"upstream_error"; return false; }
 }
 function avMessage(){
-  if(STANDALONE&&!mcp) return "Add your free Alpha Vantage key under \"Live prices\" at the top to see live prices.";
-  if(STANDALONE&&avStatus==="badkey") return "Alpha Vantage didn't accept your key. Check it under \"Live prices\".";
-  if(STANDALONE&&avStatus==="network") return "Couldn't reach Alpha Vantage. Check your internet connection.";
+  if(STANDALONE&&!mcp) return "Add a free market data key in Settings to see live prices.";
+  if(STANDALONE&&avStatus==="badkey") return "Your market data key wasn't accepted. Check it in Settings.";
+  if(STANDALONE&&avStatus==="network") return "Couldn't reach the market data service. Check your internet connection.";
+  if(STANDALONE&&avStatus==="limit") return "Your market data provider's free limit is used up for now. Showing the last saved price.";
   switch(avStatus){
     case "server_not_connected": return "Connect Alpha Vantage in Claude's Settings → Connectors to see live prices.";
     case "needs_reauth": return "Reconnect Alpha Vantage in Claude's Settings → Connectors to refresh prices.";
@@ -779,7 +886,8 @@ function renderFile(s){
   <div class="head-acts">
     <button class="btn" type="button" id="fStar" aria-pressed="${w}">${w?"★ On your watchlist":"☆ Add to watchlist"}</button>
     <button class="btn" type="button" id="fCmp">${cmp.includes(s.t)?"✓ In comparison":"Add to comparison"}</button>
-    <button class="btn" type="button" id="fPf">+ Add to our portfolio</button>
+    <button class="btn" type="button" id="fPf">+ Add to portfolio</button>
+    ${broker&&BROKERS[broker]?.buy?(brokerSymbol(s,broker)?`<button class="btn primary" type="button" id="buyBtn">Buy in ${BROKERS[broker].name} ↗</button>`:`<span class="small">Not available on ${BROKERS[broker].name}${s.r==="Africa"?" (needs a broker on this exchange)":""}</span>`):""}
   </div>
 
   ${ABOUT[s.t]?`<section class="block about"><h3>About ${esc(s.n)}</h3>
@@ -820,7 +928,7 @@ function renderFile(s){
 
   <section class="block"><h3>Check before you decide</h3><ul class="list checks">${checks(s).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></section>
 
-  <section class="block" id="aiBlock" hidden><h3>Ask Claude for a deeper write-up</h3>
+  <section class="block" id="aiBlock" hidden><h3>Deeper analysis with Claude</h3>
     <p class="small" style="margin:0 0 10px">A neutral brief on the business, its track record and what to watch, from Claude's general knowledge. It doesn't see live prices, so check anything recent.</p>
     <button class="btn primary" type="button" id="aiBtn">Write a deeper analysis</button>
     <div class="ai" id="aiOut" hidden></div>
@@ -858,6 +966,9 @@ function renderFile(s){
   ["cAmt","cPrice"].forEach(id=>$(id).addEventListener("input",upd)); $("cCur").addEventListener("change",upd);
   renderCalc(s);
   if(sampleFn){ $("aiBlock").hidden=false; wireAI(s); }
+  else if(STANDALONE){ $("aiBlock").hidden=false; $("aiBtn").hidden=true;
+    $("aiOut").hidden=false; $("aiOut").textContent=DESKTOP?"Add your Anthropic API key in Settings to turn on AI write-ups.":"AI write-ups are available in the Stock Compass desktop app, using your own Anthropic API key."; }
+  const bb=$("buyBtn"); if(bb) bb.onclick=()=>openBroker(s);
   if(mcp&&needsQuote(s)&&!triedQuote.has(s.av)){ const sym=s.av; fetchQuote(sym).then(ok=>{ if(selected===s.t){ if(ok) delete calcState[s.t]; render(); } }); }
 }
 
@@ -957,7 +1068,7 @@ Write under 350 words with these short sections, each title on its own line: Wha
       aiCache[s.t]=r.text; out.textContent=r.text; btn.textContent="Write it again";
     }catch(e){
       if(e&&e.code==="not_granted"){ $("aiBlock").hidden=true; return; }
-      out.textContent=e&&e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":"Couldn't write the analysis. Try again.";
+      out.textContent=e&&e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":(e&&e.message)||"Couldn't write the analysis. Try again.";
       btn.textContent="Try again";
     }finally{ btn.disabled=false; }
   };
@@ -1008,14 +1119,15 @@ let pf={members:DEFAULT_MEMBERS,holdings:[],loaded:false}, pfCur=store.get("sc_p
 const conv=(v,from,to)=>FX[from]&&FX[to]?v/FX[from]*FX[to]:null;
 
 function showTab(t){
-  tab=t; const pfOn=t==="pf";
-  $("tabExplore").setAttribute("aria-selected",!pfOn); $("tabPf").setAttribute("aria-selected",pfOn);
-  $("explore").hidden=pfOn; $("portfolio").hidden=!pfOn;
-  renderTray(); if(pfOn) renderPortfolio();
+  tab=t;
+  [["explore","tabExplore","explore"],["pf","tabPf","portfolio"],["set","tabSet","settings"]].forEach(([k,b,p])=>{ $(b).setAttribute("aria-selected",k===t); $(p).hidden=k!==t; });
+  renderTray(); if(t==="pf") renderPortfolio(); if(t==="set") renderSettings();
+  window.scrollTo({top:0});
 }
 $("tabExplore").onclick=()=>showTab("explore");
 $("tabPf").onclick=()=>showTab("pf");
-const _renderTray=renderTray; renderTray=function(){ _renderTray(); if(tab==="pf") $("tray").hidden=true; };
+$("tabSet").onclick=()=>showTab("set");
+const _renderTray=renderTray; renderTray=function(){ _renderTray(); if(tab!=="explore") $("tray").hidden=true; };
 
 function holdingPrice(h){
   const s=all().find(x=>x.t===h.ticker);
@@ -1055,13 +1167,13 @@ function renderPortfolio(){
     const contrib=pf.members.map(m=>({m,a:+(h.contributions?.[m.k]||0)})).filter(x=>x.a>0);
     const left=cost-contrib.reduce((a,x)=>a+x.a,0);
     return `<article class="holding">
-      <div class="h-top"><div style="min-width:0"><h4>${esc(h.name)}</h4><div class="meta"><span class="num">${esc(h.ticker||"")}</span>${h.market?`<span>${esc(h.market)}</span>`:""}${h.date?`<span>${esc(h.date)}</span>`:""}</div></div>
+      <div class="h-top"><div style="min-width:0"><h4>${esc(h.name)}</h4><div class="meta"><span class="num">${esc(h.ticker||"")}</span>${h.account?`<span class="acct">${esc(h.account)}</span>`:""}${h.market?`<span>${esc(h.market)}</span>`:""}${h.date?`<span>${esc(h.date)}</span>`:""}${h.source?`<span>from ${esc(BROKERS[h.source]?.name||h.source)}</span>`:""}</div></div>
         <span class="tag ${sc}">${sl}</span></div>
       <div class="h-grid">
         <div><div class="label">Shares</div><div class="v">${(+h.shares||0).toLocaleString()}</div></div>
         <div><div class="label">Paid</div><div class="v">${money(cost,h.currency)}</div><div class="small">${money(+h.pricePaid||0,h.currency)} each</div></div>
         <div><div class="label">Worth now</div><div class="v">${money(now,h.currency)}</div><div class="small">≈ ${money(conv(now,h.currency,pfCur)||0,pfCur)}</div></div>
-        <div><div class="label">Gain / loss</div><div class="v ${g>=0?"pos":"neg"}">${g>=0?"+":""}${money(g,h.currency)}</div><div class="small">price now ${money(cp,h.currency)}${hp.live?` · <span class="pos">live, ${esc(hp.day)}</span>`:" · entered by you"}</div></div>
+        <div><div class="label">Gain / loss</div><div class="v ${g>=0?"pos":"neg"}">${g>=0?"+":""}${money(g,h.currency)}</div><div class="small">price now ${money(cp,h.currency)}${hp.live?` · <span class="pos">live, ${esc(hp.day)}</span>`:h.source?` · from your ${esc(BROKERS[h.source]?.name||"broker")} ${h.source==="questrade"?"sync":"report"}`:" · entered by you"}</div></div>
       </div>
       <div class="small">${contrib.length?contrib.map(x=>`${esc(x.m.name)}: ${money(x.a,h.currency)}`).join(" · "):"Who paid isn't recorded yet."}${contrib.length&&left>0.5?` · Not recorded: ${money(left,h.currency)}`:""}</div>
       ${h.notes?`<div class="small" style="color:var(--ink)">${esc(h.notes)}</div>`:""}
@@ -1069,6 +1181,7 @@ function renderPortfolio(){
         <button class="btn danger ${armedDelete===h.id?"armed":""}" type="button" data-del="${esc(h.id)}">${armedDelete===h.id?"Tap again to delete":"Delete"}</button></div>`:""}
     </article>`;
   }).join("");
+  renderBrokerPanel();
   $("addHolding").hidden=!(db&&canWrite); $("editMembers").hidden=!(db&&canWrite);
   $("pfRefresh").hidden=!(mcp&&pf.holdings.some(h=>all().find(x=>x.t===h.ticker&&x.av)));
 }
@@ -1085,7 +1198,7 @@ $("pfRefresh").onclick=async()=>{
 function openHoldingForm(id,prefill){
   if(!db){ $("pfOffline").hidden=false; return; }
   if(!canWrite) return;
-  editingId=id; const h=id?pf.holdings.find(x=>x.id===id):{status:"held",currency:"NGN",date:new Date().toISOString().slice(0,10),...(prefill||{})};
+  editingId=id; const h=id?pf.holdings.find(x=>x.id===id):{status:"held",currency:"NGN",date:new Date().toLocaleDateString("en-CA"),...(prefill||{})};
   const f=$("hForm"); f.hidden=false;
   f.innerHTML=`
     <div class="field full"><label class="label" for="h_name">Company</label><input id="h_name" required value="${esc(h.name||"")}" placeholder="e.g. Dangote Cement"></div>
@@ -1159,8 +1272,6 @@ async function initShared(){
   try{
     if(STANDALONE){
       db=localDB();
-      $("pfOffline").hidden=false;
-      $("pfOffline").innerHTML="<b>Saved on this device only.</b> Your holdings stay in this browser. Real-time family sharing works in the Claude version of Stock Compass.";
       db.doc("portfolio/settings").onSnapshot(s=>{ const m=s.exists?s.data().members:null; pf.members=Array.isArray(m)&&m.length?m:DEFAULT_MEMBERS; renderPortfolio(); });
       db.collection("holdings").onSnapshot(q=>{ pf.holdings=q.docs.map(d=>({id:d.id,...d.data()})); pf.loaded=true; renderPortfolio(); });
       db.collection("quotes").onSnapshot(q=>{ let ch=false; q.docs.forEach(d=>{ const v=d.data(); if(v&&v.price>0&&(!quotes[d.id]||quotes[d.id].fetchedAt!==v.fetchedAt)){ quotes[d.id]=v; ch=true; } }); if(ch){ render(); renderPortfolio(); } });
@@ -1180,21 +1291,296 @@ buildStatic(); render(); renderPortfolio();
 if(location.hash==="#portfolio") showTab("pf");
 (async()=>{ try{ const s=await window.claude?.use?.("sample"); if(s){ sampleFn=s; renderFile(all().find(x=>x.t===selected)); } }catch(e){} })();
 initShared();
-if(STANDALONE){
-  const k=store.get("sc_avkey","");
-  if(k){ mcp=directQuoteAdapter(k); }
-  $("keyToggle").hidden=false; $("keyToggle").textContent=k?"Live prices: on":"Live prices";
-  $("keyToggle").onclick=()=>{ const f=$("keyForm"); f.hidden=!f.hidden; $("keyMsg").hidden=true; $("avKey").value=store.get("sc_avkey",""); if(!f.hidden) $("avKey").focus(); };
-  $("keyCancel").onclick=()=>{ $("keyForm").hidden=true; };
-  const applyKey=k=>{ store.set("sc_avkey",k); mcp=k?directQuoteAdapter(k):null; avStatus=null; triedQuote.clear(); $("keyToggle").textContent=k?"Live prices: on":"Live prices"; render(); renderPortfolio(); };
-  $("keyForm").addEventListener("submit",e=>{ e.preventDefault(); const k=$("avKey").value.trim(); const m=$("keyMsg");
-    if(!/^[A-Za-z0-9]{8,}$/.test(k)){ m.hidden=false; m.textContent="That doesn't look like an Alpha Vantage key. It's a string of letters and numbers."; return; }
-    applyKey(k); $("keyForm").hidden=true; });
-  $("keyRemove").onclick=()=>{ applyKey(""); $("avKey").value=""; $("keyForm").hidden=true; };
-  render(); renderPortfolio();
-} else {
-  (async()=>{ try{ const m=await window.claude?.use?.("mcp"); if(m){ mcp=m; render(); renderPortfolio(); } }catch(e){} })();
+/* ---------- Keys, data provider and AI per mode ---------- */
+let keyState={finnhub:false,alphavantage:false,anthropic:false}, qtState=null;
+const KEY_INFO={
+  finnhub:{name:"Finnhub",get:"https://finnhub.io/register",note:"Recommended. Free: 60 price checks a minute for US-listed stocks."},
+  alphavantage:{name:"Alpha Vantage",get:"https://www.alphavantage.co/support/#api-key",note:"Backup. Free: about 25 price checks a day."},
+  anthropic:{name:"Anthropic (Claude)",get:"https://console.anthropic.com/settings/keys",note:"Pay as you go. Usually a few cents per write-up."}
+};
+function webKey(n){ return store.get("sc_key_"+n,"")||(n==="alphavantage"?store.get("sc_avkey",""):""); }
+async function refreshKeyState(){
+  if(DESKTOP){ for(const n in keyState){ try{ keyState[n]=!!(await window.scDesktop.hasKey(n)); }catch(e){ keyState[n]=false; } }
+    try{ qtState=await window.scDesktop.questradeStatus(); }catch(e){ qtState=null; } }
+  else if(STANDALONE){ for(const n in keyState) keyState[n]=!!webKey(n); }
 }
+function providerName(){
+  if(!STANDALONE) return mcp?"Alpha Vantage via Claude":null;
+  return keyState.finnhub?"Finnhub":keyState.alphavantage?"Alpha Vantage":null;
+}
+function setupProviders(){
+  if(!STANDALONE) return;
+  if(DESKTOP){ mcp=(keyState.finnhub||keyState.alphavantage)?desktopAdapter():null;
+    sampleFn=keyState.anthropic?async(prompt,opts)=>{ const r=await window.scDesktop.ai(prompt); if(!r||r.error) throw {code:r&&r.error,message:r&&r.message}; opts?.onText?.({text:r.text}); return {text:r.text}; }:null; }
+  else { const f=webKey("finnhub"), a=webKey("alphavantage"); mcp=f?finnhubAdapter(f):a?directQuoteAdapter(a):null; }
+  avStatus=null; triedQuote.clear();
+}
+async function saveKey(n,v){
+  if(DESKTOP) await window.scDesktop.setKey(n,v); else store.set("sc_key_"+n,v);
+  if(n==="alphavantage"&&!DESKTOP) store.set("sc_avkey","");
+  await refreshKeyState(); setupProviders(); refreshChrome();
+}
+
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>{ t.hidden=true; },4200); }
+function openExternal(url){
+  if(DESKTOP){ window.scDesktop.openExternal(url); return; }
+  const a=document.createElement("a"); a.href=url; a.target="_blank"; a.rel="noopener"; document.body.appendChild(a); a.click(); a.remove();
+}
+async function openBroker(s){
+  const b=BROKERS[broker], sym=brokerSymbol(s,broker); if(!b||!sym) return;
+  let copied=false; try{ await navigator.clipboard.writeText(sym); copied=true; }catch(e){}
+  openExternal(b.url);
+  toast(copied?`${sym} copied. Paste it into ${b.name}'s search to buy.`:`Search for ${sym} in ${b.name} to buy.`);
+}
+function setBroker(b){ broker=b; store.set("sc_broker",b); refreshChrome(); render(); if(tab==="set") renderSettings(); if(tab==="pf") renderPortfolio(); }
+
+function refreshChrome(){
+  const p=providerName();
+  $("dataPill").innerHTML=`<span class="dot ${p?"on":"warn"}"></span>${p?"Live prices: "+esc(p):"Reference prices"}`;
+  $("brokerPill").innerHTML=`<span class="dot ${broker&&broker!=="none"?"on":""}"></span>${broker?esc(BROKERS[broker].name):"Choose your broker"}`;
+  $("trustPrivacy").textContent=!STANDALONE?"Portfolio shared only with people you invite":DESKTOP?"Keys are encrypted on this computer":"Your keys and holdings stay in this browser";
+  $("trustData").textContent=p?`Live prices from ${p}; fundamentals are approximate mid-2026 figures`:"Fundamentals and prices are approximate mid-2026 figures";
+  $("pfSub").textContent=!STANDALONE?"Shared with everyone you invite to this page. Changes show up for both of you straight away.":DESKTOP?"Saved on this computer.":"Saved in this browser on this device.";
+}
+$("dataPill").onclick=()=>showTab("set");
+$("brokerPill").onclick=()=>showTab("set");
+
+/* ---------- Settings ---------- */
+function keyCard(n){
+  const k=KEY_INFO[n], on=keyState[n];
+  return `<div class="keyrow">
+    <div class="keyline" style="justify-content:space-between"><strong>${k.name}</strong><span class="state ${on?"ok":"off"}">${on?"● Connected":"○ Not connected"}</span></div>
+    <div class="small">${k.note} <a class="link" href="${k.get}" target="_blank" rel="noopener" data-ext="${k.get}">Get a free key ↗</a></div>
+    <div class="keyline"><input type="password" id="key_${n}" autocomplete="off" spellcheck="false" placeholder="${on?"Paste a new key to replace":"Paste your key"}" aria-label="${k.name} key">
+      <button class="btn primary" type="button" data-savekey="${n}">${on?"Replace":"Save"}</button>${on?`<button class="btn" type="button" data-rmkey="${n}">Remove</button>`:""}</div>
+    <div class="small" id="msg_${n}" role="status"></div></div>`;
+}
+function renderSettings(){
+  const g=$("setGrid");
+  const brokerExtra=broker==="wealthsimple"?`<div class="notice info" style="margin:0"><b>How it works with Wealthsimple:</b> research here, then tap "Buy in Wealthsimple" on any stock to finish the purchase in Wealthsimple. Bring your TFSA, RRSP and FHSA holdings in with the Holdings report. <button class="btn" type="button" id="setImport" style="margin-top:8px">Import my holdings</button></div>`
+    :broker==="questrade"?(DESKTOP?questradeBlock():`<div class="notice info" style="margin:0"><b>Questrade:</b> "Buy in Questrade" works here. A live connection to your Questrade account needs the desktop app. <a class="link" href="${DOWNLOAD_URL}" target="_blank" rel="noopener">Download it ↗</a></div>`)
+    :broker==="none"?`<p class="desc">You can still research, track holdings by hand and use every tool.</p>`:"";
+  const dataCard=!STANDALONE?`<div class="card"><h3>Live market data</h3>
+      <p class="desc">${mcp?`<span class="state ok">● Connected</span> through your Alpha Vantage connector in Claude. Prices are shared with everyone on this page.`:`<span class="state off">○ Not connected</span> Connect Alpha Vantage in Claude's Settings → Connectors to see live prices.`}</p></div>`
+    :`<div class="card"><h3>Live market data</h3><p class="desc">Add a free key to see live prices. Keys ${DESKTOP?"are encrypted on this computer":"stay in this browser"} and are only sent to that provider.</p>${keyCard("finnhub")}${keyCard("alphavantage")}</div>`;
+  const aiCard=!STANDALONE?`<div class="card"><h3>AI insights</h3><p class="desc"><span class="state ok">● Included</span> "Deeper analysis with Claude" uses your Claude plan.</p></div>`
+    :DESKTOP?`<div class="card"><h3>AI insights</h3><p class="desc">Turn on "Deeper analysis with Claude" with your own Anthropic API key. You pay Anthropic directly, per use.</p>${keyCard("anthropic")}</div>`
+    :`<div class="card"><h3>AI insights</h3><p class="desc">AI write-ups run in the desktop app with your own Anthropic API key.</p><a class="btn" href="${DOWNLOAD_URL}" target="_blank" rel="noopener" style="width:fit-content;text-decoration:none">Get the desktop app ↗</a></div>`;
+  const where=!STANDALONE?"Your portfolio and watchlist are stored with this page in Claude and shared with the people you invite. Market data keys are managed by Claude's connectors."
+    :DESKTOP?"Your holdings, watchlist and settings are saved on this computer. API keys are encrypted with your operating system's secure storage and only sent to the service they belong to. Stock Compass has no server and never sees your data."
+    :"Your holdings, watchlist, settings and keys are saved in this browser only. Stock Compass has no server and never sees your data.";
+  g.innerHTML=`
+    <div class="card wide"><h3>Your broker</h3><p class="desc">Pick where you invest. Stock Compass never logs in to your broker or places trades; you always buy in your broker's own app.</p>
+      <div class="choice-row" role="group" aria-label="Broker">${["wealthsimple","questrade","none"].map(b=>`<button class="choice" type="button" data-broker="${b}" aria-pressed="${broker===b}"><b>${BROKERS[b].name}</b><span>${b==="wealthsimple"?"Import holdings · Buy in Wealthsimple":b==="questrade"?"Live account link (desktop) · Buy in Questrade":"Research and track by hand"}</span></button>`).join("")}</div>
+      ${brokerExtra}</div>
+    ${dataCard}${aiCard}
+    <div class="card"><h3>Privacy and your data</h3><p class="desc">${where}</p>
+      ${STANDALONE?`<button class="btn danger" type="button" id="eraseAll" style="width:fit-content">Erase all data on this device</button>`:""}</div>
+    ${STANDALONE&&!DESKTOP?`<div class="card"><h3>Desktop app</h3><p class="desc">Get Stock Compass for Windows or Mac: encrypted key storage, AI write-ups and a live Questrade connection.</p><a class="btn primary" href="${DOWNLOAD_URL}" target="_blank" rel="noopener" style="width:fit-content;text-decoration:none">Download for your computer ↗</a></div>`:""}
+    ${DESKTOP?`<div class="card"><h3>About</h3><p class="desc">Stock Compass desktop ${esc(window.scDesktop.version||"")}. Not financial advice.</p></div>`:""}`;
+}
+function questradeBlock(){
+  const c=qtState&&qtState.connected;
+  return `<div class="card" style="background:var(--bg)"><h3>Questrade connection ${c?`<span class="state ok">● Connected</span>`:`<span class="state off">○ Not connected</span>`}</h3>
+    ${c?`<p class="desc">Read-only access to ${qtState.accounts||0} account${qtState.accounts===1?"":"s"}. ${qtState.lastSync?"Last synced "+esc(new Date(qtState.lastSync).toLocaleString())+".":""}</p>
+      <div class="keyline"><button class="btn primary" type="button" id="qtSync">Sync holdings now</button><button class="btn" type="button" id="qtOff">Disconnect</button></div>`
+    :`<ol class="steps-list"><li>Log in to Questrade on the web and open the API centre (App Hub) from your account menu.</li><li>Register a personal app. Give it any name and allow it to read account data.</li><li>Generate a new token for it and copy it.</li><li>Paste the token below and click Connect.</li></ol>
+      <p class="small" style="margin:0">Stock Compass can only read your accounts; Questrade doesn't let it trade. If you don't open the app for 3 days the token expires and you'll need a new one.</p>
+      <div class="keyline"><input type="password" id="qtToken" autocomplete="off" spellcheck="false" placeholder="Paste your Questrade token" aria-label="Questrade token"><button class="btn primary" type="button" id="qtConnect">Connect</button></div>`}
+    <div class="small" id="qtMsg" role="status"></div></div>`;
+}
+$("setGrid").addEventListener("click",async e=>{
+  const ext=e.target.closest("[data-ext]"); if(ext&&DESKTOP){ e.preventDefault(); openExternal(ext.dataset.ext); return; }
+  const b=e.target.closest("[data-broker]"); if(b){ setBroker(b.dataset.broker); return; }
+  const sk=e.target.closest("[data-savekey]");
+  if(sk){ const n=sk.dataset.savekey, v=$("key_"+n).value.trim(), m=$("msg_"+n);
+    if(!/^[A-Za-z0-9_\-]{8,}$/.test(v)){ m.className="small state err"; m.textContent="That doesn't look like a valid key. Copy it again from "+KEY_INFO[n].name+"."; return; }
+    sk.disabled=true; m.className="small"; m.textContent="Saving and checking…";
+    await saveKey(n,v);
+    if(n!=="anthropic"&&mcp){ const ok=await fetchQuote("KO",true); m.className="small state "+(ok?"ok":"err"); m.textContent=ok?"Working: live price received.":avMessage()||"Saved, but the test price didn't load."; }
+    else { m.className="small state ok"; m.textContent="Saved."; }
+    renderSettings(); const m2=$("msg_"+n); if(m2){ m2.className=m.className; m2.textContent=m.textContent; } render(); return; }
+  const rk=e.target.closest("[data-rmkey]"); if(rk){ await saveKey(rk.dataset.rmkey,""); renderSettings(); render(); return; }
+  if(e.target.id==="setImport"){ openImport(); return; }
+  if(e.target.id==="eraseAll"){ if(e.target.dataset.armed!=="1"){ e.target.dataset.armed="1"; e.target.textContent="Tap again to erase everything"; e.target.classList.add("armed"); return; }
+    if(DESKTOP) await window.scDesktop.clearAll(); try{ localStorage.clear(); }catch(_){}
+    location.reload(); return; }
+  if(e.target.id==="qtConnect"){ const t=$("qtToken").value.trim(), m=$("qtMsg"); if(t.length<10){ m.textContent="Paste the token from Questrade first."; return; }
+    e.target.disabled=true; m.textContent="Connecting…"; const r=await window.scDesktop.questradeConnect(t);
+    if(r&&r.ok){ await refreshKeyState(); renderSettings(); await syncQuestrade(); } else { e.target.disabled=false; m.className="small state err"; m.textContent=(r&&r.message)||"Questrade didn't accept that token. Generate a new one and try again."; } return; }
+  if(e.target.id==="qtSync"){ await syncQuestrade(); return; }
+  if(e.target.id==="qtOff"){ await window.scDesktop.questradeDisconnect(); await refreshKeyState(); renderSettings(); return; }
+});
+
+/* ---------- Broker panel in Portfolio ---------- */
+function renderBrokerPanel(){
+  const el=$("brokerPanel"); if(!el) return;
+  if(!broker){ el.innerHTML=`<div class="card"><div class="broker-logo">?</div><div><h3>Connect your broker</h3><p class="desc">Tell Stock Compass where you invest to import your holdings and get one-tap buy links.</p></div><button class="btn primary" type="button" data-go="set">Choose broker</button></div>`; }
+  else if(broker==="wealthsimple"){ const n=pf.holdings.filter(h=>h.source==="wealthsimple").length;
+    el.innerHTML=`<div class="card"><div class="broker-logo">W</div><div><h3>Wealthsimple</h3><p class="desc">${n?`${n} holding${n===1?"":"s"} imported from your Holdings report. Import a fresh file any time to update them.`:"Bring in your TFSA, RRSP, FHSA and other holdings with Wealthsimple's Holdings report."}</p></div><button class="btn primary" type="button" data-go="import">${n?"Update holdings":"Import holdings"}</button></div>`; }
+  else if(broker==="questrade"){ const c=DESKTOP&&qtState&&qtState.connected;
+    el.innerHTML=`<div class="card"><div class="broker-logo">Q</div><div><h3>Questrade</h3><p class="desc">${!DESKTOP?"A live link to your Questrade accounts works in the desktop app.":c?`Connected, read-only.${qtState.lastSync?" Last synced "+esc(new Date(qtState.lastSync).toLocaleString())+".":""}`:"Connect your Questrade account in Settings to sync holdings automatically."}</p></div>
+      ${!DESKTOP?`<a class="btn" href="${DOWNLOAD_URL}" target="_blank" rel="noopener" style="text-decoration:none">Get the desktop app</a>`:c?`<button class="btn primary" type="button" data-go="qtsync">Sync now</button>`:`<button class="btn primary" type="button" data-go="set">Connect</button>`}</div>`; }
+  else el.innerHTML="";
+}
+$("brokerPanel").addEventListener("click",e=>{ const g=e.target.closest("[data-go]"); if(!g) return;
+  if(g.dataset.go==="set") showTab("set"); else if(g.dataset.go==="import") openImport(); else if(g.dataset.go==="qtsync") syncQuestrade(); });
+
+/* ---------- Replace imported holdings from one source, keeping who-paid notes ---------- */
+async function replaceSource(source,items){
+  if(!db||!canWrite) throw new Error("readonly");
+  const old=pf.holdings.filter(h=>h.source===source);
+  const keyOf=h=>(h.ticker||"")+"|"+(h.account||"");
+  const prev=Object.fromEntries(old.map(h=>[keyOf(h),h]));
+  for(const h of old) await db.doc("holdings/"+h.id).delete();
+  for(const it of items){ const p=prev[keyOf(it)]; await db.collection("holdings").add({...it,contributions:p?.contributions||{},notes:p?.notes&&!p.notes.startsWith("Imported")?p.notes:it.notes}); }
+}
+async function syncQuestrade(){
+  const m=$("qtMsg"); if(m){ m.className="small"; m.textContent="Syncing your Questrade holdings…"; }
+  const r=await window.scDesktop.questradeSync();
+  if(!r||!r.ok){ const msg=(r&&r.message)||"Couldn't sync with Questrade."; if(m){ m.className="small state err"; m.textContent=msg; } toast(msg); await refreshKeyState(); renderBrokerPanel(); return; }
+  const today=new Date().toLocaleDateString("en-CA");
+  const items=r.positions.filter(p=>p.quantity>0).map(p=>({name:p.name||p.symbol,ticker:(p.symbol||"").replace(/\.TO$/,""),market:p.exchange||"",status:"held",date:today,
+    shares:p.quantity,currency:p.currency||"CAD",pricePaid:p.averageEntryPrice||p.currentPrice,currentPrice:p.currentPrice,account:p.accountType||"",source:"questrade",
+    notes:"Synced from Questrade",updatedAt:new Date().toISOString()}));
+  await replaceSource("questrade",items); await refreshKeyState();
+  toast(`Synced ${items.length} holding${items.length===1?"":"s"} from Questrade.`);
+  if(tab==="set") renderSettings(); renderPortfolio();
+}
+
+/* ---------- Wealthsimple Holdings report import ---------- */
+function parseCSV(text){
+  const rows=[]; let row=[],cell="",q=false;
+  for(let i=0;i<text.length;i++){ const ch=text[i];
+    if(q){ if(ch==='"'){ if(text[i+1]==='"'){ cell+='"'; i++; } else q=false; } else cell+=ch; }
+    else if(ch==='"') q=true; else if(ch===','){ row.push(cell); cell=""; }
+    else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&text[i+1]==='\n') i++; row.push(cell); rows.push(row); row=[]; cell=""; }
+    else cell+=ch; }
+  if(cell!==""||row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r=>r.some(c=>c.trim()!==""));
+}
+const numV=v=>{ if(v==null) return NaN; let s=String(v).trim(); const neg=/^\(.*\)$/.test(s); s=s.replace(/[^0-9.\-]/g,""); const n=parseFloat(s); return neg?-n:n; };
+function readHoldings(text){
+  const rows=parseCSV(text.replace(/^﻿/,""));
+  const hi=rows.findIndex((r,i)=>i<15&&r.some(c=>/symbol|ticker/i.test(c))&&r.some(c=>/quantity|shares|units/i.test(c)));
+  if(hi<0) return {error:"This file doesn't look like a holdings report: no Symbol and Quantity columns. Make sure you chose \"Holdings report (CSV)\" in Wealthsimple."};
+  const H=rows[hi].map(h=>h.trim().toLowerCase());
+  const col=(...tests)=>{ for(const t of tests){ const i=H.findIndex(t); if(i>=0) return i; } return -1; };
+  const c={symbol:col(h=>/^symbol$|^ticker$/.test(h),h=>/symbol|ticker/.test(h)),
+    name:col(h=>/^name$|security name|^description$/.test(h),h=>/name|description|security/.test(h)&&!/account|symbol/.test(h)),
+    qty:col(h=>/quantity|shares|units/.test(h)),
+    price:col(h=>/market price$|^market price/.test(h)&&!/currency/.test(h),h=>/price/.test(h)&&!/book|currency|average/.test(h)),
+    pcur:col(h=>/market price currency|price currency/.test(h),h=>/^currency$/.test(h),h=>/currency/.test(h)&&!/book/.test(h)),
+    book:col(h=>/book (value|cost)/.test(h)&&!/currency/.test(h)),
+    bcur:col(h=>/book (value|cost) currency/.test(h)),
+    acct:col(h=>/account type/.test(h),h=>/account name/.test(h),h=>/^account$/.test(h)),
+    exch:col(h=>/exchange/.test(h))};
+  const today=new Date().toLocaleDateString("en-CA"), items=[];
+  for(const r of rows.slice(hi+1)){
+    const sym=(r[c.symbol]||"").trim().toUpperCase(), qty=numV(r[c.qty]);
+    if(!sym||!(qty>0)||/^(CAD|USD|CASH)$/.test(sym)) continue;
+    const price=numV(r[c.price]), cur=(c.pcur>=0&&/^[A-Z]{3}$/.test((r[c.pcur]||"").trim().toUpperCase()))?r[c.pcur].trim().toUpperCase():"CAD";
+    const book=numV(r[c.book]), bcur=c.bcur>=0?(r[c.bcur]||"").trim().toUpperCase():cur;
+    let paid=book>0?book/qty:price; if(book>0&&bcur&&bcur!==cur&&FX[bcur]&&FX[cur]) paid=conv(paid,bcur,cur);
+    let acct=(c.acct>=0?r[c.acct]:"").trim(); const m=acct.match(/TFSA|RRSP|FHSA|RESP|RRIF|LIRA|Non-?registered|Margin|Cash|Crypto/i); acct=m?m[0].toUpperCase().replace("NON-REGISTERED","NON-REG").replace("NONREGISTERED","NON-REG"):acct.slice(0,20);
+    items.push({name:(c.name>=0?r[c.name]:"").trim()||sym,ticker:sym,market:c.exch>=0?(r[c.exch]||"").trim():"",status:"held",date:today,shares:qty,currency:FX[cur]?cur:"CAD",
+      pricePaid:Math.round((paid||0)*10000)/10000,currentPrice:price>0?price:null,account:acct,source:"wealthsimple",notes:"Imported from Wealthsimple holdings report",updatedAt:new Date().toISOString()});
+  }
+  if(!items.length) return {error:"No holdings found in this file. Check that the accounts you picked actually hold investments."};
+  return {items};
+}
+function openSheet(html){ $("sheetBody").innerHTML=html; $("sheet").hidden=false; const f=$("sheetBody").querySelector("button,input"); if(f) f.focus(); }
+function closeSheet(){ $("sheet").hidden=true; }
+$("sheet").addEventListener("click",e=>{ if(e.target.id==="sheet") closeSheet(); });
+let importItems=null;
+function openImport(){
+  importItems=null;
+  openSheet(`<div class="modal-head"><h2 id="sheetTitle" style="font-size:21px">Import from Wealthsimple</h2><button class="btn" type="button" data-sh="close">Close</button></div>
+    <p class="muted" style="margin:0 0 12px">Download your Holdings report from Wealthsimple, then drop it here. ${!STANDALONE?"Imported holdings are added to the shared portfolio on this page.":"The file is read on this device and never uploaded anywhere."}</p>
+    <ol class="steps-list">
+      <li>On a computer, log in to Wealthsimple at <a class="link" href="https://my.wealthsimple.com" target="_blank" rel="noopener" data-ext="https://my.wealthsimple.com">my.wealthsimple.com</a>. The report isn't available in the phone app.</li>
+      <li>Open your <b>Profile</b> menu and choose <b>Documents</b>.</li>
+      <li>Click <b>Request documents</b> (it may say <b>Generate document</b>).</li>
+      <li>Choose <b>Holdings report (CSV)</b>.</li>
+      <li>Tick your accounts, such as TFSA, RRSP and FHSA, then click <b>Download CSV</b>.</li>
+      <li>Drop the downloaded file below, or click to choose it.</li>
+    </ol>
+    <label class="drop" id="drop" for="wsFile" style="margin-top:14px"><strong>Drop your Holdings report here</strong><span class="small">or click to choose the .csv file</span></label>
+    <input type="file" id="wsFile" accept=".csv,text/csv" hidden>
+    <div id="impOut" style="margin-top:12px"></div>`);
+}
+function showImportPreview(res){
+  const o=$("impOut");
+  if(res.error){ o.innerHTML=`<p class="state err" style="font-weight:500">${esc(res.error)}</p>`; return; }
+  importItems=res.items;
+  const replacing=pf.holdings.filter(h=>h.source==="wealthsimple").length;
+  o.innerHTML=`<p style="margin:0 0 8px"><strong>${res.items.length} holding${res.items.length===1?"":"s"} found.</strong> Check they look right:</p>
+    <div class="preview"><table><thead><tr><th>Symbol</th><th>Name</th><th>Account</th><th>Shares</th><th>Price</th></tr></thead><tbody>
+    ${res.items.map(i=>`<tr><td class="num">${esc(i.ticker)}</td><td>${esc(i.name)}</td><td>${i.account?`<span class="acct">${esc(i.account)}</span>`:"–"}</td><td class="num">${i.shares}</td><td class="num">${i.currentPrice?money(i.currentPrice,i.currency):"–"}</td></tr>`).join("")}
+    </tbody></table></div>
+    ${replacing?`<p class="small" style="margin:8px 0 0">This replaces the ${replacing} holding${replacing===1?"":"s"} from your last import. Who-paid amounts are kept for matching holdings.</p>`:""}
+    <div class="sheet-acts"><span></span><button class="btn primary" type="button" data-sh="doimport">Import ${res.items.length} holding${res.items.length===1?"":"s"}</button></div>`;
+}
+async function handleFile(f){ if(!f) return; if(f.size>5e6){ showImportPreview({error:"That file is too large to be a holdings report."}); return; }
+  const text=await f.text(); showImportPreview(readHoldings(text)); }
+$("sheetBody").addEventListener("change",e=>{ if(e.target.id==="wsFile") handleFile(e.target.files[0]); });
+$("sheetBody").addEventListener("dragover",e=>{ const d=e.target.closest("#drop"); if(d){ e.preventDefault(); d.classList.add("over"); } });
+$("sheetBody").addEventListener("dragleave",e=>{ const d=e.target.closest("#drop"); if(d) d.classList.remove("over"); });
+$("sheetBody").addEventListener("drop",e=>{ const d=e.target.closest("#drop"); if(d){ e.preventDefault(); d.classList.remove("over"); handleFile(e.dataTransfer.files[0]); } });
+$("sheetBody").addEventListener("click",async e=>{
+  const ext=e.target.closest("[data-ext]"); if(ext&&DESKTOP){ e.preventDefault(); openExternal(ext.dataset.ext); return; }
+  const a=e.target.closest("[data-sh]"); if(!a) return; const act=a.dataset.sh;
+  if(act==="close"){ closeSheet(); return; }
+  if(act==="doimport"&&importItems){ a.disabled=true; a.textContent="Importing…";
+    try{ await replaceSource("wealthsimple",importItems); if(!broker) setBroker("wealthsimple"); closeSheet(); showTab("pf"); toast(`Imported ${importItems.length} holding${importItems.length===1?"":"s"} from Wealthsimple.`); }
+    catch(err){ a.disabled=false; a.textContent="Try again"; $("impOut").insertAdjacentHTML("beforeend",`<p class="state err">${err.message==="readonly"?"You can view this portfolio but not change it.":"Couldn't save the import. Try again."}</p>`); } return; }
+  if(act.startsWith("ob")) obAction(act,a);
+});
+
+/* ---------- First-run onboarding (standalone and desktop) ---------- */
+let obStep=0;
+function obDots(n){ return `<div class="ob-dots">${Array.from({length:n},(_,i)=>`<i class="${i<=obStep?"on":""}"></i>`).join("")}</div>`; }
+function renderOnboarding(){
+  const total=DESKTOP?4:3;
+  const steps=[
+    ()=>`${obDots(total)}<h2 id="sheetTitle" style="font-size:24px">Welcome to Stock Compass</h2>
+      <p class="muted" style="margin:6px 0 0">Plain-language research to help you decide what to invest in. Three promises:</p>
+      <div class="promise">
+        <div><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg><span><b>It informs, never pushes.</b> You get facts, risks and ranges, never "buy" or "sell".</span></div>
+        <div><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>Your data stays with you.</b> ${DESKTOP?"Keys are encrypted on this computer":"Everything is saved in this browser"}; there's no Stock Compass server.</span></div>
+        <div><svg viewBox="0 0 24 24"><path d="M3 12h13M12 6l6 6-6 6"/><path d="M21 4v16"/></svg><span><b>You stay in control.</b> Stock Compass never logs in to your broker or trades for you.</span></div>
+      </div><div class="sheet-acts"><button class="btn" type="button" data-sh="obskip">Skip setup</button><button class="btn primary" type="button" data-sh="obnext">Get started</button></div>`,
+    ()=>`${obDots(total)}<h2 id="sheetTitle" style="font-size:22px">Where do you invest?</h2><p class="muted" style="margin:6px 0 12px">This sets up the right import and buy buttons. You can change it later in Settings.</p>
+      <div class="choice-row">${["wealthsimple","questrade","none"].map(b=>`<button class="choice" type="button" data-sh="obbroker" data-b="${b}" aria-pressed="${broker===b}"><b>${BROKERS[b].name}</b><span>${b==="wealthsimple"?"Import holdings, buy in Wealthsimple":b==="questrade"?DESKTOP?"Live account link, buy in Questrade":"Buy in Questrade; live link in desktop app":"Just researching"}</span></button>`).join("")}</div>
+      <div class="sheet-acts"><button class="btn" type="button" data-sh="obback">Back</button><button class="btn primary" type="button" data-sh="obnext">Continue</button></div>`,
+    ()=>`${obDots(total)}<h2 id="sheetTitle" style="font-size:22px">Turn on live prices</h2><p class="muted" style="margin:6px 0 12px">Stock Compass works without this, using reference prices. For live prices, get a free Finnhub key (takes a minute) and paste it here.</p>
+      ${keyCard("finnhub")}<div class="sheet-acts"><button class="btn" type="button" data-sh="obback">Back</button><span style="display:flex;gap:8px"><button class="btn" type="button" data-sh="obnext">Skip for now</button><button class="btn primary" type="button" data-sh="obsavekey" data-k="finnhub">Save and continue</button></span></div>`,
+    ()=>`${obDots(total)}<h2 id="sheetTitle" style="font-size:22px">AI insights (optional)</h2><p class="muted" style="margin:6px 0 12px">Add an Anthropic API key to get a deeper write-up on any stock from Claude. You pay Anthropic directly, usually a few cents per write-up.</p>
+      ${keyCard("anthropic")}<div class="sheet-acts"><button class="btn" type="button" data-sh="obback">Back</button><span style="display:flex;gap:8px"><button class="btn" type="button" data-sh="obnext">Skip for now</button><button class="btn primary" type="button" data-sh="obsavekey" data-k="anthropic">Save and finish</button></span></div>`
+  ];
+  const list=DESKTOP?steps:steps.slice(0,3);
+  if(obStep>=list.length){ finishOnboarding(); return; }
+  openSheet(`<div style="display:grid">${list[obStep]()}</div>`);
+}
+function finishOnboarding(){ store.set("sc_onboarded",true); closeSheet();
+  if(broker==="wealthsimple"){ openImport(); toast("You're set. Import your Wealthsimple holdings, or close this to start exploring."); } }
+async function obAction(act,a){
+  if(act==="obnext"){ obStep++; renderOnboarding(); }
+  else if(act==="obback"){ obStep=Math.max(0,obStep-1); renderOnboarding(); }
+  else if(act==="obskip"){ store.set("sc_onboarded",true); closeSheet(); }
+  else if(act==="obbroker"){ setBroker(a.dataset.b); renderOnboarding(); }
+  else if(act==="obsavekey"){ const n=a.dataset.k, v=$("key_"+n).value.trim(), m=$("msg_"+n);
+    if(!v){ obStep++; renderOnboarding(); return; }
+    if(!/^[A-Za-z0-9_\-]{8,}$/.test(v)){ m.className="small state err"; m.textContent="That doesn't look like a valid key."; return; }
+    a.disabled=true; m.className="small"; m.textContent="Saving…"; await saveKey(n,v); obStep++; renderOnboarding(); }
+}
+
+(async()=>{
+  if(STANDALONE){ await refreshKeyState(); setupProviders(); }
+  else { try{ const m=await window.claude?.use?.("mcp"); if(m){ mcp=m; } }catch(e){} }
+  refreshChrome(); render(); renderPortfolio();
+  if(STANDALONE&&!store.get("sc_onboarded",false)){ obStep=0; renderOnboarding(); }
+})();
 </script>
 
 </body>
