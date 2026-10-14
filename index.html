@@ -173,6 +173,19 @@ table.cmp thead th{font-family:var(--f-display);font-size:15px}
 table.cmp td.best{background:var(--good-soft);font-weight:700}
 table.cmp th[scope=row]{color:var(--muted);font-weight:600;font-size:13px;white-space:nowrap}
 
+/* outlook */
+.ol{display:grid;gap:16px}
+.ol-row{display:grid;gap:6px}
+.ol-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}
+.ol-track{position:relative;height:22px;background:var(--sunk);border-radius:6px}
+.ol-range{position:absolute;top:5px;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--bad-soft),var(--good-soft));border:1px solid var(--line)}
+.ol-zero{position:absolute;top:0;bottom:0;width:2px;background:var(--muted)}
+.ol-mid{position:absolute;top:2px;width:4px;height:18px;border-radius:2px;background:var(--ink);transform:translateX(-2px)}
+.ol-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:12.5px}
+.ol-nums div{min-width:0}
+.ol-nums .v{font-family:var(--f-data);font-weight:600;font-size:14px;overflow-wrap:anywhere}
+.ol-nums div:nth-child(2){text-align:center}
+.ol-nums div:nth-child(3){text-align:right}
 /* tabs + portfolio */
 .tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:12px;width:fit-content;max-width:100%;margin-bottom:20px;flex-wrap:wrap}
 .tab{border:0;background:transparent;padding:9px 16px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--muted)}
@@ -656,6 +669,11 @@ function renderFile(s){
     </div>
   </section>
 
+  <section class="block"><h3>What could happen to my money</h3>
+    <div class="calc"><div class="ol" id="olOut"></div>
+    <p class="small" style="margin:0">These are not predictions. They're a range based on the dividend, recent sales growth, how expensive the shares are, and how much the price usually swings. About 1 year in 10 turns out worse than the bad case, and about 1 in 10 better than the good case. Includes dividends reinvested; before fees, taxes and currency moves.</p></div>
+  </section>
+
   <section class="block cols">
     <div><h3>Strengths</h3><ul class="list pros">${pc.pros.map(t=>`<li>${esc(t)}</li>`).join("")||"<li>None stand out from the numbers.</li>"}</ul></div>
     <div><h3>Risks</h3><ul class="list cons">${pc.cons.map(t=>`<li>${esc(t)}</li>`).join("")||"<li>No major flags from the numbers.</li>"}</ul></div>
@@ -704,7 +722,36 @@ function renderFile(s){
   if(mcp&&needsQuote(s)&&!triedQuote.has(s.av)){ const sym=s.av; fetchQuote(sym).then(ok=>{ if(selected===s.t){ if(ok) delete calcState[s.t]; render(); } }); }
 }
 
+/* Scenario range: expected yearly return = dividend + growth (blended toward 4%) + valuation pull; spread from beta and market risk */
+function normCdf(x){ const t=1/(1+0.3275911*Math.abs(x)); const e=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x/2); return x>=0?(1+e)/2:(1-e)/2; }
+function outlook(s){
+  const y=s.y||0, gRev=s.g==null?3:clamp(s.g,-5,15), g=0.5*gRev+0.5*4;
+  const val=s.pe==null||s.pe<=0?0:clamp((18-s.pe)/18*2,-3,2);
+  const mu=Math.max(-0.05,Math.min(0.18,(y+g+val)/100));
+  const sig=Math.max(0.12,0.16*(s.b??1))+(s.em?0.08:0);
+  const m=Math.log(1+mu)-sig*sig/2;
+  const at=T=>{ const sd=sig*Math.sqrt(T); return {T,bad:Math.exp(m*T-1.2816*sd)-1,mid:Math.exp(m*T)-1,good:Math.exp(m*T+1.2816*sd)-1,pLoss:normCdf(-(m*T)/sd)}; };
+  return {mu,sig,rows:[at(1),at(5)]};
+}
+function renderOutlook(s,amt){
+  const el=$("olOut"); if(!el) return;
+  const o=outlook(s), base=amt>0?amt:1000;
+  const lo=Math.min(-0.1,...o.rows.map(r=>r.bad)), hi=Math.max(0.1,...o.rows.map(r=>r.good)), pos=v=>((v-lo)/(hi-lo)*100).toFixed(1)+"%";
+  const pct=v=>(v>=0?"+":"")+Math.round(v*100)+"%";
+  el.innerHTML=`<div class="small">Starting with <strong class="num" style="color:var(--ink)">${money(base,myCur)}</strong>. Typical yearly return about <strong>${(o.mu*100).toFixed(1)}%</strong>; price swings about <strong>±${Math.round(o.sig*100)}%</strong> in a normal year.</div>`+
+  o.rows.map(r=>`<div class="ol-row">
+    <div class="ol-head"><strong>After ${r.T} year${r.T>1?"s":""}</strong><span class="small">Chance of being down: <strong style="color:${r.pLoss>0.35?"var(--bad)":r.pLoss>0.2?"var(--warn)":"var(--good)"}">about ${Math.round(r.pLoss*100)}%</strong></span></div>
+    <div class="ol-track" role="img" aria-label="Range from ${pct(r.bad)} to ${pct(r.good)}, typical ${pct(r.mid)}">
+      <span class="ol-range" style="left:${pos(r.bad)};width:calc(${pos(r.good)} - ${pos(r.bad)})"></span>
+      <span class="ol-zero" style="left:${pos(0)}"></span><span class="ol-mid" style="left:${pos(r.mid)}"></span></div>
+    <div class="ol-nums">
+      <div><div class="label">Bad case</div><div class="v neg">${money(base*(1+r.bad),myCur)}</div><div>${pct(r.bad)}</div></div>
+      <div><div class="label">Typical</div><div class="v">${money(base*(1+r.mid),myCur)}</div><div>${pct(r.mid)}</div></div>
+      <div><div class="label">Good case</div><div class="v pos">${money(base*(1+r.good),myCur)}</div><div>${pct(r.good)}</div></div>
+    </div></div>`).join("");
+}
 function renderCalc(s){
+  renderOutlook(s,parseFloat($("cAmt").value));
   const amt=parseFloat($("cAmt").value), price=parseFloat($("cPrice").value), out=$("calcOut");
   if(!(amt>0)||!(price>0)||!FX[s.cu]){ out.innerHTML=`<div><div class="label">Result</div><div class="small">Enter an amount and a share price.</div></div>`; return; }
   const priceMine=price/FX[s.cu]*FX[myCur], shares=Math.floor(amt/priceMine), spent=shares*priceMine;
