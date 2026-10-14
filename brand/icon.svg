@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Stock Compass">
+  <rect width="64" height="64" rx="14" fill="#10305F"/>
+  <g transform="translate(5.12 5.12) scale(.84)">
+  <circle cx="32" cy="32" r="17.5" fill="none" stroke="#FFFFFF" stroke-width="3.6"/>
+  <path d="M32 2.5l4 11h-8zM32 61.5l4-11h-8zM61.5 32l-11 4v-8zM2.5 32l11 4v-8z" fill="#FFFFFF"/>
+  <g stroke-linecap="round" stroke-width="1.5">
+    <path d="M23 22.5v13" stroke="#4CBF5C"/><path d="M37.5 32v14" stroke="#FFFFFF"/><path d="M43 25v13" stroke="#4CBF5C"/>
+  </g>
+  <rect x="21" y="25" width="4" height="8" rx="1" fill="#4CBF5C"/>
+  <rect x="35.5" y="35" width="4" height="8" rx="1" fill="#FFFFFF"/>
+  <rect x="41" y="28" width="4" height="7" rx="1" fill="#4CBF5C"/>
+  <path d="M45 19l-9.6 16.4L28.6 28.6z" fill="#4CBF5C"/>
+  <path d="M19 45l9.6-16.4 6.8 6.8z" fill="#FFFFFF"/>
+  <circle cx="32" cy="32" r="3" fill="#10305F" stroke="#FFFFFF" stroke-width="1.6"/>
+  </g>
+</svg>

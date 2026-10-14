@@ -5,21 +5,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Download Stock Compass</title>
 <meta name="description" content="Download Stock Compass for Windows or Mac: plain-language stock research with encrypted keys, AI insights and a Questrade connection.">
+<link rel="icon" type="image/svg+xml" href="brand/icon.svg">
+<meta name="theme-color" content="#10305F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: one centred column; the button for the visitor's computer leads, other platforms and install help follow */
 :root{
-  --bg:#EEF2F2; --surface:#FFFFFF; --sunk:#E3EAEA; --ink:#10201F; --muted:#56696A; --line:#D3DDDC;
-  --accent:#0B6B70; --accent-ink:#FFFFFF; --accent-soft:#D6ECEC; --star:#C8901A; --warn-soft:#F6E9D2; --warn:#A86A12;
+  --bg:#EEF2F7; --surface:#FFFFFF; --sunk:#E3E9F2; --ink:#0F1C2E; --muted:#53627A; --line:#D3DCE8;
+  --accent:#10305F; --accent-ink:#FFFFFF; --accent-soft:#DDE6F3; --star:#C8901A; --warn-soft:#F6E9D2; --warn:#A86A12; --brand-green:#2E8B3E;
   --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --f-body:"Public Sans","Segoe UI",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0C1416; --surface:#132024; --sunk:#0F1A1D; --ink:#E2EDEC; --muted:#8EA3A3; --line:#233539;
-  --accent:#4CC3C5; --accent-ink:#06191A; --accent-soft:#163B3E; --star:#E8B544; --warn-soft:#3A2D14; --warn:#E2AE4C; color-scheme:dark}}
+  --bg:#0A111C; --surface:#111B2A; --sunk:#0D1622; --ink:#E3E9F2; --muted:#91A0B6; --line:#22324A;
+  --accent:#8FB3EE; --accent-ink:#081428; --accent-soft:#1A2B47; --star:#E8B544; --warn-soft:#3A2D14; --warn:#E2AE4C; --brand-green:#5CC46C; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0C1416; --surface:#132024; --sunk:#0F1A1D; --ink:#E2EDEC; --muted:#8EA3A3; --line:#233539;
-  --accent:#4CC3C5; --accent-ink:#06191A; --accent-soft:#163B3E; --star:#E8B544; --warn-soft:#3A2D14; --warn:#E2AE4C; color-scheme:dark}
+  --bg:#0A111C; --surface:#111B2A; --sunk:#0D1622; --ink:#E3E9F2; --muted:#91A0B6; --line:#22324A;
+  --accent:#8FB3EE; --accent-ink:#081428; --accent-soft:#1A2B47; --star:#E8B544; --warn-soft:#3A2D14; --warn:#E2AE4C; --brand-green:#5CC46C; color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
 [hidden]{display:none!important}
@@ -60,7 +62,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding-bottom:30px}
 </head>
 <body>
 <header class="bar"><div class="bar-in">
-  <a class="brand" href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><circle cx="16" cy="16" r="9.5" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" opacity=".55"/><path d="M16 7.5l3.2 8.5L16 24.5 12.8 16z" fill="var(--accent-ink)"/><path d="M16 7.5l3.2 8.5h-6.4z" fill="var(--star)"/></svg>Stock Compass</a>
+  <a class="brand" href="./"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#10305F"/> <g transform="translate(5.12 5.12) scale(.84)"> <circle cx="32" cy="32" r="17.5" fill="none" stroke="#FFFFFF" stroke-width="3.6"/> <path d="M32 2.5l4 11h-8zM32 61.5l4-11h-8zM61.5 32l-11 4v-8zM2.5 32l11 4v-8z" fill="#FFFFFF"/> <g stroke-linecap="round" stroke-width="1.5"> <path d="M23 22.5v13" stroke="#4CBF5C"/><path d="M37.5 32v14" stroke="#FFFFFF"/><path d="M43 25v13" stroke="#4CBF5C"/> </g> <rect x="21" y="25" width="4" height="8" rx="1" fill="#4CBF5C"/> <rect x="35.5" y="35" width="4" height="8" rx="1" fill="#FFFFFF"/> <rect x="41" y="28" width="4" height="7" rx="1" fill="#4CBF5C"/> <path d="M45 19l-9.6 16.4L28.6 28.6z" fill="#4CBF5C"/> <path d="M19 45l9.6-16.4 6.8 6.8z" fill="#FFFFFF"/> <circle cx="32" cy="32" r="3" fill="#10305F" stroke="#FFFFFF" stroke-width="1.6"/> </g></svg><span>Stock <span style="color:var(--brand-green)">Compass</span></span></a>
   <a href="./">Use it in your browser instead →</a>
 </div></header>
 

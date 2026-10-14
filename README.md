@@ -1,3 +1,5 @@
+<p align="center"><img src="brand/logo.png" alt="Stock Compass: Clear insights. Smarter decisions." width="260"></p>
+
 # Stock Compass
 
 A plain-language stock research app for everyday and diaspora investors. You pick what you want from your money, and Stock Compass ranks well-known stocks from Africa, North America, Europe and Asia by how well they fit. Each stock gets clear verdicts, strengths, risks and a cost calculator in your own currency. It never tells you to buy or sell. It gives you the information to decide.

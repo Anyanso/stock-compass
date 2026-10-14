@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 640" role="img" aria-label="Stock Compass: Clear insights. Smarter decisions.">
+  <style>.w{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-weight:800;letter-spacing:2px}.t{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-weight:500}</style>
+  <g transform="translate(150 20) scale(4.6875)">
+  <circle cx="32" cy="32" r="17.5" fill="none" stroke="#10305F" stroke-width="3.6"/>
+  <path d="M32 2.5l4 11h-8zM32 61.5l4-11h-8zM61.5 32l-11 4v-8zM2.5 32l11 4v-8z" fill="#10305F"/>
+  <g stroke-linecap="round" stroke-width="1.5">
+    <path d="M23 22.5v13" stroke="#2E8B3E"/><path d="M37.5 32v14" stroke="#10305F"/><path d="M43 25v13" stroke="#2E8B3E"/>
+  </g>
+  <rect x="21" y="25" width="4" height="8" rx="1" fill="#2E8B3E"/>
+  <rect x="35.5" y="35" width="4" height="8" rx="1" fill="#10305F"/>
+  <rect x="41" y="28" width="4" height="7" rx="1" fill="#2E8B3E"/>
+  <path d="M45 19l-9.6 16.4L28.6 28.6z" fill="#2E8B3E"/>
+  <path d="M19 45l9.6-16.4 6.8 6.8z" fill="#10305F"/>
+  <circle cx="32" cy="32" r="3" fill="#FFFFFF" stroke="#10305F" stroke-width="1.6"/>
+  </g>
+  <text class="w" x="300" y="440" text-anchor="middle" font-size="92" fill="#10305F">STOCK</text>
+  <text class="w" x="300" y="535" text-anchor="middle" font-size="80" fill="#2E8B3E">COMPASS</text>
+  <text class="t" x="300" y="600" text-anchor="middle" font-size="27" fill="#3A4A63">Clear insights. Smarter decisions.</text>
+</svg>
