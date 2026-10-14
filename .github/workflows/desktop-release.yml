@@ -1,5 +1,6 @@
 # Builds the Stock Compass desktop installers and attaches them to a GitHub release.
-# Runs when a version tag like v1.0.0 is pushed. The tag must match desktop/package.json.
+# Run it from the Actions tab ("Run workflow"), or push a version tag like v1.0.0.
+# The release version always comes from desktop/package.json.
 name: Build desktop app
 
 on:
@@ -15,12 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create the release if it doesn't exist
+      - name: Create the release for this version if it doesn't exist
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" \
-            --title "Stock Compass $GITHUB_REF_NAME" \
+          TAG="v$(node -p "require('./desktop/package.json').version")"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" \
+            --title "Stock Compass $TAG" \
             --notes "Download Stock Compass for your computer from https://anyanso.github.io/stock-compass/download.html"
 
   build:
