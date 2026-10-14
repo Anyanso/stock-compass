@@ -110,6 +110,11 @@ button,select,input{font:inherit;color:inherit}
 .acct{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--accent-soft);color:var(--accent);letter-spacing:.03em}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 80px);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
 .buy-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lockscreen{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.lock-card{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px 24px;display:grid;gap:12px;justify-items:center;text-align:center;box-shadow:var(--shadow)}
+.lock-card h2{font-size:22px}
+.lock-card input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;text-align:center;letter-spacing:.15em}
+.lock-card .btn.primary{width:100%;padding:11px}
 
 /* goal picker */
 .step{display:flex;align-items:baseline;gap:10px;margin:0 0 10px}
@@ -410,6 +415,17 @@ form.add .hint{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
 <div class="overlay" id="overlay" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="cmpTitle" id="modal"></div></div>
 <div class="overlay" id="sheet" hidden><div class="modal sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" id="sheetBody"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="lockscreen" id="lock" hidden>
+  <form class="lock-card" id="lockForm" autocomplete="off">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" style="width:52px;height:52px"><rect width="32" height="32" rx="9" fill="var(--accent)"/><circle cx="16" cy="16" r="9.5" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" opacity=".55"/><path d="M16 7.5l3.2 8.5L16 24.5 12.8 16z" fill="var(--accent-ink)"/><path d="M16 7.5l3.2 8.5h-6.4z" fill="var(--star)"/></svg>
+    <h2>Stock Compass is locked</h2>
+    <p class="muted" style="margin:0">Enter your passcode to open your portfolio.</p>
+    <input type="password" id="lockPass" autocomplete="current-password" placeholder="Passcode" aria-label="Passcode" required>
+    <button class="btn primary" type="submit" id="lockBtn">Unlock</button>
+    <p class="small state err" id="lockMsg" role="alert" style="margin:0;min-height:1.2em"></p>
+    <button class="btn" type="button" id="lockForgot" style="border:0;background:transparent;color:var(--muted)">Forgot passcode?</button>
+  </form>
+</div>
 
 <script>
 /* ---------- Reference data (approximate, mid-2026). pr = share price in cu; y/m/g/p in %; de = debt/equity; b = beta ---------- */
@@ -1257,8 +1273,8 @@ $("membersForm").addEventListener("submit",async e=>{
 
 /* Device-only store with the same shape the page uses for the shared database */
 function localDB(){
-  const KEY="sc_localdb"; let data=store.get(KEY,{}); const subs=[];
-  const save=()=>{ store.set(KEY,data); subs.forEach(f=>f()); };
+  const KEY="sc_localdb"; let data=vault?(vault.localdb||{}):store.get(KEY,{}); const subs=[];
+  const save=()=>{ if(vault){ vault.localdb=data; persistVault(); } else store.set(KEY,data); subs.forEach(f=>f()); };
   const snap=p=>({id:p.split("/").pop(),exists:p in data,data:()=>data[p]});
   const doc=p=>({ get:async()=>snap(p), set:async d=>{ data[p]=JSON.parse(JSON.stringify(d)); save(); }, delete:async()=>{ delete data[p]; save(); },
     onSnapshot(next){ const f=()=>next(snap(p)); subs.push(f); setTimeout(f); return ()=>{}; } });
@@ -1290,7 +1306,6 @@ async function initShared(){
 buildStatic(); render(); renderPortfolio();
 if(location.hash==="#portfolio") showTab("pf");
 (async()=>{ try{ const s=await window.claude?.use?.("sample"); if(s){ sampleFn=s; renderFile(all().find(x=>x.t===selected)); } }catch(e){} })();
-initShared();
 /* ---------- Keys, data provider and AI per mode ---------- */
 let keyState={finnhub:false,alphavantage:false,anthropic:false}, qtState=null;
 const KEY_INFO={
@@ -1298,7 +1313,7 @@ const KEY_INFO={
   alphavantage:{name:"Alpha Vantage",get:"https://www.alphavantage.co/support/#api-key",note:"Backup. Free: about 25 price checks a day."},
   anthropic:{name:"Anthropic (Claude)",get:"https://console.anthropic.com/settings/keys",note:"Pay as you go. Usually a few cents per write-up."}
 };
-function webKey(n){ return store.get("sc_key_"+n,"")||(n==="alphavantage"?store.get("sc_avkey",""):""); }
+function webKey(n){ if(vault) return (vault.keys&&vault.keys[n])||""; return store.get("sc_key_"+n,"")||(n==="alphavantage"?store.get("sc_avkey",""):""); }
 async function refreshKeyState(){
   if(DESKTOP){ for(const n in keyState){ try{ keyState[n]=!!(await window.scDesktop.hasKey(n)); }catch(e){ keyState[n]=false; } }
     try{ qtState=await window.scDesktop.questradeStatus(); }catch(e){ qtState=null; } }
@@ -1316,7 +1331,7 @@ function setupProviders(){
   avStatus=null; triedQuote.clear();
 }
 async function saveKey(n,v){
-  if(DESKTOP) await window.scDesktop.setKey(n,v); else store.set("sc_key_"+n,v);
+  if(DESKTOP) await window.scDesktop.setKey(n,v); else if(vault){ vault.keys=vault.keys||{}; vault.keys[n]=v; persistVault(); } else store.set("sc_key_"+n,v);
   if(n==="alphavantage"&&!DESKTOP) store.set("sc_avkey","");
   await refreshKeyState(); setupProviders(); refreshChrome();
 }
@@ -1374,6 +1389,7 @@ function renderSettings(){
       <div class="choice-row" role="group" aria-label="Broker">${["wealthsimple","questrade","none"].map(b=>`<button class="choice" type="button" data-broker="${b}" aria-pressed="${broker===b}"><b>${BROKERS[b].name}</b><span>${b==="wealthsimple"?"Import holdings · Buy in Wealthsimple":b==="questrade"?"Live account link (desktop) · Buy in Questrade":"Research and track by hand"}</span></button>`).join("")}</div>
       ${brokerExtra}</div>
     ${dataCard}${aiCard}
+    ${lockCard()}
     <div class="card"><h3>Privacy and your data</h3><p class="desc">${where}</p>
       ${STANDALONE?`<button class="btn danger" type="button" id="eraseAll" style="width:fit-content">Erase all data on this device</button>`:""}</div>
     ${STANDALONE&&!DESKTOP?`<div class="card"><h3>Desktop app</h3><p class="desc">Get Stock Compass for Windows or Mac: encrypted key storage, AI write-ups and a live Questrade connection.</p><a class="btn primary" href="${DOWNLOAD_URL}" target="_blank" rel="noopener" style="width:fit-content;text-decoration:none">Download for your computer ↗</a></div>`:""}
@@ -1403,7 +1419,7 @@ $("setGrid").addEventListener("click",async e=>{
   const rk=e.target.closest("[data-rmkey]"); if(rk){ await saveKey(rk.dataset.rmkey,""); renderSettings(); render(); return; }
   if(e.target.id==="setImport"){ openImport(); return; }
   if(e.target.id==="eraseAll"){ if(e.target.dataset.armed!=="1"){ e.target.dataset.armed="1"; e.target.textContent="Tap again to erase everything"; e.target.classList.add("armed"); return; }
-    if(DESKTOP) await window.scDesktop.clearAll(); try{ localStorage.clear(); }catch(_){}
+    if(DESKTOP) await window.scDesktop.clearAll(); vault=null; clearTimeout(sealT); try{ localStorage.clear(); }catch(_){}
     location.reload(); return; }
   if(e.target.id==="qtConnect"){ const t=$("qtToken").value.trim(), m=$("qtMsg"); if(t.length<10){ m.textContent="Paste the token from Questrade first."; return; }
     e.target.disabled=true; m.textContent="Connecting…"; const r=await window.scDesktop.questradeConnect(t);
@@ -1575,7 +1591,100 @@ async function obAction(act,a){
     a.disabled=true; m.className="small"; m.textContent="Saving…"; await saveKey(n,v); obStep++; renderOnboarding(); }
 }
 
+/* ---------- App lock: passcode screen; holdings and keys encrypted at rest (PBKDF2 → AES-256-GCM) ---------- */
+const LOCK_META="sc_lock", VAULT="sc_vault";
+let vault=null, vaultKey=null, sealT=null;
+const lockOn=()=>STANDALONE&&!!store.get(LOCK_META,null);
+const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u)));
+const ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function deriveKey(pass,salt,iter){
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function sealVault(){ if(!vault||!vaultKey) return;
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},vaultKey,new TextEncoder().encode(JSON.stringify(vault)));
+  store.set(VAULT,{iv:b64(iv),ct:b64(ct)}); }
+function persistVault(){ clearTimeout(sealT); sealT=setTimeout(sealVault,250); }
+async function openVault(pass){
+  const m=store.get(LOCK_META,null), v=store.get(VAULT,null); if(!m||!v) return false;
+  const key=await deriveKey(pass,ub64(m.salt),m.iter);
+  try{ const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(v.iv)},key,ub64(v.ct)); vault=JSON.parse(new TextDecoder().decode(pt)); vaultKey=key; return true; }
+  catch(e){ return false; }
+}
+async function enableLock(pass){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iter=310000;
+  vaultKey=await deriveKey(pass,salt,iter);
+  vault={localdb:store.get("sc_localdb",{}),keys:DESKTOP?{}:{finnhub:webKey("finnhub"),alphavantage:webKey("alphavantage")}};
+  await sealVault();
+  store.set(LOCK_META,{salt:b64(salt),iter,auto:store.get(LOCK_META,null)?.auto||10});
+  ["sc_localdb","sc_key_finnhub","sc_key_alphavantage","sc_avkey"].forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} });
+}
+async function changePass(pass){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), m=store.get(LOCK_META,{}), iter=310000;
+  vaultKey=await deriveKey(pass,salt,iter); await sealVault(); store.set(LOCK_META,{...m,salt:b64(salt),iter});
+}
+function disableLock(){
+  clearTimeout(sealT);
+  store.set("sc_localdb",(vault&&vault.localdb)||{});
+  if(vault&&vault.keys) for(const n in vault.keys) if(vault.keys[n]) store.set("sc_key_"+n,vault.keys[n]);
+  try{ localStorage.removeItem(VAULT); localStorage.removeItem(LOCK_META); }catch(e){}
+}
+async function lockNow(){ clearTimeout(sealT); await sealVault(); location.reload(); }
+function showLock(){
+  return new Promise(resolve=>{
+    const el=$("lock"); el.hidden=false; document.body.style.overflow="hidden";
+    let fails=0, waitUntil=0; $("lockPass").value=""; setTimeout(()=>$("lockPass").focus(),50);
+    $("lockForm").onsubmit=async e=>{ e.preventDefault(); const msg=$("lockMsg");
+      if(Date.now()<waitUntil){ msg.textContent=`Too many tries. Wait ${Math.ceil((waitUntil-Date.now())/1000)} seconds.`; return; }
+      const btn=$("lockBtn"); btn.disabled=true; btn.textContent="Unlocking…";
+      const ok=await openVault($("lockPass").value); btn.disabled=false; btn.textContent="Unlock";
+      if(ok){ el.hidden=true; document.body.style.overflow=""; $("lockPass").value=""; resolve(); return; }
+      fails++; $("lockPass").value=""; msg.textContent="That passcode isn't right."; if(fails>=5){ waitUntil=Date.now()+30000; fails=0; msg.textContent="Too many tries. Wait 30 seconds."; } };
+    $("lockForgot").onclick=async e=>{ const b=e.target;
+      if(b.dataset.armed!=="1"){ b.dataset.armed="1"; b.textContent="Tap again to erase all data on this device"; $("lockMsg").textContent="Your passcode can't be recovered: this erases your saved holdings and keys so you can start over."; return; }
+      if(DESKTOP) await window.scDesktop.clearAll(); try{ localStorage.clear(); }catch(_){} location.reload(); };
+  });
+}
+function startAutoLock(){
+  if(!lockOn()) return; let last=Date.now();
+  ["pointerdown","keydown","scroll","pointermove"].forEach(ev=>addEventListener(ev,()=>{ last=Date.now(); },{passive:true}));
+  setInterval(()=>{ const mins=(store.get(LOCK_META,{}).auto)||10; if(mins>0&&Date.now()-last>mins*60000) lockNow(); },15000);
+}
+function lockCard(){
+  if(!STANDALONE) return "";
+  const on=lockOn(), auto=store.get(LOCK_META,{})?.auto||10;
+  return `<div class="card"><h3>App lock ${on?`<span class="state ok">● On</span>`:`<span class="state off">○ Off</span>`}</h3>
+    <p class="desc">${on?"Stock Compass asks for your passcode when it opens. Your holdings"+(DESKTOP?"":" and keys")+" are encrypted with it on this device.":"Protect your holdings with a passcode. When it's on, your data is encrypted on this device and the app asks for the passcode each time it opens."}</p>
+    ${on?`<div class="keyline"><label class="small" for="lockAuto">Lock after</label><select class="sortsel" id="lockAuto">${[5,10,30,60,0].map(m=>`<option value="${m}" ${m===auto?"selected":""}>${m?m+" minutes idle":"Never automatically"}</option>`).join("")}</select><button class="btn" type="button" id="lockNowBtn">Lock now</button></div>
+      <details><summary class="small" style="cursor:pointer;font-family:var(--f-body);font-weight:600">Change passcode or turn off</summary>
+      <div class="keyrow" style="margin-top:8px"><div class="keyline"><input type="password" id="lockCur" autocomplete="current-password" placeholder="Current passcode" aria-label="Current passcode"></div>
+      <div class="keyline"><input type="password" id="lockNew1" autocomplete="new-password" placeholder="New passcode (6+ characters)" aria-label="New passcode"><input type="password" id="lockNew2" autocomplete="new-password" placeholder="Repeat new passcode" aria-label="Repeat new passcode"></div>
+      <div class="keyline"><button class="btn primary" type="button" id="lockChange">Change passcode</button><button class="btn danger" type="button" id="lockOff">Turn off app lock</button></div></div></details>`
+    :`<div class="keyline"><input type="password" id="lockNew1" autocomplete="new-password" placeholder="Passcode (6+ characters)" aria-label="New passcode"><input type="password" id="lockNew2" autocomplete="new-password" placeholder="Repeat passcode" aria-label="Repeat passcode"></div>
+      <div class="keyline"><button class="btn primary" type="button" id="lockOn">Turn on app lock</button></div>
+      <p class="small" style="margin:0">There's no way to recover a forgotten passcode; that's what keeps your data private. If you forget it, you can erase the data and import again.</p>`}
+    <div class="small" id="lockSetMsg" role="status"></div></div>`;
+}
+async function lockSettingsClick(e){
+  const id=e.target.id, msg=()=>$("lockSetMsg"), err=t=>{ msg().className="small state err"; msg().textContent=t; };
+  const newPass=()=>{ const a=$("lockNew1").value, b=$("lockNew2").value; if(a.length<6){ err("Use at least 6 characters."); return null; } if(a!==b){ err("The two passcodes don't match."); return null; } return a; };
+  if(id==="lockOn"){ const p=newPass(); if(!p) return; e.target.disabled=true; msg().className="small"; msg().textContent="Encrypting your data…";
+    await enableLock(p); toast("App lock is on. Unlock with your new passcode."); setTimeout(()=>location.reload(),900); return true; }
+  if(id==="lockNowBtn"){ await lockNow(); return true; }
+  if(id==="lockChange"||id==="lockOff"){
+    const m=store.get(LOCK_META,null), key=await deriveKey($("lockCur").value,ub64(m.salt),m.iter), v=store.get(VAULT,null);
+    try{ await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(v.iv)},key,ub64(v.ct)); }catch(_){ err("Your current passcode isn't right."); return true; }
+    if(id==="lockOff"){ disableLock(); toast("App lock is off."); setTimeout(()=>location.reload(),700); return true; }
+    const p=newPass(); if(!p) return true; await changePass(p); msg().className="small state ok"; msg().textContent="Passcode changed."; ["lockCur","lockNew1","lockNew2"].forEach(i=>$(i).value=""); return true; }
+  return false;
+}
+$("setGrid").addEventListener("change",e=>{ if(e.target.id==="lockAuto"){ const m=store.get(LOCK_META,null); if(m){ store.set(LOCK_META,{...m,auto:+e.target.value}); toast("Auto-lock updated."); } } });
+$("setGrid").addEventListener("click",e=>{ if(["lockOn","lockNowBtn","lockChange","lockOff"].includes(e.target.id)) lockSettingsClick(e); });
+
 (async()=>{
+  if(lockOn()) await showLock();
+  initShared(); startAutoLock();
   if(STANDALONE){ await refreshKeyState(); setupProviders(); }
   else { try{ const m=await window.claude?.use?.("mcp"); if(m){ mcp=m; } }catch(e){} }
   refreshChrome(); render(); renderPortfolio();
