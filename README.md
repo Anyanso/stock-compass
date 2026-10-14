@@ -23,6 +23,7 @@ Most stock apps are built for people investing in their own country, and they as
 - **1- and 5-year outlook.** Bad, typical and good cases for your amount, with the chance of being down.
 - **Live prices** from Finnhub or Alpha Vantage, with dividend yield and P/E adjusted to the live price. Non-US stocks use their US listings, converted back to the home-market price.
 - **Works with your broker.** Import your Wealthsimple holdings (TFSA, RRSP, FHSA and more), or link Questrade read-only in the desktop app. "Buy in Wealthsimple" and "Buy in Questrade" buttons take you straight to your broker to finish a purchase.
+- **African markets.** Nigerian, Kenyan, South African and West African (BRVM) stocks, plus the VanEck Africa ETF. Pick an African platform (Bamboo, mystocks.africa or Daba) and the buy button routes each stock to the right place, or drafts a message for family who buy on your behalf. Statements from these platforms can be imported as CSV.
 - **App lock.** An optional passcode that encrypts your holdings and keys on your device.
 - **Shared family portfolio.** Holdings, status (planned, applied, holding, sold), who contributed what, and totals in your chosen currency, synced live between family members.
 - **Shared watchlist** and **add-your-own stock** form for companies not in the list.

@@ -504,6 +504,30 @@ const BASE = [
  {t:"2330",x:"TWSE",n:"Taiwan Semiconductor (TSMC)",c:"Taiwan",r:"Asia",s:"Technology",pr:1100,cu:"TWD",y:1.3,m:42,g:30,pe:22,de:0.25,p:30,b:1.2,em:1,
   d:"Makes chips for Apple, NVIDIA and most other chip designers; the world's largest contract chipmaker.",
   pro:["Makes most of the world's most advanced chips."],con:["Geopolitical risk around Taiwan."],url:"https://www.google.com/finance/quote/2330:TPE"},
+ {t:"MTN",x:"JSE",n:"MTN Group",c:"South Africa",r:"Africa",s:"Telecoms",pr:187.29,cu:"ZAR",y:null,m:null,g:9.7,pe:null,de:null,p:null,b:1.1,em:1,
+  d:"Africa's largest mobile network operator, with MoMo mobile money across many of its markets.",
+  pro:["H1 2026 service revenue up about 10% (17.5% in constant currency), with data revenue up 21%.","Announced a R6 billion share buyback in August 2026."],
+  con:["Earnings swing with currencies in Nigeria, Ghana and other markets.","Profit and dividend figures aren't loaded here; check the latest results."],url:"https://www.google.com/finance/quote/MTN:JSE"},
+ {t:"NPN",x:"JSE",n:"Naspers",c:"South Africa",r:"Africa",s:"Technology",pr:810,cu:"ZAR",y:0.7,m:null,g:null,pe:10,de:null,p:null,b:1.2,em:1,
+  d:"South Africa's most valuable company: an internet investor that controls Prosus, which owns about 23% of Tencent.",
+  pro:["Core headline earnings up about 24% in the year to March 2026; its e-commerce businesses are now profitable.","Large ongoing share buybacks."],
+  con:["Most of its value rests on Tencent, so Chinese tech regulation and markets drive the price.","Shares usually trade below the value of what Naspers owns."],url:"https://www.google.com/finance/quote/NPN:JSE"},
+ {t:"EQTY",x:"NSE Kenya",n:"Equity Group",c:"Kenya",r:"Africa",s:"Financials",pr:105,cu:"KES",y:4.0,m:36,g:25,pe:4.5,de:null,p:null,b:0.9,em:1,
+  d:"Kenya's leading bank by customers, with banks in Uganda, Tanzania, Rwanda, DRC and South Sudan.",
+  pro:["H1 2026 profit up 32% to KSh 45.5 billion, with income up 25%.","Shares hit a record of about KSh 105 in September 2026."],
+  con:["Skipped an interim dividend in 2026 despite higher profit.","Exposed to loan losses and currency swings in its East African markets."],url:"https://www.google.com/search?q=Equity+Group+EQTY+NSE+share+price"},
+ {t:"SNTS",x:"BRVM",n:"Sonatel",c:"Senegal",r:"Africa",s:"Telecoms",pr:42995,cu:"XOF",y:4.05,m:null,g:null,pe:10.4,de:null,p:null,b:0.6,em:1,
+  d:"Senegal's main telecom company and the largest company on the BRVM, majority-controlled by France's Orange.",
+  pro:["Pays a steady, rising dividend: 1,740 FCFA per share in 2026, up from 1,655.","Rated AAA on the regional market; shares up about 65% over the past year."],
+  con:["A 10-for-1 share split is planned for late October 2026, so the share price will look about 10 times smaller after it.","Operates in markets with political and currency risk (Mali, Guinea, Sierra Leone)."],url:"https://www.google.com/search?q=Sonatel+SNTS+BRVM+cours"},
+ {t:"GFI",x:"NYSE",n:"Gold Fields",c:"South Africa",r:"Africa",s:"Materials",pr:36.34,cu:"USD",y:5.2,m:38.7,g:77.8,pe:7.4,de:0.2,p:40,b:0.65,em:1,
+  d:"One of the world's biggest gold miners, based in Johannesburg, with mines in Australia, Ghana, South Africa and Chile.",
+  pro:["Record profits from high gold prices: H1 2026 profit up 81% to $1.85 billion.","Pays large dividends and buybacks; very little debt."],
+  con:["Profits depend heavily on the gold price, which can fall sharply.","Its Ghana mining lease renewal is uncertain."],url:"https://www.google.com/finance/quote/GFI:NYSE"},
+ {t:"AFK",x:"NYSE Arca",n:"VanEck Africa Index ETF",c:"Africa (fund)",r:"Africa",s:"Fund",pr:26.84,cu:"USD",y:1.0,m:null,g:null,pe:null,de:null,p:null,b:1.0,em:1,
+  d:"A single fund that holds 83 companies doing business in Africa: about 36% South Africa, 12% Nigeria, 10% Morocco and 5% Kenya.",
+  pro:["Spreads your money across the continent in one purchase.","Buyable through Canadian brokers in US dollars."],
+  con:["Annual fee of 0.76%.","Small fund (about $97 million), and its holdings include non-African companies that earn money in Africa."],url:"https://www.vaneck.com/us/en/investments/africa-index-etf-afk/overview/"},
  {t:"7203",x:"TSE",n:"Toyota Motor",c:"Japan",r:"Asia",s:"Consumer discretionary",pr:2800,cu:"JPY",y:3.0,m:9,g:3,pe:9,de:1.1,p:30,b:0.6,em:0,
   d:"The world's best-selling carmaker and a leader in hybrid vehicles.",
   pro:["Strong in hybrids and very cash-rich."],con:["Car sales are cyclical; tariffs and the shift to electric cars add uncertainty."],url:"https://www.google.com/finance/quote/7203:TYO"}
@@ -625,6 +649,30 @@ const ABOUT={
   known:"The chips inside iPhones and NVIDIA's AI chips",
   base:"Founded in 1987 by Morris Chang. Headquartered in Hsinchu, Taiwan. Building new factories in Arizona, Japan and Germany.",
   local:"Most of its factories are in Taiwan, which is why tension between China and Taiwan is its biggest risk."},
+ MTN:{what:"MTN Group runs mobile phone networks in about 16 countries across Africa and the Middle East, and is the continent's biggest mobile operator.",
+  money:["Data and internet bundles, its fastest-growing business","Voice calls and SMS","MoMo mobile money and fintech services","Selling towers, fibre and business services"],
+  known:"MTN SIM cards and MoMo in Nigeria, Ghana, South Africa, Uganda and more",
+  base:"Founded in 1994 in South Africa. Headquartered in Johannesburg. MTN Nigeria is also listed separately on the Nigerian Exchange."},
+ NPN:{what:"Naspers is an internet company and investor. Through its Dutch-listed arm Prosus, it owns a large stake in China's Tencent, plus online businesses around the world.",
+  money:["Its stake in Tencent, the Chinese company behind WeChat","Online classifieds and marketplaces such as OLX","Food delivery (iFood) and payments (PayU)","Takealot, South Africa's biggest online store"],
+  known:"Takealot, OLX, and its stake in Tencent",
+  base:"Started in 1915 as a newspaper publisher in Cape Town, where it is still headquartered."},
+ EQTY:{what:"Equity Group is a banking group that started in Kenya and now operates across East and Central Africa, known for banking millions of everyday customers and small businesses.",
+  money:["Interest on loans to people and businesses","Fees from payments, mobile banking and transfers","Its banks in Uganda, Tanzania, Rwanda, DRC and South Sudan"],
+  known:"Equity Bank branches and agents, and the Equitel mobile service",
+  base:"Founded in 1984 as a small building society. Headquartered in Nairobi, led for many years by James Mwangi."},
+ SNTS:{what:"Sonatel provides mobile, internet and fixed-line services in Senegal and four neighbouring countries, and runs Orange Money.",
+  money:["Mobile calls and data in Senegal, Mali, Guinea, Guinea-Bissau and Sierra Leone","Orange Money mobile payments","Home internet and business services"],
+  known:"The Orange mobile network and Orange Money in West Africa",
+  base:"Founded in 1985. Headquartered in Dakar. France's Orange is the largest shareholder; it trades on the BRVM, the shared exchange of eight West African countries."},
+ GFI:{what:"Gold Fields mines gold. It is one of the largest gold producers in the world, with mines on four continents.",
+  money:["Selling gold, which makes up nearly all its income","Some copper from its Chilean operations"],
+  known:"Tarkwa in Ghana, South Deep in South Africa, Salares Norte in Chile and several mines in Australia",
+  base:"Roots go back to 1887 in South Africa. Headquartered in Johannesburg; also listed in New York as GFI."},
+ AFK:{what:"The VanEck Africa Index ETF is a fund, not a single company. Buying one share gives you a small piece of 83 companies that do business in Africa.",
+  money:["Its return comes from the shares it holds: banks, miners, telecoms and consumer companies","Dividends from those companies, paid out about once a year"],
+  known:"Top holdings include Attijariwafa Bank, AngloGold Ashanti, Naspers, Aradel Holdings and Endeavour Mining",
+  base:"Run by VanEck, a US fund manager. Trades in New York under the symbol AFK."},
  "7203":{what:"Toyota is the world's best-selling car maker, known for reliable cars and for leading the way in hybrid engines.",
   money:["Selling cars, SUVs and trucks around the world","Car loans and leasing through Toyota Financial Services","Parts and servicing"],
   known:"Corolla, Camry, RAV4, Hilux, Land Cruiser, Prius and Lexus",
@@ -633,22 +681,53 @@ const ABOUT={
 };
 /* US listings used for live prices: [symbol, local shares per US share] */
 const AV={AAPL:["AAPL",1],MSFT:["MSFT",1],NVDA:["NVDA",1],JNJ:["JNJ",1],KO:["KO",1],PG:["PG",1],JPM:["JPM",1],XOM:["XOM",1],VZ:["VZ",1],
-  RY:["RY",1],ENB:["ENB",1],FTS:["FTS",1],CNQ:["CNQ",1],NESN:["NSRGY",1],ASML:["ASML",1],TTE:["TTE",1],ULVR:["UL",1],HSBA:["HSBC",5],"2330":["TSM",5],"7203":["TM",10]};
+  GFI:["GFI",1],AFK:["AFK",1],RY:["RY",1],ENB:["ENB",1],FTS:["FTS",1],CNQ:["CNQ",1],NESN:["NSRGY",1],ASML:["ASML",1],TTE:["TTE",1],ULVR:["UL",1],HSBA:["HSBC",5],"2330":["TSM",5],"7203":["TM",10]};
 BASE.forEach(s=>{ const a=AV[s.t]; if(a){ s.av=a[0]; s.avr=a[1]; } });
 const AVS="Alpha Vantage MCP Server";
 const STANDALONE=!window.claude;
 const DESKTOP=!!window.scDesktop;
 const DOWNLOAD_URL="https://anyanso.github.io/stock-compass/download.html";
 const BROKERS={
-  wealthsimple:{name:"Wealthsimple",short:"W",buy:true,url:"https://my.wealthsimple.com/app/home"},
-  questrade:{name:"Questrade",short:"Q",buy:true,url:"https://my.questrade.com/"},
+  wealthsimple:{name:"Wealthsimple",short:"W",buy:true,prep:"in",url:"https://my.wealthsimple.com/app/home"},
+  questrade:{name:"Questrade",short:"Q",buy:true,prep:"in",url:"https://my.questrade.com/"},
   none:{name:"No broker",short:"–",buy:false}
 };
 let broker=null; try{ broker=JSON.parse(localStorage.getItem("sc_broker")||"null"); }catch(e){}
+/* African markets: no API from any of these, so Stock Compass links out (or drafts a message for family) */
+const AF_BROKERS={
+  bamboo:{name:"Bamboo",ex:["NGX"],url:"https://investbamboo.com",app:true,note:"Nigerian stocks (NGX) in the Bamboo app"},
+  mystocks:{name:"mystocks.africa",ex:["NGX","NSE Kenya","GSE","BSE","JSE"],url:"https://mystocks.africa",note:"Nigeria, Kenya, Ghana, Botswana and South Africa"},
+  daba:{name:"Daba",ex:["NGX","BRVM"],url:"https://dabafinance.com",link:s=>s.x==="NGX"?"https://dabafinance.com/en/capitalmarkets/ngx/"+encodeURIComponent(s.t.toLowerCase()):"https://dabafinance.com",note:"Nigeria and the BRVM (francophone West Africa)"},
+  family:{name:"Family or a local broker",ex:["*"],note:"Get a ready-to-send message for someone who buys for you"},
+  none:{name:"None",ex:[],note:"Just researching African stocks"}
+};
+let afBroker=null; try{ afBroker=JSON.parse(localStorage.getItem("sc_afbroker")||"null"); }catch(e){}
+const isLocalAfrica=s=>s&&s.r==="Africa"&&!(s.cu==="USD"||s.cu==="CAD");
+/* Which broker, symbol and link to use for a stock, or why it can't be bought there */
+function buyRoute(s){
+  if(isLocalAfrica(s)){
+    if(!afBroker||afBroker==="none") return null;
+    const b=AF_BROKERS[afBroker];
+    if(afBroker==="family") return {family:true,b};
+    if(!b.ex.includes(s.x)){ const alt=Object.values(AF_BROKERS).find(o=>o.url&&o.ex.includes(s.x)); return {na:`${b.name} doesn't cover the ${s.x}${alt?`; ${alt.name} does`:""}`}; }
+    return {b,sym:s.t,url:b.link?b.link(s):b.url};
+  }
+  if(!broker||!BROKERS[broker]?.buy) return null;
+  const sym=brokerSymbol(s,broker);
+  if(!sym) return {na:`Not available on ${BROKERS[broker].name}`};
+  return {b:BROKERS[broker],sym,url:BROKERS[broker].url};
+}
+function buyHTML(s){
+  const r=buyRoute(s); if(!r) return "";
+  if(r.na) return `<span class="small">${esc(r.na)}</span>`;
+  if(r.family) return `<button class="btn primary" type="button" id="buyBtn">Ask family to buy</button>`;
+  return `<button class="btn primary" type="button" id="buyBtn">Buy ${r.b.prep||(r.b.app?"in":"on")} ${esc(r.b.name)} ↗</button>`;
+}
 /* The symbol to search for at the broker: US and TSX stocks as-is, other markets via their US listing, African exchanges not available */
 function brokerSymbol(s,b){
-  if(!s||s.r==="Africa") return null;
+  if(!s) return null;
   if(s.cu==="USD"||s.cu==="CAD") return s.t;
+  if(s.r==="Africa") return null;
   if(b==="wealthsimple"&&s.av==="NSRGY") return null;
   return s.av||null;
 }
@@ -683,8 +762,8 @@ function directQuoteAdapter(key){
 }
 let quotes={}, mcp=null, avStatus=null; const triedQuote=new Set();
 /* Approximate units per 1 USD, mid-2026 */
-const FX={USD:1,CAD:1.38,NGN:1320,KES:129,GBP:0.75,EUR:0.86,CHF:0.80,JPY:147,TWD:30};
-const CUR_NAME={USD:"US dollar",CAD:"Canadian dollar",NGN:"Nigerian naira",KES:"Kenyan shilling",GBP:"British pound",EUR:"Euro",CHF:"Swiss franc",JPY:"Japanese yen",TWD:"Taiwan dollar"};
+const FX={USD:1,CAD:1.38,NGN:1320,KES:129,ZAR:17.6,XOF:565,GBP:0.75,EUR:0.86,CHF:0.80,JPY:147,TWD:30};
+const CUR_NAME={USD:"US dollar",CAD:"Canadian dollar",NGN:"Nigerian naira",KES:"Kenyan shilling",ZAR:"South African rand",XOF:"West African CFA franc",GBP:"British pound",EUR:"Euro",CHF:"Swiss franc",JPY:"Japanese yen",TWD:"Taiwan dollar"};
 const AS_OF="Reference figures are approximate as of mid-2026; exchange rates are approximate too.";
 
 /* ---------- Goals ---------- */
@@ -725,7 +804,7 @@ function word(k,v){
   return v>=65?"Strong":v>=40?"Fair":"Weak";
 }
 const fmt=(v,suf="%")=>v==null?"No data":(Math.round(v*10)/10)+suf;
-const money=(v,cu)=>{ try{ return new Intl.NumberFormat(undefined,{style:"currency",currency:cu,maximumFractionDigits:v>=100?0:2}).format(v);}catch(e){ return cu+" "+v.toFixed(2);} };
+const money=(v,cu)=>{ try{ return new Intl.NumberFormat(undefined,{style:"currency",currency:cu,currencyDisplay:["NGN","KES","ZAR","XOF"].includes(cu)?"narrowSymbol":"symbol",maximumFractionDigits:v>=100?0:2}).format(v);}catch(e){ return cu+" "+v.toFixed(2);} };
 
 function explain(s){
   return {
@@ -905,7 +984,7 @@ function renderFile(s){
     <button class="btn" type="button" id="fStar" aria-pressed="${w}">${w?"★ On your watchlist":"☆ Add to watchlist"}</button>
     <button class="btn" type="button" id="fCmp">${cmp.includes(s.t)?"✓ In comparison":"Add to comparison"}</button>
     <button class="btn" type="button" id="fPf">+ Add to portfolio</button>
-    ${broker&&BROKERS[broker]?.buy?(brokerSymbol(s,broker)?`<button class="btn primary" type="button" id="buyBtn">Buy in ${BROKERS[broker].name} ↗</button>`:`<span class="small">Not available on ${BROKERS[broker].name}${s.r==="Africa"?" (needs a broker on this exchange)":""}</span>`):""}
+    ${buyHTML(s)}
   </div>
 
   ${ABOUT[s.t]?`<section class="block about"><h3>About ${esc(s.n)}</h3>
@@ -1185,13 +1264,13 @@ function renderPortfolio(){
     const contrib=pf.members.map(m=>({m,a:+(h.contributions?.[m.k]||0)})).filter(x=>x.a>0);
     const left=cost-contrib.reduce((a,x)=>a+x.a,0);
     return `<article class="holding">
-      <div class="h-top"><div style="min-width:0"><h4>${esc(h.name)}</h4><div class="meta"><span class="num">${esc(h.ticker||"")}</span>${h.account?`<span class="acct">${esc(h.account)}</span>`:""}${h.market?`<span>${esc(h.market)}</span>`:""}${h.date?`<span>${esc(h.date)}</span>`:""}${h.source?`<span>from ${esc(BROKERS[h.source]?.name||h.source)}</span>`:""}</div></div>
+      <div class="h-top"><div style="min-width:0"><h4>${esc(h.name)}</h4><div class="meta"><span class="num">${esc(h.ticker||"")}</span>${h.account?`<span class="acct">${esc(h.account)}</span>`:""}${h.market?`<span>${esc(h.market)}</span>`:""}${h.date?`<span>${esc(h.date)}</span>`:""}${h.source?`<span>from ${esc(BROKERS[h.source]?.name||AF_BROKERS[h.source]?.name||IMPORT_SRC[h.source]?.name||h.source)}</span>`:""}</div></div>
         <span class="tag ${sc}">${sl}</span></div>
       <div class="h-grid">
         <div><div class="label">Shares</div><div class="v">${(+h.shares||0).toLocaleString()}</div></div>
         <div><div class="label">Paid</div><div class="v">${money(cost,h.currency)}</div><div class="small">${money(+h.pricePaid||0,h.currency)} each</div></div>
         <div><div class="label">Worth now</div><div class="v">${money(now,h.currency)}</div><div class="small">≈ ${money(conv(now,h.currency,pfCur)||0,pfCur)}</div></div>
-        <div><div class="label">Gain / loss</div><div class="v ${g>=0?"pos":"neg"}">${g>=0?"+":""}${money(g,h.currency)}</div><div class="small">price now ${money(cp,h.currency)}${hp.live?` · <span class="pos">live, ${esc(hp.day)}</span>`:h.source?` · from your ${esc(BROKERS[h.source]?.name||"broker")} ${h.source==="questrade"?"sync":"report"}`:" · entered by you"}</div></div>
+        <div><div class="label">Gain / loss</div><div class="v ${g>=0?"pos":"neg"}">${g>=0?"+":""}${money(g,h.currency)}</div><div class="small">price now ${money(cp,h.currency)}${hp.live?` · <span class="pos">live, ${esc(hp.day)}</span>`:h.source?` · from your ${esc(BROKERS[h.source]?.name||AF_BROKERS[h.source]?.name||"broker")} ${h.source==="questrade"?"sync":"report"}`:" · entered by you"}</div></div>
       </div>
       <div class="small">${contrib.length?contrib.map(x=>`${esc(x.m.name)}: ${money(x.a,h.currency)}`).join(" · "):"Who paid isn't recorded yet."}${contrib.length&&left>0.5?` · Not recorded: ${money(left,h.currency)}`:""}</div>
       ${h.notes?`<div class="small" style="color:var(--ink)">${esc(h.notes)}</div>`:""}
@@ -1344,17 +1423,29 @@ function openExternal(url){
   const a=document.createElement("a"); a.href=url; a.target="_blank"; a.rel="noopener"; document.body.appendChild(a); a.click(); a.remove();
 }
 async function openBroker(s){
-  const b=BROKERS[broker], sym=brokerSymbol(s,broker); if(!b||!sym) return;
-  let copied=false; try{ await navigator.clipboard.writeText(sym); copied=true; }catch(e){}
-  openExternal(b.url);
-  toast(copied?`${sym} copied. Paste it into ${b.name}'s search to buy.`:`Search for ${sym} in ${b.name} to buy.`);
+  const r=buyRoute(s); if(!r||r.na) return;
+  if(r.family){ openFamilySheet(s); return; }
+  let copied=false; try{ await navigator.clipboard.writeText(r.sym); copied=true; }catch(e){}
+  openExternal(r.url);
+  toast(r.b.app?`${r.sym} ${copied?"copied. Open":"– open"} the ${r.b.name} app and search for it to buy.`:copied?`${r.sym} copied. Paste it into ${r.b.name}'s search to buy.`:`Search for ${r.sym} on ${r.b.name} to buy.`);
+}
+function openFamilySheet(s){
+  const st=calcState[s.t]||{}, price=parseFloat(st.price)||s.pr||0, amtMine=parseFloat(st.amount)||0;
+  const local=amtMine&&price&&FX[myCur]&&FX[s.cu]?conv(amtMine,myCur,s.cu):0, shares=local&&price?Math.floor(local/price):0;
+  const msg=`Hi! Could you help me buy ${shares?shares.toLocaleString()+" shares of ":""}${s.n} (${s.t}) on the ${s.x}?${shares?` At about ${money(price,s.cu)} a share, that's roughly ${money(shares*price,s.cu)} before fees.`:""} Please send me the contract note once it's done so I can record it. Thank you!`;
+  openSheet(`<div class="modal-head"><h2 id="sheetTitle" style="font-size:21px">Ask family to buy ${esc(s.n)}</h2><button class="btn" type="button" data-sh="close">Close</button></div>
+    <p class="muted" style="margin:0 0 10px">Edit the message if you like, then copy it into WhatsApp, text or email.</p>
+    <textarea id="famMsg" rows="6" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;color:inherit">${esc(msg)}</textarea>
+    <div class="sheet-acts"><span class="small">Tip: set the amount in "What would it cost me?" first to include a share count.</span><button class="btn primary" type="button" data-sh="copymsg">Copy message</button></div>`);
 }
 function setBroker(b){ broker=b; store.set("sc_broker",b); refreshChrome(); render(); if(tab==="set") renderSettings(); if(tab==="pf") renderPortfolio(); }
+function setAfBroker(b){ afBroker=b; store.set("sc_afbroker",b); refreshChrome(); render(); if(tab==="set") renderSettings(); if(tab==="pf") renderPortfolio(); }
 
 function refreshChrome(){
   const p=providerName();
   $("dataPill").innerHTML=`<span class="dot ${p?"on":"warn"}"></span>${p?"Live prices: "+esc(p):"Reference prices"}`;
-  $("brokerPill").innerHTML=`<span class="dot ${broker&&broker!=="none"?"on":""}"></span>${broker?esc(BROKERS[broker].name):"Choose your broker"}`;
+  const bn=[broker&&broker!=="none"?BROKERS[broker].name:null,afBroker&&afBroker!=="none"&&afBroker!=="family"?AF_BROKERS[afBroker].name:null].filter(Boolean).join(" + ");
+  $("brokerPill").innerHTML=`<span class="dot ${bn?"on":""}"></span>${bn?esc(bn):broker?"No broker":"Choose your broker"}`;
   $("trustPrivacy").textContent=!STANDALONE?"Portfolio shared only with people you invite":DESKTOP?"Keys are encrypted on this computer":"Your keys and holdings stay in this browser";
   $("trustData").textContent=p?`Live prices from ${p}; fundamentals are approximate mid-2026 figures`:"Fundamentals and prices are approximate mid-2026 figures";
   $("pfSub").textContent=!STANDALONE?"Shared with everyone you invite to this page. Changes show up for both of you straight away.":DESKTOP?"Saved on this computer.":"Saved in this browser on this device.";
@@ -1390,6 +1481,9 @@ function renderSettings(){
     <div class="card wide"><h3>Your broker</h3><p class="desc">Pick where you invest. Stock Compass never logs in to your broker or places trades; you always buy in your broker's own app.</p>
       <div class="choice-row" role="group" aria-label="Broker">${["wealthsimple","questrade","none"].map(b=>`<button class="choice" type="button" data-broker="${b}" aria-pressed="${broker===b}"><b>${BROKERS[b].name}</b><span>${b==="wealthsimple"?"Import holdings · Buy in Wealthsimple":b==="questrade"?"Live account link (desktop) · Buy in Questrade":"Research and track by hand"}</span></button>`).join("")}</div>
       ${brokerExtra}</div>
+    <div class="card wide"><h3>African markets</h3><p class="desc">For Nigerian and other African stocks. None of these platforms lets apps connect to your account, so Stock Compass gives you a quick link to buy there. Stocks listed in New York, like Gold Fields or the Africa ETF, use your broker above.</p>
+      <div class="choice-row" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))" role="group" aria-label="African markets broker">${Object.entries(AF_BROKERS).map(([k,b])=>`<button class="choice" type="button" data-afbroker="${k}" aria-pressed="${afBroker===k}"><b>${esc(b.name)}</b><span>${esc(b.note)}</span></button>`).join("")}</div>
+      ${afBroker==="bamboo"?`<p class="small" style="margin:0">Bamboo covers Nigerian stocks (NGX). For Kenya, South Africa or Ghana, mystocks.africa is the option that covers them.</p>`:""}</div>
     ${dataCard}${aiCard}
     ${lockCard()}
     <div class="card"><h3>Privacy and your data</h3><p class="desc">${where}</p>
@@ -1410,6 +1504,7 @@ function questradeBlock(){
 $("setGrid").addEventListener("click",async e=>{
   const ext=e.target.closest("[data-ext]"); if(ext&&DESKTOP){ e.preventDefault(); openExternal(ext.dataset.ext); return; }
   const b=e.target.closest("[data-broker]"); if(b){ setBroker(b.dataset.broker); return; }
+  const ab=e.target.closest("[data-afbroker]"); if(ab){ setAfBroker(ab.dataset.afbroker); return; }
   const sk=e.target.closest("[data-savekey]");
   if(sk){ const n=sk.dataset.savekey, v=$("key_"+n).value.trim(), m=$("msg_"+n);
     if(!/^[A-Za-z0-9_\-]{8,}$/.test(v)){ m.className="small state err"; m.textContent="That doesn't look like a valid key. Copy it again from "+KEY_INFO[n].name+"."; return; }
@@ -1419,7 +1514,7 @@ $("setGrid").addEventListener("click",async e=>{
     else { m.className="small state ok"; m.textContent="Saved."; }
     renderSettings(); const m2=$("msg_"+n); if(m2){ m2.className=m.className; m2.textContent=m.textContent; } render(); return; }
   const rk=e.target.closest("[data-rmkey]"); if(rk){ await saveKey(rk.dataset.rmkey,""); renderSettings(); render(); return; }
-  if(e.target.id==="setImport"){ openImport(); return; }
+  if(e.target.id==="setImport"){ openImport("wealthsimple"); return; }
   if(e.target.id==="eraseAll"){ if(e.target.dataset.armed!=="1"){ e.target.dataset.armed="1"; e.target.textContent="Tap again to erase everything"; e.target.classList.add("armed"); return; }
     if(DESKTOP) await window.scDesktop.clearAll(); vault=null; clearTimeout(sealT); try{ localStorage.clear(); }catch(_){}
     location.reload(); return; }
@@ -1440,9 +1535,13 @@ function renderBrokerPanel(){
     el.innerHTML=`<div class="card"><div class="broker-logo">Q</div><div><h3>Questrade</h3><p class="desc">${!DESKTOP?"A live link to your Questrade accounts works in the desktop app.":c?`Connected, read-only.${qtState.lastSync?" Last synced "+esc(new Date(qtState.lastSync).toLocaleString())+".":""}`:"Connect your Questrade account in Settings to sync holdings automatically."}</p></div>
       ${!DESKTOP?`<a class="btn" href="${DOWNLOAD_URL}" target="_blank" rel="noopener" style="text-decoration:none">Get the desktop app</a>`:c?`<button class="btn primary" type="button" data-go="qtsync">Sync now</button>`:`<button class="btn primary" type="button" data-go="set">Connect</button>`}</div>`; }
   else el.innerHTML="";
+  if(afBroker&&!["none","family"].includes(afBroker)){
+    const n=pf.holdings.filter(h=>h.source===afBroker).length;
+    el.insertAdjacentHTML("beforeend",`<div class="card" style="margin-top:10px"><div class="broker-logo">${esc(AF_BROKERS[afBroker].name[0].toUpperCase())}</div><div><h3>${esc(AF_BROKERS[afBroker].name)}</h3><p class="desc">${n?`${n} holding${n===1?"":"s"} imported.`:"Import a statement, or add your African holdings by hand with + Add a holding."}</p></div><button class="btn" type="button" data-go="import-af">Import</button></div>`);
+  }
 }
 $("brokerPanel").addEventListener("click",e=>{ const g=e.target.closest("[data-go]"); if(!g) return;
-  if(g.dataset.go==="set") showTab("set"); else if(g.dataset.go==="import") openImport(); else if(g.dataset.go==="qtsync") syncQuestrade(); });
+  if(g.dataset.go==="set") showTab("set"); else if(g.dataset.go==="import") openImport("wealthsimple"); else if(g.dataset.go==="import-af") openImport(afBroker); else if(g.dataset.go==="qtsync") syncQuestrade(); });
 
 /* ---------- Replace imported holdings from one source, keeping who-paid notes ---------- */
 async function replaceSource(source,items){
@@ -1478,15 +1577,17 @@ function parseCSV(text){
   return rows.filter(r=>r.some(c=>c.trim()!==""));
 }
 const numV=v=>{ if(v==null) return NaN; let s=String(v).trim(); const neg=/^\(.*\)$/.test(s); s=s.replace(/[^0-9.\-]/g,""); const n=parseFloat(s); return neg?-n:n; };
+const IMPORT_SRC={wealthsimple:{name:"Wealthsimple",cur:"CAD"},bamboo:{name:"Bamboo",cur:"NGN"},mystocks:{name:"mystocks.africa",cur:"NGN"},daba:{name:"Daba",cur:"NGN"},other:{name:"another broker",cur:"CAD"}};
+let importSrc="wealthsimple";
 function readHoldings(text){
   const rows=parseCSV(text.replace(/^﻿/,""));
-  const hi=rows.findIndex((r,i)=>i<15&&r.some(c=>/symbol|ticker/i.test(c))&&r.some(c=>/quantity|shares|units/i.test(c)));
-  if(hi<0) return {error:"This file doesn't look like a holdings report: no Symbol and Quantity columns. Make sure you chose \"Holdings report (CSV)\" in Wealthsimple."};
+  const hi=rows.findIndex((r,i)=>i<15&&r.some(c=>/symbol|ticker|stock code|security code/i.test(c))&&r.some(c=>/quantity|shares|units|volume|holding/i.test(c)));
+  if(hi<0) return {error:importSrc==="wealthsimple"?"This file doesn't look like a holdings report: no Symbol and Quantity columns. Make sure you chose \"Holdings report (CSV)\" in Wealthsimple.":"This file needs at least a Symbol (or Ticker) column and a Quantity (or Units) column. If your statement is a PDF, add those holdings with \"+ Add a holding\" instead."};
   const H=rows[hi].map(h=>h.trim().toLowerCase());
   const col=(...tests)=>{ for(const t of tests){ const i=H.findIndex(t); if(i>=0) return i; } return -1; };
-  const c={symbol:col(h=>/^symbol$|^ticker$/.test(h),h=>/symbol|ticker/.test(h)),
-    name:col(h=>/^name$|security name|^description$/.test(h),h=>/name|description|security/.test(h)&&!/account|symbol/.test(h)),
-    qty:col(h=>/quantity|shares|units/.test(h)),
+  const c={symbol:col(h=>/^symbol$|^ticker$/.test(h),h=>/symbol|ticker|stock code|security code/.test(h)),
+    name:col(h=>/^name$|security name|^description$/.test(h),h=>/name|description|security|company/.test(h)&&!/account|symbol|code/.test(h)),
+    qty:col(h=>/quantity|shares|units|volume/.test(h),h=>/holding/.test(h)&&!/value|name/.test(h)),
     price:col(h=>/market price$|^market price/.test(h)&&!/currency/.test(h),h=>/price/.test(h)&&!/book|currency|average/.test(h)),
     pcur:col(h=>/market price currency|price currency/.test(h),h=>/^currency$/.test(h),h=>/currency/.test(h)&&!/book/.test(h)),
     book:col(h=>/book (value|cost)/.test(h)&&!/currency/.test(h)),
@@ -1497,12 +1598,12 @@ function readHoldings(text){
   for(const r of rows.slice(hi+1)){
     const sym=(r[c.symbol]||"").trim().toUpperCase(), qty=numV(r[c.qty]);
     if(!sym||!(qty>0)||/^(CAD|USD|CASH)$/.test(sym)) continue;
-    const price=numV(r[c.price]), cur=(c.pcur>=0&&/^[A-Z]{3}$/.test((r[c.pcur]||"").trim().toUpperCase()))?r[c.pcur].trim().toUpperCase():"CAD";
+    const price=numV(r[c.price]), cur=(c.pcur>=0&&/^[A-Z]{3}$/.test((r[c.pcur]||"").trim().toUpperCase()))?r[c.pcur].trim().toUpperCase():IMPORT_SRC[importSrc].cur;
     const book=numV(r[c.book]), bcur=c.bcur>=0?(r[c.bcur]||"").trim().toUpperCase():cur;
     let paid=book>0?book/qty:price; if(book>0&&bcur&&bcur!==cur&&FX[bcur]&&FX[cur]) paid=conv(paid,bcur,cur);
     let acct=(c.acct>=0?r[c.acct]:"").trim(); const m=acct.match(/TFSA|RRSP|FHSA|RESP|RRIF|LIRA|Non-?registered|Margin|Cash|Crypto/i); acct=m?m[0].toUpperCase().replace("NON-REGISTERED","NON-REG").replace("NONREGISTERED","NON-REG"):acct.slice(0,20);
-    items.push({name:(c.name>=0?r[c.name]:"").trim()||sym,ticker:sym,market:c.exch>=0?(r[c.exch]||"").trim():"",status:"held",date:today,shares:qty,currency:FX[cur]?cur:"CAD",
-      pricePaid:Math.round((paid||0)*10000)/10000,currentPrice:price>0?price:null,account:acct,source:"wealthsimple",notes:"Imported from Wealthsimple holdings report",updatedAt:new Date().toISOString()});
+    items.push({name:(c.name>=0?r[c.name]:"").trim()||sym,ticker:sym,market:c.exch>=0?(r[c.exch]||"").trim():"",status:"held",date:today,shares:qty,currency:FX[cur]?cur:IMPORT_SRC[importSrc].cur,
+      pricePaid:Math.round((paid||0)*10000)/10000,currentPrice:price>0?price:null,account:acct,source:importSrc,notes:`Imported from ${IMPORT_SRC[importSrc].name}`,updatedAt:new Date().toISOString()});
   }
   if(!items.length) return {error:"No holdings found in this file. Check that the accounts you picked actually hold investments."};
   return {items};
@@ -1511,9 +1612,22 @@ function openSheet(html){ $("sheetBody").innerHTML=html; $("sheet").hidden=false
 function closeSheet(){ $("sheet").hidden=true; }
 $("sheet").addEventListener("click",e=>{ if(e.target.id==="sheet") closeSheet(); });
 let importItems=null;
-function openImport(){
-  importItems=null;
-  openSheet(`<div class="modal-head"><h2 id="sheetTitle" style="font-size:21px">Import from Wealthsimple</h2><button class="btn" type="button" data-sh="close">Close</button></div>
+function openImport(src){
+  importItems=null; if(src&&IMPORT_SRC[src]) importSrc=src; else if(!src) importSrc="wealthsimple";
+  const ws=importSrc==="wealthsimple", nm=IMPORT_SRC[importSrc].name;
+  const tabs=`<div class="tabs" role="tablist" aria-label="Import from" style="margin-bottom:12px">${Object.entries(IMPORT_SRC).map(([k,v])=>`<button class="tab" type="button" role="tab" data-sh="impsrc" data-src="${k}" aria-selected="${k===importSrc}">${k==="other"?"Other":esc(v.name)}</button>`).join("")}</div>`;
+  if(!ws){ openSheet(`<div class="modal-head"><h2 id="sheetTitle" style="font-size:21px">Import from ${esc(nm)}</h2><button class="btn" type="button" data-sh="close">Close</button></div>${tabs}
+    <p class="muted" style="margin:0 0 12px">${!STANDALONE?"Imported holdings are added to the shared portfolio on this page.":"The file is read on this device and never uploaded anywhere."}</p>
+    <ol class="steps-list">
+      <li>In ${esc(nm)}, look for a portfolio, holdings or account statement you can download${importSrc==="bamboo"?" (in the app, check your profile or account statements)":""}.</li>
+      <li>Choose the <b>CSV</b> or <b>Excel</b> format if you're offered one. If it's Excel, open it and save it as CSV.</li>
+      <li>The file needs at least a <b>Symbol</b> (or Ticker) column and a <b>Quantity</b> (or Units) column. Prices are optional; values without a currency column are read as ${IMPORT_SRC[importSrc].cur}.</li>
+      <li>Drop the file below. If you only have a PDF statement, add those holdings with "+ Add a holding" instead.</li>
+    </ol>
+    <label class="drop" id="drop" for="wsFile" style="margin-top:14px"><strong>Drop your ${esc(nm)} file here</strong><span class="small">or click to choose the .csv file</span></label>
+    <input type="file" id="wsFile" accept=".csv,text/csv" hidden>
+    <div id="impOut" style="margin-top:12px"></div>`); return; }
+  openSheet(`<div class="modal-head"><h2 id="sheetTitle" style="font-size:21px">Import from Wealthsimple</h2><button class="btn" type="button" data-sh="close">Close</button></div>${tabs}
     <p class="muted" style="margin:0 0 12px">Download your Holdings report from Wealthsimple, then drop it here. ${!STANDALONE?"Imported holdings are added to the shared portfolio on this page.":"The file is read on this device and never uploaded anywhere."}</p>
     <ol class="steps-list">
       <li>On a computer, log in to Wealthsimple at <a class="link" href="https://my.wealthsimple.com" target="_blank" rel="noopener" data-ext="https://my.wealthsimple.com">my.wealthsimple.com</a>. The report isn't available in the phone app.</li>
@@ -1531,7 +1645,7 @@ function showImportPreview(res){
   const o=$("impOut");
   if(res.error){ o.innerHTML=`<p class="state err" style="font-weight:500">${esc(res.error)}</p>`; return; }
   importItems=res.items;
-  const replacing=pf.holdings.filter(h=>h.source==="wealthsimple").length;
+  const replacing=pf.holdings.filter(h=>h.source===importSrc).length;
   o.innerHTML=`<p style="margin:0 0 8px"><strong>${res.items.length} holding${res.items.length===1?"":"s"} found.</strong> Check they look right:</p>
     <div class="preview"><table><thead><tr><th>Symbol</th><th>Name</th><th>Account</th><th>Shares</th><th>Price</th></tr></thead><tbody>
     ${res.items.map(i=>`<tr><td class="num">${esc(i.ticker)}</td><td>${esc(i.name)}</td><td>${i.account?`<span class="acct">${esc(i.account)}</span>`:"–"}</td><td class="num">${i.shares}</td><td class="num">${i.currentPrice?money(i.currentPrice,i.currency):"–"}</td></tr>`).join("")}
@@ -1549,8 +1663,10 @@ $("sheetBody").addEventListener("click",async e=>{
   const ext=e.target.closest("[data-ext]"); if(ext&&DESKTOP){ e.preventDefault(); openExternal(ext.dataset.ext); return; }
   const a=e.target.closest("[data-sh]"); if(!a) return; const act=a.dataset.sh;
   if(act==="close"){ closeSheet(); return; }
+  if(act==="copymsg"){ const t=$("famMsg"); try{ await navigator.clipboard.writeText(t.value); toast("Message copied."); }catch(_){ t.select(); toast("Press Ctrl+C (or Cmd+C) to copy."); } return; }
+  if(act==="impsrc"){ openImport(a.dataset.src); return; }
   if(act==="doimport"&&importItems){ a.disabled=true; a.textContent="Importing…";
-    try{ await replaceSource("wealthsimple",importItems); if(!broker) setBroker("wealthsimple"); closeSheet(); showTab("pf"); toast(`Imported ${importItems.length} holding${importItems.length===1?"":"s"} from Wealthsimple.`); }
+    try{ await replaceSource(importSrc,importItems); if(!broker&&importSrc==="wealthsimple") setBroker("wealthsimple"); closeSheet(); showTab("pf"); toast(`Imported ${importItems.length} holding${importItems.length===1?"":"s"} from ${IMPORT_SRC[importSrc].name}.`); }
     catch(err){ a.disabled=false; a.textContent="Try again"; $("impOut").insertAdjacentHTML("beforeend",`<p class="state err">${err.message==="readonly"?"You can view this portfolio but not change it.":"Couldn't save the import. Try again."}</p>`); } return; }
   if(act.startsWith("ob")) obAction(act,a);
 });
@@ -1570,6 +1686,8 @@ function renderOnboarding(){
       </div><div class="sheet-acts"><button class="btn" type="button" data-sh="obskip">Skip setup</button><button class="btn primary" type="button" data-sh="obnext">Get started</button></div>`,
     ()=>`${obDots(total)}<h2 id="sheetTitle" style="font-size:22px">Where do you invest?</h2><p class="muted" style="margin:6px 0 12px">This sets up the right import and buy buttons. You can change it later in Settings.</p>
       <div class="choice-row">${["wealthsimple","questrade","none"].map(b=>`<button class="choice" type="button" data-sh="obbroker" data-b="${b}" aria-pressed="${broker===b}"><b>${BROKERS[b].name}</b><span>${b==="wealthsimple"?"Import holdings, buy in Wealthsimple":b==="questrade"?DESKTOP?"Live account link, buy in Questrade":"Buy in Questrade; live link in desktop app":"Just researching"}</span></button>`).join("")}</div>
+      <p style="margin:16px 0 8px;font-weight:600">And for Nigerian or other African stocks?</p>
+      <div class="choice-row" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${["bamboo","mystocks","daba","family","none"].map(b=>`<button class="choice" type="button" data-sh="obaf" data-b="${b}" aria-pressed="${afBroker===b}"><b>${esc(AF_BROKERS[b].name)}</b><span>${esc(AF_BROKERS[b].note)}</span></button>`).join("")}</div>
       <div class="sheet-acts"><button class="btn" type="button" data-sh="obback">Back</button><button class="btn primary" type="button" data-sh="obnext">Continue</button></div>`,
     ()=>`${obDots(total)}<h2 id="sheetTitle" style="font-size:22px">Turn on live prices</h2><p class="muted" style="margin:6px 0 12px">Stock Compass works without this, using reference prices. For live prices, get a free Finnhub key (takes a minute) and paste it here.</p>
       ${keyCard("finnhub")}<div class="sheet-acts"><button class="btn" type="button" data-sh="obback">Back</button><span style="display:flex;gap:8px"><button class="btn" type="button" data-sh="obnext">Skip for now</button><button class="btn primary" type="button" data-sh="obsavekey" data-k="finnhub">Save and continue</button></span></div>`,
@@ -1587,6 +1705,7 @@ async function obAction(act,a){
   else if(act==="obback"){ obStep=Math.max(0,obStep-1); renderOnboarding(); }
   else if(act==="obskip"){ store.set("sc_onboarded",true); closeSheet(); }
   else if(act==="obbroker"){ setBroker(a.dataset.b); renderOnboarding(); }
+  else if(act==="obaf"){ setAfBroker(a.dataset.b); renderOnboarding(); }
   else if(act==="obsavekey"){ const n=a.dataset.k, v=$("key_"+n).value.trim(), m=$("msg_"+n);
     if(!v){ obStep++; renderOnboarding(); return; }
     if(!/^[A-Za-z0-9_\-]{8,}$/.test(v)){ m.className="small state err"; m.textContent="That doesn't look like a valid key."; return; }
