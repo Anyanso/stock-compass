@@ -1398,10 +1398,10 @@ function renderSettings(){
 function questradeBlock(){
   const c=qtState&&qtState.connected;
   return `<div class="card" style="background:var(--bg)"><h3>Questrade connection ${c?`<span class="state ok">● Connected</span>`:`<span class="state off">○ Not connected</span>`}</h3>
-    ${c?`<p class="desc">Read-only access to ${qtState.accounts||0} account${qtState.accounts===1?"":"s"}. ${qtState.lastSync?"Last synced "+esc(new Date(qtState.lastSync).toLocaleString())+".":""}</p>
+    ${c?`<p class="desc">Read-only access to ${qtState.accounts||0} ${qtState.practice?"practice ":""}account${qtState.accounts===1?"":"s"}. ${qtState.lastSync?"Last synced "+esc(new Date(qtState.lastSync).toLocaleString())+".":""}</p>
       <div class="keyline"><button class="btn primary" type="button" id="qtSync">Sync holdings now</button><button class="btn" type="button" id="qtOff">Disconnect</button></div>`
-    :`<ol class="steps-list"><li>Log in to Questrade on the web and open the API centre (App Hub) from your account menu.</li><li>Register a personal app. Give it any name and allow it to read account data.</li><li>Generate a new token for it and copy it.</li><li>Paste the token below and click Connect.</li></ol>
-      <p class="small" style="margin:0">Stock Compass can only read your accounts; Questrade doesn't let it trade. If you don't open the app for 3 days the token expires and you'll need a new one.</p>
+    :`<ol class="steps-list"><li>Log in to Questrade on the web (a practice account works too) and open the security centre in your account settings.</li><li>Go to <b>API Centre → Personal applications</b> and register a new app. Give it any name and allow it to read account data.</li><li>Click <b>Generate new token</b> for the app and copy it.</li><li>Paste the token below and click <b>Connect</b> straight away: each token works only once.</li></ol>
+      <p class="small" style="margin:0">Stock Compass can only read your accounts; Questrade doesn't let it trade. You can cut access any time in Questrade with <b>Revoke</b> under API Centre → Personal applications. If you don't open Stock Compass for a few days the connection may expire and you'll need a new token.</p>
       <div class="keyline"><input type="password" id="qtToken" autocomplete="off" spellcheck="false" placeholder="Paste your Questrade token" aria-label="Questrade token"><button class="btn primary" type="button" id="qtConnect">Connect</button></div>`}
     <div class="small" id="qtMsg" role="status"></div></div>`;
 }

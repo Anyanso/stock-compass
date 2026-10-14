@@ -5,7 +5,8 @@ const { app, BrowserWindow, ipcMain, shell, safeStorage, Menu, nativeTheme } = r
 const path = require("path");
 const fs = require("fs");
 
-const ALLOWED_HOSTS = [/^finnhub\.io$/, /^www\.alphavantage\.co$/, /^api\.anthropic\.com$/, /^login\.questrade\.com$/, /^api\d*\.iq\.questrade\.com$/];
+const ALLOWED_HOSTS = [/^finnhub\.io$/, /^www\.alphavantage\.co$/, /^api\.anthropic\.com$/, /^(practice)?login\.questrade\.com$/, /^api\d*\.iq\.questrade\.com$/];
+const QT_LOGINS = ["https://login.questrade.com", "https://practicelogin.questrade.com"]; // live accounts, then practice accounts
 const AI_MODEL = "claude-sonnet-5-5";
 
 // ---------- Secure storage: values are encrypted with the operating system's keychain ----------
@@ -92,13 +93,28 @@ async function ai(prompt) {
 
 // ---------- Questrade (read-only) ----------
 let qtAccess = null; // { token, api, expires }
+// Exchanges a refresh token for an access token. Questrade documents a POST; older integrations used GET,
+// so both are tried. Live accounts use login.questrade.com and practice accounts practicelogin.questrade.com.
+async function qtExchange(base, refreshToken) {
+  const body = `grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`;
+  let r = await request(`${base}/oauth2/token`, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body });
+  if (!r.ok && r.status !== 401) r = await request(`${base}/oauth2/token?${body}`);
+  if (!r.ok) return null;
+  const j = await r.json().catch(() => null);
+  return j && j.access_token ? j : null;
+}
 async function qtRefresh(refreshToken) {
-  const r = await request(`https://login.questrade.com/oauth2/token?grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`);
-  if (!r.ok) throw Object.assign(new Error("Questrade didn't accept the token. In Questrade, generate a new token and connect again."), { auth: true });
-  const j = await r.json();
-  setSecret("questrade_refresh", j.refresh_token); // Questrade refresh tokens work once, so keep the new one
-  qtAccess = { token: j.access_token, api: j.api_server, expires: Date.now() + (j.expires_in - 60) * 1000 };
-  return qtAccess;
+  const meta = readJSON(metaFile());
+  const order = meta.login ? [meta.login, ...QT_LOGINS.filter(l => l !== meta.login)] : QT_LOGINS;
+  for (const base of order) {
+    const j = await qtExchange(base, refreshToken);
+    if (!j) continue;
+    setSecret("questrade_refresh", j.refresh_token); // Questrade refresh tokens work once, so keep the new one
+    writeJSON(metaFile(), { ...readJSON(metaFile()), login: base, practice: base.includes("practice") });
+    qtAccess = { token: j.access_token, api: j.api_server.endsWith("/") ? j.api_server : j.api_server + "/", expires: Date.now() + (j.expires_in - 60) * 1000 };
+    return qtAccess;
+  }
+  throw Object.assign(new Error("Questrade didn't accept the token. Tokens work only once, so generate a new one in Questrade's API Centre and connect again."), { auth: true });
 }
 async function qtGet(p) {
   if (!qtAccess || Date.now() > qtAccess.expires) {
@@ -116,7 +132,7 @@ async function qtConnect(token) {
     if (typeof token !== "string" || token.length < 10) return { ok: false, message: "Paste the token from Questrade first." };
     await qtRefresh(token.trim());
     const a = await qtGet("v1/accounts");
-    writeJSON(metaFile(), { accounts: (a.accounts || []).length, lastSync: null });
+    writeJSON(metaFile(), { ...readJSON(metaFile()), accounts: (a.accounts || []).length, lastSync: null });
     return { ok: true };
   } catch (e) { return { ok: false, message: e.auth ? e.message : "Couldn't reach Questrade. Check your internet connection and try again." }; }
 }
@@ -139,7 +155,7 @@ async function qtSync() {
       exchange: info[r.symbolId]?.listingExchange || "", quantity: r.openQuantity, currentPrice: r.currentPrice,
       averageEntryPrice: r.averageEntryPrice, accountType: r.accountType
     }));
-    writeJSON(metaFile(), { accounts: accounts.length, lastSync: new Date().toISOString() });
+    writeJSON(metaFile(), { ...readJSON(metaFile()), accounts: accounts.length, lastSync: new Date().toISOString() });
     return { ok: true, positions };
   } catch (e) {
     if (e.auth) { setSecret("questrade_refresh", ""); qtAccess = null; }
@@ -148,7 +164,7 @@ async function qtSync() {
 }
 function qtStatus() {
   const meta = readJSON(metaFile());
-  return { connected: !!getSecret("questrade_refresh"), accounts: meta.accounts || 0, lastSync: meta.lastSync || null };
+  return { connected: !!getSecret("questrade_refresh"), accounts: meta.accounts || 0, lastSync: meta.lastSync || null, practice: !!meta.practice };
 }
 
 // ---------- IPC: the only things the page can ask for ----------
