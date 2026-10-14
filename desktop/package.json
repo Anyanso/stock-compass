@@ -1,0 +1,50 @@
+{
+  "name": "stock-compass",
+  "productName": "Stock Compass",
+  "version": "1.0.0",
+  "description": "Plain-language stock research for everyday and diaspora investors.",
+  "author": "Anyanso",
+  "homepage": "https://anyanso.github.io/stock-compass/",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "prepare-app": "node scripts/copy-app.js",
+    "start": "npm run prepare-app && electron .",
+    "dist": "npm run prepare-app && electron-builder"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "io.github.anyanso.stockcompass",
+    "productName": "Stock Compass",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "preload.js", "app/**/*", "build/icon.png", "package.json"],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "artifactName": "Stock-Compass-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Stock Compass"
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["universal"] }],
+      "category": "public.app-category.finance",
+      "identity": null,
+      "artifactName": "Stock-Compass-${version}-mac.${ext}"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Finance",
+      "artifactName": "Stock-Compass-${version}.${ext}"
+    },
+    "publish": [{ "provider": "github", "owner": "Anyanso", "repo": "stock-compass", "releaseType": "release" }]
+  }
+}

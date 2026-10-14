@@ -1412,7 +1412,7 @@ $("setGrid").addEventListener("click",async e=>{
   if(sk){ const n=sk.dataset.savekey, v=$("key_"+n).value.trim(), m=$("msg_"+n);
     if(!/^[A-Za-z0-9_\-]{8,}$/.test(v)){ m.className="small state err"; m.textContent="That doesn't look like a valid key. Copy it again from "+KEY_INFO[n].name+"."; return; }
     sk.disabled=true; m.className="small"; m.textContent="Saving and checking…";
-    await saveKey(n,v);
+    try{ await saveKey(n,v); }catch(err){ sk.disabled=false; m.className="small state err"; m.textContent=String(err&&err.message||err).replace(/^.*Error: /,"")||"Couldn't save the key."; return; }
     if(n!=="anthropic"&&mcp){ const ok=await fetchQuote("KO",true); m.className="small state "+(ok?"ok":"err"); m.textContent=ok?"Working: live price received.":avMessage()||"Saved, but the test price didn't load."; }
     else { m.className="small state ok"; m.textContent="Saved."; }
     renderSettings(); const m2=$("msg_"+n); if(m2){ m2.className=m.className; m2.textContent=m.textContent; } render(); return; }
@@ -1588,7 +1588,9 @@ async function obAction(act,a){
   else if(act==="obsavekey"){ const n=a.dataset.k, v=$("key_"+n).value.trim(), m=$("msg_"+n);
     if(!v){ obStep++; renderOnboarding(); return; }
     if(!/^[A-Za-z0-9_\-]{8,}$/.test(v)){ m.className="small state err"; m.textContent="That doesn't look like a valid key."; return; }
-    a.disabled=true; m.className="small"; m.textContent="Saving…"; await saveKey(n,v); obStep++; renderOnboarding(); }
+    a.disabled=true; m.className="small"; m.textContent="Saving…";
+    try{ await saveKey(n,v); }catch(err){ a.disabled=false; m.className="small state err"; m.textContent=String(err&&err.message||err).replace(/^.*Error: /,"")||"Couldn't save the key."; return; }
+    obStep++; renderOnboarding(); }
 }
 
 /* ---------- App lock: passcode screen; holdings and keys encrypted at rest (PBKDF2 → AES-256-GCM) ---------- */
