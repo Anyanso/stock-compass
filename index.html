@@ -248,6 +248,13 @@ table.cmp th[scope=row]{color:var(--muted);font-weight:600;font-size:13px;white-
 @media (max-width:600px){.about-grid{grid-template-columns:1fr}}
 .about-grid p{margin:4px 0 0}
 .about-list{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
+.inside-list{display:grid;gap:6px;margin-top:6px}
+.inside-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(60px,1fr) 52px;gap:10px;align-items:center;font-size:13.5px}
+.inside-name{min-width:0;overflow-wrap:anywhere}
+.inside-bar{height:8px;background:var(--sunk);border-radius:4px;overflow:hidden}
+.inside-bar b{display:block;height:100%;background:var(--accent);border-radius:4px}
+.inside-w{text-align:right}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px}
 .about-local{margin:12px 0 0;padding:10px 12px;background:var(--accent-soft);border-radius:10px;font-size:14px}
 /* outlook */
 .ol{display:grid;gap:16px}
@@ -345,6 +352,7 @@ form.add .hint{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
       <div id="pfSplit"></div>
       <form id="membersForm" class="members-form" hidden></form>
     </div>
+    <div id="pfOverlap"></div>
     <div class="panel">
       <div class="panel-head"><h3>Holdings</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="pfRefresh" hidden>Refresh live prices</button><button class="btn primary" type="button" id="addHolding">+ Add a holding</button></div></div>
       <p class="status-note" id="pfRefreshNote" hidden></p>
@@ -356,7 +364,7 @@ form.add .hint{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
 
   <div id="explore" role="tabpanel" aria-labelledby="tabExplore">
   <div class="page-head">
-    <div><h1>Find stocks that fit your goals</h1><p>Every stock gets plain-language verdicts, strengths, risks, a 1- and 5-year outlook and a cost calculator in your own currency.</p></div>
+    <div><h1>Find stocks and ETFs that fit your goals</h1><p>Every investment gets plain-language verdicts, strengths, risks, a 1- and 5-year outlook and a cost calculator in your own currency.</p></div>
     <button class="btn" id="addToggle" type="button">+ Add a stock</button>
   </div>
   <form class="add" id="addForm" hidden>
@@ -395,7 +403,9 @@ form.add .hint{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
       <option value="margin">Sort: highest profit margin</option>
       <option value="growth">Sort: fastest sales growth</option>
       <option value="pe">Sort: cheapest vs earnings</option>
+      <option value="fee">Sort: lowest fee (ETFs)</option>
     </select>
+    <select class="sortsel" id="kind" aria-label="Type"><option value="">Stocks and ETFs</option><option value="stock">Stocks only</option><option value="etf">ETFs only</option></select>
     <select class="sortsel" id="sector" aria-label="Sector"><option value="">All sectors</option></select>
   </div>
 
@@ -524,10 +534,54 @@ const BASE = [
   d:"One of the world's biggest gold miners, based in Johannesburg, with mines in Australia, Ghana, South Africa and Chile.",
   pro:["Record profits from high gold prices: H1 2026 profit up 81% to $1.85 billion.","Pays large dividends and buybacks; very little debt."],
   con:["Profits depend heavily on the gold price, which can fall sharply.","Its Ghana mining lease renewal is uncertain."],url:"https://www.google.com/finance/quote/GFI:NYSE"},
- {t:"AFK",x:"NYSE Arca",n:"VanEck Africa Index ETF",c:"Africa (fund)",r:"Africa",s:"Fund",pr:26.84,cu:"USD",y:1.0,m:null,g:null,pe:null,de:null,p:null,b:1.0,em:1,
+ {t:"XEQT",k:"etf",x:"TSX",n:"iShares Core Equity ETF Portfolio",c:"Global (fund)",r:"Global",s:"All-in-one ETF",pr:44.84,cu:"CAD",y:1.61,mer:0.19,aum:23.47,hold:8420,top10:null,ret:14.13,since:2019,b:0.84,em:0,grp:"allin",mk:["us","ca","intl"],
+  d:"A complete, all-stock portfolio in one fund: about 8,400 companies from Canada, the US and the rest of the world.",
+  pro:["Built to be your whole portfolio; it rebalances itself back to its target mix."],con:["100% stocks, so it can fall 30% or more in a bad market year."],
+  inside:{top:[["iShares Core S&P Total US Stock Market (CAD-hedged)",31.08],["iShares Core S&P/TSX Capped Composite",25.62,"XIC"],["iShares Core MSCI EAFE IMI (developed markets)",23.92],["iShares Core S&P Total US Stock Market",14.58],["iShares Core MSCI Emerging Markets IMI",4.60]],
+    split:[["United States",45.66],["Canada",25.62],["Developed international",23.92],["Emerging markets",4.60]],note:"XEQT is a fund of iShares funds. These are the funds it holds; together they own about 8,400 companies."},
+  url:"https://www.google.com/finance/quote/XEQT:TSE"},
+ {t:"VEQT",k:"etf",x:"TSX",n:"Vanguard All-Equity ETF Portfolio",c:"Global (fund)",r:"Global",s:"All-in-one ETF",pr:61.09,cu:"CAD",y:1.24,mer:0.22,aum:17.78,hold:13628,top10:null,ret:13.67,since:2019,b:0.83,em:0,grp:"allin",mk:["us","ca","intl"],
+  d:"Vanguard's all-stock portfolio in one fund: about 13,600 companies worldwide, with a slightly bigger Canadian share than XEQT.",
+  pro:["Built to be your whole portfolio; it rebalances itself back to its target mix."],con:["100% stocks, so it can fall 30% or more in a bad market year."],
+  inside:{top:[["Vanguard US Total Market Index ETF",45.52],["Vanguard FTSE Canada All Cap Index ETF",29.66],["Vanguard FTSE Developed All Cap ex North America",17.64],["Vanguard FTSE Emerging Markets All Cap",7.18]],
+    split:[["United States",45.52],["Canada",29.66],["Developed international",17.64],["Emerging markets",7.18]],note:"VEQT is a fund of four Vanguard funds. Together they own about 13,600 companies."},
+  url:"https://www.google.com/finance/quote/VEQT:TSE"},
+ {t:"VFV",k:"etf",x:"TSX",n:"Vanguard S&P 500 Index ETF",c:"United States (fund)",r:"North America",s:"US stock ETF",pr:189.37,cu:"CAD",y:0.86,mer:0.08,aum:36.41,hold:503,top10:38.42,ret:17.40,since:2012,b:0.74,em:0,grp:"sp500",mk:["us"],
+  d:"Owns the 500 largest US companies (the S&P 500) through Vanguard's US fund, priced in Canadian dollars.",
+  pro:["One of the cheapest ways for Canadians to own the S&P 500."],con:["Only US companies, and the biggest tech names make up a large share."],
+  inside:{top:[["NVIDIA",7.89,"NVDA"],["Apple",7.46,"AAPL"],["Microsoft",5.95,"MSFT"],["Amazon",3.88],["Alphabet (Google), class A",3.01],["Alphabet (Google), class C",2.40],["Broadcom",2.39],["Meta Platforms",2.31],["Tesla",1.58],["Eli Lilly",1.55]],
+    split:[["United States",100]],note:"VFV holds Vanguard's US S&P 500 fund (VOO). These are that fund's largest companies, from the S&P 500 index."},
+  url:"https://www.google.com/finance/quote/VFV:TSE"},
+ {t:"ZSP",k:"etf",x:"TSX",n:"BMO S&P 500 Index ETF",c:"United States (fund)",r:"North America",s:"US stock ETF",pr:116.93,cu:"CAD",y:0.78,mer:0.09,aum:25.40,hold:506,top10:38.42,ret:17.37,since:2012,b:0.74,em:0,grp:"sp500",mk:["us"],
+  d:"Owns the 500 largest US companies (the S&P 500) directly, priced in Canadian dollars.",
+  pro:["Very low fee for the S&P 500."],con:["Only US companies, and the biggest tech names make up a large share."],
+  inside:{top:[["NVIDIA",7.89,"NVDA"],["Apple",7.46,"AAPL"],["Microsoft",5.95,"MSFT"],["Amazon",3.88],["Alphabet (Google), class A",3.01],["Alphabet (Google), class C",2.40],["Broadcom",2.39],["Meta Platforms",2.31],["Tesla",1.58],["Eli Lilly",1.55]],
+    split:[["United States",100]]},
+  url:"https://www.google.com/finance/quote/ZSP:TSE"},
+ {t:"XIU",k:"etf",x:"TSX",n:"iShares S&P/TSX 60 Index ETF",c:"Canada (fund)",r:"North America",s:"Canadian stock ETF",pr:52.83,cu:"CAD",y:2.15,mer:0.18,aum:23.18,hold:60,top10:47.03,ret:9.13,since:1999,b:0.96,em:0,grp:"ca",mk:["ca"],
+  d:"Owns the 60 largest companies on the Toronto Stock Exchange. Canada's oldest ETF, launched in 1999.",
+  pro:["Simple way to own Canada's biggest companies."],con:["Heavy in banks and energy, like the Canadian market itself."],
+  inside:{top:[["Royal Bank of Canada",9.57,"RY"],["Toronto-Dominion Bank",6.80],["Shopify",5.94],["Bank of Montreal",4.13],["Bank of Nova Scotia",3.89],["Enbridge",3.61,"ENB"],["CIBC",3.52],["Agnico Eagle Mines",3.43],["Canadian Natural Resources",3.40,"CNQ"],["Suncor Energy",2.75]],
+    split:[["Canada",100]]},
+  url:"https://www.google.com/finance/quote/XIU:TSE"},
+ {t:"VDY",k:"etf",x:"TSX",n:"Vanguard FTSE Canadian High Dividend Yield ETF",c:"Canada (fund)",r:"North America",s:"Canadian dividend ETF",pr:78.24,cu:"CAD",y:3.01,mer:0.22,aum:9.21,hold:59,top10:69.74,ret:13.15,since:2012,b:0.88,em:0,grp:"cadiv",mk:["ca"],
+  d:"Owns about 60 Canadian companies that pay above-average dividends, mostly banks, pipelines and energy producers.",
+  pro:["Monthly income from established Canadian companies."],con:["Very concentrated: Royal Bank and TD alone are over a quarter of the fund."],
+  inside:{top:[["Royal Bank of Canada",15.84,"RY"],["Toronto-Dominion Bank",11.14],["Bank of Montreal",6.80],["Bank of Nova Scotia",6.45],["Enbridge",5.94,"ENB"],["CIBC",5.83],["Canadian Natural Resources",5.53,"CNQ"],["Suncor Energy",4.64],["Manulife Financial",4.10],["TC Energy",3.47]],
+    split:[["Canada",100]]},
+  url:"https://www.google.com/finance/quote/VDY:TSE"},
+ {t:"XEI",k:"etf",x:"TSX",n:"iShares S&P/TSX Composite High Dividend Index ETF",c:"Canada (fund)",r:"North America",s:"Canadian dividend ETF",pr:40.36,cu:"CAD",y:3.40,mer:0.22,aum:4.35,hold:81,top10:46.00,ret:10.17,since:2011,b:0.83,em:0,grp:"cadiv",mk:["ca"],
+  d:"Owns about 80 high-dividend Canadian companies, spread more evenly than VDY, with more energy and less banking.",
+  pro:["Higher dividend than the broad Canadian market, paid monthly."],con:["Leans on energy and pipeline companies, which move with oil and gas prices."],
+  inside:{top:[["Suncor Energy",5.62],["Canadian Natural Resources",5.24,"CNQ"],["Toronto-Dominion Bank",5.11],["Enbridge",4.97,"ENB"],["Royal Bank of Canada",4.86,"RY"],["TC Energy",4.55],["Nutrien",4.15],["Bank of Montreal",4.07],["Bank of Nova Scotia",3.86],["CIBC",3.57]],
+    split:[["Canada",100]]},
+  url:"https://www.google.com/finance/quote/XEI:TSE"},
+ {t:"AFK",k:"etf",x:"NYSE Arca",n:"VanEck Africa Index ETF",c:"Africa (fund)",r:"Africa",s:"Africa ETF",pr:26.84,cu:"USD",y:1.01,mer:0.76,aum:0.097,hold:83,top10:null,ret:null,since:2008,b:1.0,em:1,grp:"africa",mk:["africa"],
   d:"A single fund that holds 83 companies doing business in Africa: about 36% South Africa, 12% Nigeria, 10% Morocco and 5% Kenya.",
-  pro:["Spreads your money across the continent in one purchase.","Buyable through Canadian brokers in US dollars."],
-  con:["Annual fee of 0.76%.","Small fund (about $97 million), and its holdings include non-African companies that earn money in Africa."],url:"https://www.vaneck.com/us/en/investments/africa-index-etf-afk/overview/"},
+  pro:["Spreads your money across the continent in one purchase."],con:["Some holdings are non-African companies that earn money in Africa."],
+  inside:{top:[["Attijariwafa Bank (Morocco)",4.5],["AngloGold Ashanti",4.1],["Naspers",3.4,"NPN"],["Aradel Holdings (Nigeria)",3.3],["Endeavour Mining",3.3]],
+    split:[["South Africa",35.7],["Nigeria",12.1],["Morocco",9.9],["Canada",9.0],["United Kingdom",6.4],["Kenya",5.4],["United States",4.6],["Other",16.9]],note:"Largest of its 83 holdings, as of October 2026."},
+  url:"https://www.vaneck.com/us/en/investments/africa-index-etf-afk/overview/"},
  {t:"7203",x:"TSE",n:"Toyota Motor",c:"Japan",r:"Asia",s:"Consumer discretionary",pr:2800,cu:"JPY",y:3.0,m:9,g:3,pe:9,de:1.1,p:30,b:0.6,em:0,
   d:"The world's best-selling carmaker and a leader in hybrid vehicles.",
   pro:["Strong in hybrids and very cash-rich."],con:["Car sales are cyclical; tariffs and the shift to electric cars add uncertainty."],url:"https://www.google.com/finance/quote/7203:TYO"}
@@ -670,9 +724,37 @@ const ABOUT={
   known:"Tarkwa in Ghana, South Deep in South Africa, Salares Norte in Chile and several mines in Australia",
   base:"Roots go back to 1887 in South Africa. Headquartered in Johannesburg; also listed in New York as GFI."},
  AFK:{what:"The VanEck Africa Index ETF is a fund, not a single company. Buying one share gives you a small piece of 83 companies that do business in Africa.",
-  money:["Its return comes from the shares it holds: banks, miners, telecoms and consumer companies","Dividends from those companies, paid out about once a year"],
+  money:["Price growth of the banks, miners, telecoms and consumer companies it owns","Dividends from those companies, paid out about once a year"],
   known:"Top holdings include Attijariwafa Bank, AngloGold Ashanti, Naspers, Aradel Holdings and Endeavour Mining",
   base:"Run by VanEck, a US fund manager. Trades in New York under the symbol AFK."},
+ XEQT:{what:"An ETF (exchange-traded fund) is a basket of investments you buy as one share. XEQT holds five other iShares funds that together own about 8,400 companies around the world.",
+  money:["Price growth of the companies it owns","Dividends from those companies, paid out to you every three months"],
+  known:"Apple, Microsoft, NVIDIA, Royal Bank, Shopify, Nestlé, Toyota, TSMC and thousands more",
+  base:"Run by BlackRock's iShares, the world's largest ETF provider. Launched in 2019; trades on the Toronto Stock Exchange."},
+ VEQT:{what:"An ETF (exchange-traded fund) is a basket of investments you buy as one share. VEQT holds four Vanguard funds that together own about 13,600 companies around the world.",
+  money:["Price growth of the companies it owns","Dividends from those companies, paid out to you once a year"],
+  known:"Apple, Microsoft, NVIDIA, Royal Bank, Shopify, Nestlé, Toyota, TSMC and thousands more",
+  base:"Run by Vanguard, known for low-cost index funds. Launched in 2019; trades on the Toronto Stock Exchange."},
+ VFV:{what:"An ETF that tracks the S&P 500, the 500 largest companies listed in the US. It's one of the most popular ETFs in Canada.",
+  money:["Price growth of the 500 companies","A small dividend, paid out every three months"],
+  known:"NVIDIA, Apple, Microsoft, Amazon, Google, Meta, Tesla",
+  base:"Run by Vanguard Canada. Launched in 2012; trades on the Toronto Stock Exchange in Canadian dollars."},
+ ZSP:{what:"An ETF that tracks the S&P 500, the 500 largest companies listed in the US. It does the same job as VFV, from a different provider.",
+  money:["Price growth of the 500 companies","A small dividend, paid out every three months"],
+  known:"NVIDIA, Apple, Microsoft, Amazon, Google, Meta, Tesla",
+  base:"Run by BMO Global Asset Management. Launched in 2012; trades on the Toronto Stock Exchange in Canadian dollars."},
+ XIU:{what:"An ETF that tracks the S&P/TSX 60: the 60 largest companies on the Toronto Stock Exchange.",
+  money:["Price growth of Canada's biggest companies","Dividends, paid out every three months"],
+  known:"Royal Bank, TD, Shopify, Bank of Montreal, Enbridge, Canadian Natural Resources",
+  base:"Run by BlackRock's iShares. Launched in 1999 as Canada's first ETF."},
+ VDY:{what:"An ETF that owns Canadian companies paying higher-than-average dividends. It's popular with people who want regular income.",
+  money:["Dividends from Canadian banks, pipelines and energy companies, paid out every month","Price growth of those companies"],
+  known:"Royal Bank, TD, Bank of Montreal, Scotiabank, Enbridge, Manulife",
+  base:"Run by Vanguard Canada. Launched in 2012; trades on the Toronto Stock Exchange."},
+ XEI:{what:"An ETF that owns Canadian companies with high dividends, chosen from the wider Toronto market.",
+  money:["Dividends, paid out every month","Price growth of those companies"],
+  known:"Suncor, Canadian Natural Resources, TD, Enbridge, Royal Bank, TC Energy, Nutrien",
+  base:"Run by BlackRock's iShares. Launched in 2011; trades on the Toronto Stock Exchange."},
  "7203":{what:"Toyota is the world's best-selling car maker, known for reliable cars and for leading the way in hybrid engines.",
   money:["Selling cars, SUVs and trucks around the world","Car loans and leasing through Toyota Financial Services","Parts and servicing"],
   known:"Corolla, Camry, RAV4, Hilux, Land Cruiser, Prius and Lexus",
@@ -778,11 +860,27 @@ const GOALS={
     icon:'<path d="M12 3v18M5 7h14M5 7l-3 7a4 4 0 0 0 6 0zM19 7l-3 7a4 4 0 0 0 6 0z"/>'}
 };
 const DIMS=[["income","Dividend income"],["profit","Profitability"],["growth","Growth"],["value","Price vs earnings"],["safety","Risk level"]];
+const DIMS_ETF=[["income","Dividend income"],["profit","Yearly fee"],["growth","Track record"],["value","Diversification"],["safety","Risk level"]];
+const isETF=s=>!!s&&s.k==="etf";
+const cmoney=(v,cu)=>{ try{ return new Intl.NumberFormat(undefined,{style:"currency",currency:cu,notation:"compact",maximumFractionDigits:1}).format(v);}catch(e){ return cu+" "+(v/1e9).toFixed(1)+"B"; } };
+const dimsFor=s=>isETF(s)?DIMS_ETF:DIMS;
+const SHORT={"Dividend income":"Dividend","Profitability":"Profit","Yearly fee":"Fee","Diversification":"Spread","Track record":"Record"};
+const dimLabel=(s,k,short)=>{ const l=dimsFor(s).find(d=>d[0]===k)[1]; return short?(SHORT[l]||l):l; };
 
 /* ---------- Scoring ---------- */
 const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
 function scores(s){
   const o={};
+  if(isETF(s)){
+    o.income=s.y==null?null:Math.round(clamp(s.y/7*100));
+    o.profit=s.mer==null?null:Math.round(clamp(100-s.mer*120));
+    o.growth=s.ret==null?null:Math.round(clamp((s.ret-2)/14*100));
+    if(s.hold==null) o.value=null;
+    else { let v=clamp(Math.log10(Math.max(s.hold,1))/Math.log10(5000)*100); if(s.top10!=null) v-=Math.max(0,s.top10-30)*0.8; if(s.hold<100&&s.top10==null) v-=10; o.value=Math.round(clamp(v)); }
+    let saf=s.b!=null?clamp(100-(s.b-0.4)*55):60; if(s.em) saf-=15;
+    o.safety=Math.round(clamp(saf));
+    return o;
+  }
   if(s.y==null) o.income=null;
   else { let v=clamp(s.y/7*100); if(s.p!=null&&s.p>100) v-=30; else if(s.p!=null&&s.p>85) v-=12; if(s.y===0) v=0; o.income=Math.round(clamp(v)); }
   o.profit=s.m==null?null:Math.round(clamp(s.m*2.5));
@@ -796,8 +894,10 @@ function scores(s){
 function matchScore(sc,goal){ const w=GOALS[goal].w; let t=0,wt=0; for(const k in w){ if(sc[k]!=null){t+=sc[k]*w[k];wt+=w[k];} } return Math.round(t/wt); }
 const lvl=v=>v==null?"plain":v>=65?"good":v>=40?"warn":"bad";
 const col=v=>v==null?"var(--line)":v>=65?"var(--good)":v>=40?"var(--warn)":"var(--bad)";
-function word(k,v){
+function word(k,v,s){
   if(v==null) return "No data";
+  if(isETF(s)&&k==="profit") return v>=65?"Low cost":v>=40?"Moderate cost":"High cost";
+  if(isETF(s)&&k==="value") return v>=65?"Well spread":v>=40?"Moderately spread":"Concentrated";
   if(k==="safety") return v>=65?"Lower risk":v>=40?"Medium risk":"Higher risk";
   if(k==="value") return v>=65?"Cheap":v>=40?"Fair price":"Expensive";
   if(k==="income"&&v===0) return "None";
@@ -807,6 +907,14 @@ const fmt=(v,suf="%")=>v==null?"No data":(Math.round(v*10)/10)+suf;
 const money=(v,cu)=>{ try{ return new Intl.NumberFormat(undefined,{style:"currency",currency:cu,currencyDisplay:["NGN","KES","ZAR","XOF"].includes(cu)?"narrowSymbol":"symbol",maximumFractionDigits:v>=100?0:2}).format(v);}catch(e){ return cu+" "+v.toFixed(2);} };
 
 function explain(s){
+  if(isETF(s)) return {
+    income: s.y==null?"No dividend data.":`Pays about ${s.y}% a year in dividends at today's price.`,
+    profit: s.mer==null?"No fee data.":`Charges ${s.mer}% a year: about $${(s.mer*100).toFixed(s.mer*100<10?1:0)} for every $10,000 invested.`,
+    growth: s.ret==null?"No long-term return data loaded.":`Has averaged about ${s.ret}% a year since ${s.since}. Past returns don't guarantee future ones.`,
+    value: s.hold==null?"No holdings data.":`Holds about ${s.hold.toLocaleString()} companies${s.top10!=null?`; the top 10 make up ${s.top10}% of the fund`:""}.`,
+    safety: [s.b!=null?(s.b>=1.2?"price swings more than the market":s.b<=0.8?"price swings a bit less than the market":"price moves about with the market"):null,
+             s.em?"emerging-market and currency risk":null,s.cu==="USD"?"priced in US dollars":null].filter(Boolean).join("; ").replace(/^./,c=>c.toUpperCase())+"."
+  };
   return {
     income: s.y==null?"No dividend data.":s.y===0?"Pays no regular dividend right now.":`Pays about ${s.y}% a year at today's price${s.p!=null?`, using ${s.p}% of its profit`:""}.`,
     profit: s.m==null?"No margin data.":`Keeps about ${Math.round(s.m)} of every 100 in sales as profit.`,
@@ -818,6 +926,15 @@ function explain(s){
   };
 }
 function summary(s,sc){
+  if(isETF(s)){
+    const nice={income:"pays a good dividend",profit:"is cheap to own",growth:"has a strong long-term record",value:"is widely diversified",safety:"is relatively low-risk"};
+    const bad={income:"pays a small dividend",profit:"has a high yearly fee",growth:"has a weaker long-term record",value:"is concentrated in a few companies",safety:"carries higher risk"};
+    const ks=DIMS_ETF.map(d=>d[0]).filter(k=>sc[k]!=null);
+    const best=ks.filter(k=>sc[k]>=65).sort((a,b)=>sc[b]-sc[a]).slice(0,2), worst=ks.filter(k=>sc[k]<40).sort((a,b)=>sc[a]-sc[b]).slice(0,1);
+    let t=best.length?`A fund that ${best.map(k=>nice[k]).join(" and ")}`:"A middle-of-the-road fund on most measures";
+    if(worst.length) t+=`, but ${bad[worst[0]]}`;
+    return t+".";
+  }
   const nice={income:"pays a good dividend",profit:"is very profitable",growth:"is growing fast",value:"is cheaply priced",safety:"is relatively low-risk"};
   const bad={income:"pays little or no dividend",profit:"has thin profit margins",growth:"has shrinking or slow sales",value:"is expensive for its earnings",safety:"carries higher risk"};
   const ks=DIMS.map(d=>d[0]).filter(k=>sc[k]!=null);
@@ -829,6 +946,24 @@ function summary(s,sc){
 }
 function prosCons(s){
   const pros=[...(s.pro||[])],cons=[...(s.con||[])];
+  if(isETF(s)){
+    const per10k=v=>"$"+(v*100).toFixed(v*100<10?1:0);
+    if(s.mer!=null&&s.mer<=0.1) pros.push(`Very low yearly fee: ${s.mer}%, about ${per10k(s.mer)} a year on every $10,000.`);
+    else if(s.mer!=null&&s.mer<=0.25) pros.push(`Low yearly fee: ${s.mer}%, about ${per10k(s.mer)} a year on every $10,000.`);
+    if(s.mer!=null&&s.mer>=0.5) cons.push(`Higher yearly fee: ${s.mer}%, about ${per10k(s.mer)} a year on every $10,000.`);
+    if(s.hold>=1000) pros.push(`Spreads your money across about ${s.hold.toLocaleString()} companies, so no single company can sink it.`);
+    else if(s.hold>=400) pros.push(`Holds about ${s.hold.toLocaleString()} companies.`);
+    if(s.top10!=null&&s.top10>=50) cons.push(`Concentrated: its 10 biggest holdings are ${s.top10}% of the fund.`);
+    else if(s.hold!=null&&s.hold<100) cons.push(`Holds only about ${s.hold} companies, so a few big ones drive the results.`);
+    if(s.y!=null&&s.y>=3) pros.push(`Pays a dividend of about ${s.y}% a year.`);
+    if(s.y!=null&&s.y<1.5) cons.push("Small dividend: most of the return has to come from price growth.");
+    if(s.ret!=null&&s.ret>=12) pros.push(`Has averaged about ${s.ret}% a year since ${s.since}. Past results don't guarantee future ones.`);
+    if(s.aum!=null&&s.aum>=5) pros.push(`Large, well-established fund (about ${cmoney(s.aum*1e9,s.cu)} in assets).`);
+    if(s.aum!=null&&s.aum<0.5) cons.push("Small fund: small ETFs are more likely to close, and can cost more to buy and sell.");
+    if(s.em) cons.push("Emerging markets: currency swings and politics can hit returns in your own currency.");
+    if(s.cu==="USD") cons.push("Priced in US dollars, so changes in the CAD/USD exchange rate affect your return.");
+    return {pros,cons};
+  }
   if(s.y!=null&&s.y>=4) pros.push(`High dividend: about ${s.y}% a year at today's price.`);
   if(s.y>0&&s.p!=null&&s.p<=70) pros.push(`Dividend looks affordable: it pays out ${s.p}% of profit and keeps the rest.`);
   if(s.p!=null&&s.p>90) cons.push(`Pays out ${s.p}% of profit as dividends; if profit falls, the dividend could be cut.`);
@@ -847,6 +982,14 @@ function prosCons(s){
   return {pros,cons};
 }
 function checks(s){
+  if(isETF(s)){
+    const c=["Check the fund's current fee (MER) and holdings on the provider's website.","Look at what's inside: are you comfortable with its biggest holdings and countries?","Check whether it overlaps with funds or stocks you already own (see your Portfolio)."];
+    if(s.grp==="allin") c.push("All-in-one funds are designed to be held on their own. Adding other funds on top changes the mix.");
+    if(s.y>0) c.push("Decide whether to reinvest the dividends. Many brokers, including Wealthsimple, can do it automatically.");
+    if(s.cu==="USD") c.push("It's priced in US dollars: check your broker's currency conversion fee.");
+    c.push("Decide what share of your savings this would be, and how long you can leave it invested.");
+    return c;
+  }
   const c=["Read the latest quarterly results and compare them with a year ago.","Confirm today's price and dividend on the exchange or a quote site."];
   if(s.y>0) c.push("Look at the dividend history: raised, held or cut over the past 5 years?");
   if(s.s==="Financials") c.push("For banks, check loan losses and capital ratios rather than debt.");
@@ -905,7 +1048,7 @@ const ICON={star:'<svg viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 
 function buildStatic(){
   $("goals").innerHTML=Object.entries(GOALS).map(([k,g])=>`<button class="goal" type="button" data-g="${k}" aria-pressed="${k===goal}">
     <span class="g-t"><svg viewBox="0 0 24 24">${g.icon}</svg>${g.t}</span><span class="g-d">${g.d}</span></button>`).join("");
-  const regs=["","Africa","North America","Europe","Asia","★ Watchlist"];
+  const regs=["","Global","Africa","North America","Europe","Asia","★ Watchlist"];
   $("regionChips").innerHTML=regs.map(r=>`<button class="chip" type="button" data-r="${r}" aria-pressed="${r===region}">${r||"All regions"}</button>`).join("");
   $("a_cur").innerHTML=Object.keys(FX).map(c=>`<option>${c}</option>`).join("");
   fillSectors();
@@ -916,11 +1059,12 @@ function fillSectors(){
 }
 const SORT={match:{v:s=>s.match,show:s=>[s.match,"match"]},yield:{v:s=>s.y??-1,show:s=>[fmt(s.y),"dividend"]},
   margin:{v:s=>s.m??-99,show:s=>[fmt(s.m),"margin"]},growth:{v:s=>s.g??-99,show:s=>[fmt(s.g),"growth"]},
-  pe:{v:s=>s.pe==null?-999:-s.pe,show:s=>[s.pe==null?"–":s.pe+"×","P/E"]}};
+  pe:{v:s=>s.pe==null?-999:-s.pe,show:s=>[s.pe==null?"–":s.pe+"×","P/E"]},
+  fee:{v:s=>s.mer==null?-999:-s.mer,show:s=>[s.mer==null?"–":s.mer+"%","yearly fee"]}};
 
 function filtered(){
-  const q=$("q").value.trim().toLowerCase(),sec=$("sector").value,sortBy=$("sortBy").value;
-  return all().filter(s=>(region===""||(region==="★ Watchlist"?watch.includes(s.t):s.r===region))&&(!sec||s.s===sec)&&(!q||(s.n+" "+s.t).toLowerCase().includes(q)))
+  const q=$("q").value.trim().toLowerCase(),sec=$("sector").value,sortBy=$("sortBy").value,kind=$("kind").value;
+  return all().filter(s=>(region===""||(region==="★ Watchlist"?watch.includes(s.t):s.r===region))&&(!sec||s.s===sec)&&(!kind||(kind==="etf")===isETF(s))&&(!q||(s.n+" "+s.t).toLowerCase().includes(q)))
     .sort((a,b)=>SORT[sortBy].v(b)-SORT[sortBy].v(a));
 }
 function render(keepSheet){
@@ -928,7 +1072,7 @@ function render(keepSheet){
   document.querySelectorAll("#regionChips .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.r===region));
   const sortBy=$("sortBy").value, list=filtered();
   $("listTitle").textContent=sortBy==="match"?`Best matches for "${GOALS[goal].t}"`:$("sortBy").selectedOptions[0].text.replace("Sort: ","").replace(/^./,c=>c.toUpperCase());
-  $("count").textContent=`${list.length} stocks`;
+  const kind=$("kind").value; $("count").textContent=`${list.length} ${kind==="etf"?(list.length===1?"ETF":"ETFs"):kind==="stock"?(list.length===1?"stock":"stocks"):(list.length===1?"investment":"investments")}`;
   if(!list.length){
     $("rows").innerHTML=`<li class="empty" style="display:block">${region==="★ Watchlist"?"Your watchlist is empty. Tap the star next to any stock to save it here.":"No stocks match. Clear the search or pick another region."}</li>`;
   } else {
@@ -940,8 +1084,8 @@ function render(keepSheet){
         <button class="row" type="button" data-t="${esc(s.t)}">
           <span class="rank">${i+1}</span>
           <span class="who"><div class="nm">${esc(s.n)}</div>
-            <div class="meta"><span class="num">${esc(s.t)}</span><span>${esc(s.c)}</span>${s.live?`<span class="tag good">Live price</span>`:""}</div>
-            <div class="tags">${tagKeys.map(k=>`<span class="tag ${lvl(s.sc[k])}">${DIMS.find(d=>d[0]===k)[1].replace("Dividend income","Dividend").replace("Profitability","Profit")}: ${word(k,s.sc[k])}</span>`).join("")}</div></span>
+            <div class="meta"><span class="num">${esc(s.t)}</span>${isETF(s)?`<span class="tag plain">ETF</span>`:""}<span>${esc(s.c)}</span>${s.live?`<span class="tag good">Live price</span>`:""}</div>
+            <div class="tags">${tagKeys.map(k=>`<span class="tag ${lvl(s.sc[k])}">${dimLabel(s,k,true)}: ${word(k,s.sc[k],s)}</span>`).join("")}</div></span>
           <span class="match"><div class="big">${esc(big)}</div><div class="sub">${sub}</div></span>
         </button>
         <span class="acts">
@@ -963,6 +1107,24 @@ function dial(v){
     <text x="32" y="37" text-anchor="middle" font-size="16">${v}</text></svg>`;
 }
 
+const SPLIT_COL=["var(--accent)","var(--brand-green)","var(--star)","var(--muted)","var(--bad)","var(--warn)","var(--good)","var(--line)"];
+function heldTickers(){ return new Set(pf.holdings.filter(h=>h.status!=="sold").map(h=>String(h.ticker||"").toUpperCase().replace(/\.TO$/,""))); }
+function insideHTML(s){
+  const I=s.inside, held=heldTickers(), inApp=t=>t&&all().some(x=>x.t===t), max=Math.max(...I.top.map(x=>x[1]));
+  const owned=I.top.filter(x=>x[2]&&held.has(x[2]));
+  return `<section class="block"><h3>What's inside</h3>
+    ${I.note?`<p class="small" style="margin:0 0 10px">${esc(I.note)}</p>`:""}
+    ${I.split.length>1?`<div class="label">Where the money goes</div>
+      <div class="split" role="img" aria-label="${esc(I.split.map(x=>x[0]+" "+x[1]+"%").join(", "))}">${I.split.map((x,i)=>`<i style="width:${x[1]}%;background:${SPLIT_COL[i%SPLIT_COL.length]}"></i>`).join("")}</div>
+      <div class="legend" style="margin-bottom:14px">${I.split.map((x,i)=>`<span><b style="background:${SPLIT_COL[i%SPLIT_COL.length]}"></b>${esc(x[0])} <strong class="num">${x[1]}%</strong></span>`).join("")}</div>`
+      :`<p class="small" style="margin:0 0 10px">All of it is invested in ${esc(I.split[0][0])}.</p>`}
+    <div class="label">Biggest holdings</div>
+    <div class="inside-list">${I.top.map(([n,w,t])=>`<div class="inside-row">
+      <span class="inside-name">${inApp(t)?`<button type="button" class="linkbtn" data-goto="${esc(t)}">${esc(n)}</button>`:esc(n)}${t&&held.has(t)?` <span class="tag good">You own this</span>`:""}</span>
+      <span class="inside-bar"><b style="width:${(w/max*100).toFixed(1)}%"></b></span><span class="num inside-w">${w}%</span></div>`).join("")}</div>
+    ${owned.length?`<p class="about-local">You already own ${owned.map(x=>esc(x[0])).join(", ")} directly. Buying ${esc(s.t)} adds more of ${owned.length>1?"them":"it"}.</p>`:""}
+  </section>`;
+}
 function renderFile(s){
   const f=$("file");
   if(!s){ f.innerHTML='<p class="empty">Pick a stock from the list to see its file.</p>'; return; }
@@ -990,15 +1152,17 @@ function renderFile(s){
   ${ABOUT[s.t]?`<section class="block about"><h3>About ${esc(s.n)}</h3>
     <p style="margin:0 0 10px;max-width:68ch">${esc(ABOUT[s.t].what)}</p>
     <div class="about-grid">
-      <div><div class="label">How it makes money</div><ul class="about-list">${ABOUT[s.t].money.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
-      <div><div class="label">Names you might know</div><p>${esc(ABOUT[s.t].known)}</p>
+      <div><div class="label">${isETF(s)?"How you earn from it":"How it makes money"}</div><ul class="about-list">${ABOUT[s.t].money.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
+      <div><div class="label">${isETF(s)?"Companies you might know inside it":"Names you might know"}</div><p>${esc(ABOUT[s.t].known)}</p>
         <div class="label" style="margin-top:10px">Background</div><p>${esc(ABOUT[s.t].base)}</p></div>
     </div>
     ${ABOUT[s.t].local?`<p class="about-local">${esc(ABOUT[s.t].local)}</p>`:""}
   </section>`:""}
 
+  ${isETF(s)&&s.inside?insideHTML(s):""}
+
   <section class="block"><h3>At a glance</h3><div class="verdicts">
-    ${DIMS.map(([k,l])=>`<div class="verdict"><span class="vt">${l}</span><span class="vw ${lvl(sc[k])}">${word(k,sc[k])}</span><span class="vx">${esc(why[k])}</span></div>`).join("")}
+    ${dimsFor(s).map(([k,l])=>`<div class="verdict"><span class="vt">${l}</span><span class="vw ${lvl(sc[k])}">${word(k,sc[k],s)}</span><span class="vx">${esc(why[k])}</span></div>`).join("")}
   </div></section>
 
   <section class="block"><h3>What would it cost me?</h3>
@@ -1015,7 +1179,7 @@ function renderFile(s){
 
   <section class="block"><h3>What could happen to my money</h3>
     <div class="calc"><div class="ol" id="olOut"></div>
-    <p class="small" style="margin:0">These are not predictions. They're a range based on the dividend, recent sales growth, how expensive the shares are, and how much the price usually swings. About 1 year in 10 turns out worse than the bad case, and about 1 in 10 better than the good case. Includes dividends reinvested; before fees, taxes and currency moves.</p></div>
+    <p class="small" style="margin:0">These are not predictions. They're a range based on ${isETF(s)?"the fund's dividend, a long-run growth assumption for the companies it holds, its yearly fee,":"the dividend, recent sales growth, how expensive the shares are,"} and how much the price usually swings. About 1 year in 10 turns out worse than the bad case, and about 1 in 10 better than the good case. Includes dividends reinvested; before fees, taxes and currency moves.</p></div>
   </section>
 
   <section class="block cols">
@@ -1033,10 +1197,13 @@ function renderFile(s){
 
   <details class="nums"><summary>See the numbers behind this</summary>
     <div class="metrics">
-    ${[["Dividend yield",fmt(s.y),"Yearly dividend ÷ share price"],["Profit margin",fmt(s.m),"Profit kept from each 100 of sales"],
+    ${(isETF(s)?[["Yearly fee (MER)",s.mer==null?"No data":s.mer+"%","Charged each year on what you hold"],["Dividend yield",fmt(s.y),"Yearly payout ÷ price"],
+       ["Holdings",s.hold==null?"No data":s.hold.toLocaleString(),"Companies the fund owns"],["Top 10 weight",s.top10==null?"–":s.top10+"%","Share in its 10 biggest holdings"],
+       ["Fund size",s.aum==null?"No data":cmoney(s.aum*1e9,s.cu),"Total money in the fund"],["Average yearly return",s.ret==null?"No data":s.ret+"%",s.since?"Since "+s.since+"; past returns don't guarantee future ones":""],
+       ["Volatility (beta)",s.b==null?"No data":s.b+"×","1.0 moves with the market"],["Price",s.pr==null?"No data":money(s.pr,s.cu),"Approximate, October 2026"]]:[["Dividend yield",fmt(s.y),"Yearly dividend ÷ share price"],["Profit margin",fmt(s.m),"Profit kept from each 100 of sales"],
        ["Sales growth",fmt(s.g),"Change in sales over a year"],["P/E ratio",s.pe==null?"No data":s.pe+"×","Share price ÷ yearly profit per share"],
        ["Payout ratio",fmt(s.p),"Share of profit paid as dividends"],["Debt / equity",s.de==null?(s.s==="Financials"?"N/A for banks":"No data"):s.de+"×","Borrowing vs owners' money"],
-       ["Volatility (beta)",s.b==null?"No data":s.b+"×","1.0 moves with the market"],["Share price",s.pr==null?"No data":money(s.pr,s.cu),"Approximate, mid-2026"]]
+       ["Volatility (beta)",s.b==null?"No data":s.b+"×","1.0 moves with the market"],["Share price",s.pr==null?"No data":money(s.pr,s.cu),"Approximate, mid-2026"]])
       .map(([l,v,h])=>`<div class="metric"><div class="label">${l}</div><div class="v">${v}</div><div class="h">${h}</div></div>`).join("")}
     </div>
   </details>
@@ -1048,11 +1215,14 @@ function renderFile(s){
     <dt>Payout ratio</dt><dd>How much of its profit the company pays out as dividends. Above 100% means it pays more than it earns.</dd>
     <dt>Beta</dt><dd>How much the price tends to swing compared with the overall market. 1.5 means about 50% bigger swings.</dd>
     <dt>Emerging market</dt><dd>A developing economy. Often more growth, but more currency and political risk.</dd>
+    <dt>ETF</dt><dd>An exchange-traded fund: a basket of many investments that you buy and sell like a single stock.</dd>
+    <dt>Yearly fee (MER)</dt><dd>The management expense ratio: what an ETF charges each year, taken from the fund automatically. 0.20% is $20 a year on $10,000.</dd>
+    <dt>Diversification</dt><dd>Spreading your money across many companies, so one company's problems hurt less.</dd>
   </dl></details>
 
   <div class="foot-links">${s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener">Check latest figures ↗</a>`:""}
     ${s.custom?`<button class="btn" type="button" id="removeBtn">Remove this stock</button>`:""}</div>
-  <p class="asof">${s.custom?"Figures entered by you.":AS_OF} Scores are a simple formula over these numbers, meant to start your research, not replace it.</p>`;
+  <p class="asof">${s.custom?"Figures entered by you.":isETF(s)?"ETF figures are approximate, as of October 2026; exchange rates are approximate too.":AS_OF} Scores are a simple formula over these numbers, meant to start your research, not replace it.</p>`;
 
   $("backBtn").onclick=()=>{ f.classList.remove("open"); document.body.style.overflow=""; };
   $("fStar").onclick=()=>toggleWatch(s.t);
@@ -1074,7 +1244,7 @@ function normCdf(x){ const t=1/(1+0.3275911*Math.abs(x)); const e=1-(((((1.06140
 function outlook(s){
   const y=s.y||0, gRev=s.g==null?3:clamp(s.g,-5,15), g=0.5*gRev+0.5*4;
   const val=s.pe==null||s.pe<=0?0:clamp((18-s.pe)/18*2,-3,2);
-  const mu=Math.max(-0.05,Math.min(0.18,(y+g+val)/100));
+  const mu=isETF(s)?Math.max(-0.05,Math.min(0.18,(y+4.5-(s.mer||0))/100)):Math.max(-0.05,Math.min(0.18,(y+g+val)/100));
   const sig=Math.max(0.12,0.16*(s.b??1))+(s.em?0.08:0);
   const m=Math.log(1+mu)-sig*sig/2;
   const at=T=>{ const sd=sig*Math.sqrt(T); return {T,bad:Math.exp(m*T-1.2816*sd)-1,mid:Math.exp(m*T)-1,good:Math.exp(m*T+1.2816*sd)-1,pLoss:normCdf(-(m*T)/sd)}; };
@@ -1127,14 +1297,20 @@ function renderTray(){
 }
 function openCompare(){
   const ss=cmp.map(t=>all().find(s=>s.t===t)).filter(Boolean);
+  const anyE=ss.some(isETF), anyS=ss.some(x=>!isETF(x));
+  const so=(f,d)=>s=>isETF(s)?"–":f(s), eo=f=>s=>isETF(s)?f(s):"–", sv=f=>s=>isETF(s)?null:f(s), ev=f=>s=>isETF(s)?f(s):null;
   const rows=[
+    ["Type",s=>null,"",s=>isETF(s)?"ETF":"Stock"],
     ["Match for your goal",s=>s.match,"hi",s=>s.match],
     ["Dividend yield",s=>s.y,"hi",s=>fmt(s.y)],
-    ["Profit margin",s=>s.m,"hi",s=>fmt(s.m)],
-    ["Sales growth",s=>s.g,"hi",s=>fmt(s.g)],
-    ["P/E ratio",s=>s.pe,"lo",s=>s.pe==null?"No data":s.pe+"×"],
-    ["Payout ratio",s=>null,"",s=>fmt(s.p)],
-    ["Risk level",s=>s.sc.safety,"hi",s=>word("safety",s.sc.safety)],
+    ...(anyE?[["Yearly fee (ETF)",ev(s=>s.mer),"lo",eo(s=>s.mer==null?"No data":s.mer+"%")],
+      ["Holdings (ETF)",ev(s=>s.hold),"hi",eo(s=>s.hold==null?"No data":s.hold.toLocaleString())],
+      ["Avg yearly return (ETF)",ev(s=>s.ret),"hi",eo(s=>s.ret==null?"No data":s.ret+"% since "+s.since)]]:[]),
+    ...(anyS?[["Profit margin",sv(s=>s.m),"hi",so(s=>fmt(s.m))],
+      ["Sales growth",sv(s=>s.g),"hi",so(s=>fmt(s.g))],
+      ["P/E ratio",sv(s=>s.pe),"lo",so(s=>s.pe==null?"No data":s.pe+"×")],
+      ["Payout ratio",s=>null,"",so(s=>fmt(s.p))]]:[]),
+    ["Risk level",s=>s.sc.safety,"hi",s=>word("safety",s.sc.safety,s)],
     ["Price swings (beta)",s=>s.b,"lo",s=>s.b==null?"No data":s.b+"×"],
   ];
   const body=rows.map(([l,val,dir,show])=>{
@@ -1144,7 +1320,7 @@ function openCompare(){
   const sumRow=`<tr><th scope="row">In short</th>${ss.map(s=>`<td>${esc(summary(s,s.sc))}</td>`).join("")}</tr>`;
   $("modal").innerHTML=`<div class="modal-head"><h2 id="cmpTitle" style="font-size:20px">Side-by-side comparison</h2><button class="btn" type="button" id="cmpClose">Close</button></div>
     <div class="tbl-wrap"><table class="cmp"><thead><tr><th></th>${ss.map(s=>`<th>${esc(s.n)}<div class="small num">${esc(s.t)}</div></th>`).join("")}</tr></thead><tbody>${body}${sumRow}</tbody></table></div>
-    <p class="small">Green marks the best value in each row for your goal. Lower is better for P/E and price swings.</p>`;
+    <p class="small">Green marks the best value in each row. Lower is better for fees, P/E and price swings.</p>`;
   $("overlay").hidden=false; $("cmpClose").focus();
   $("cmpClose").onclick=closeCompare;
 }
@@ -1156,10 +1332,10 @@ function wireAI(s){
   if(aiCache[s.t]){ out.hidden=false; out.textContent=aiCache[s.t]; btn.textContent="Write it again"; }
   btn.onclick=async()=>{
     btn.disabled=true; btn.textContent="Writing…"; out.hidden=false; out.textContent="Thinking…";
-    const facts=`Company: ${s.n} (${s.t}, ${s.x||""}), ${s.c}, sector ${s.s}. Approx figures: dividend yield ${fmt(s.y)}, net margin ${fmt(s.m)}, revenue growth ${fmt(s.g)}, P/E ${s.pe??"n/a"}, payout ${fmt(s.p)}, debt/equity ${s.de??"n/a"}, beta ${s.b??"n/a"}. The reader's goal: ${GOALS[goal].t} (${GOALS[goal].d}).`;
+    const facts=isETF(s)?`Fund: ${s.n} (${s.t}, ${s.x||""}), an ETF. Approx figures: yearly fee ${s.mer}%, dividend yield ${fmt(s.y)}, about ${s.hold} holdings, average yearly return ${s.ret??"n/a"}% since ${s.since}. The reader's goal: ${GOALS[goal].t} (${GOALS[goal].d}).`:`Company: ${s.n} (${s.t}, ${s.x||""}), ${s.c}, sector ${s.s}. Approx figures: dividend yield ${fmt(s.y)}, net margin ${fmt(s.m)}, revenue growth ${fmt(s.g)}, P/E ${s.pe??"n/a"}, payout ${fmt(s.p)}, debt/equity ${s.de??"n/a"}, beta ${s.b??"n/a"}. The reader's goal: ${GOALS[goal].t} (${GOALS[goal].d}).`;
     const prompt=`You are helping a beginner investor research a stock. Do NOT tell them to buy, sell or hold, and give no price target. Give concrete, neutral information in plain English.
 ${facts}
-Write under 350 words with these short sections, each title on its own line: What the business does; Track record (profits and dividends in recent years, as far as you know); How it fits the reader's goal; Main opportunities; Main risks; Questions to answer before deciding. Plain text only, no markdown symbols. Say clearly where your knowledge may be out of date.`;
+Write under 350 words with these short sections, each title on its own line: ${isETF(s)?"What the fund holds and how it works; Track record and costs":"What the business does; Track record (profits and dividends in recent years, as far as you know)"}; How it fits the reader's goal; Main opportunities; Main risks; Questions to answer before deciding. Plain text only, no markdown symbols. Say clearly where your knowledge may be out of date.`;
     try{
       const r=await sampleFn(prompt,{modelTier:"default",onText:({text})=>{ out.textContent=text; }});
       aiCache[s.t]=r.text; out.textContent=r.text; btn.textContent="Write it again";
@@ -1193,8 +1369,9 @@ $("addForm").addEventListener("submit",e=>{
 /* ---------- Events ---------- */
 $("goals").addEventListener("click",e=>{ const b=e.target.closest(".goal"); if(!b) return; goal=b.dataset.g; store.set("sc_goal",goal); $("sortBy").value="match"; render(); });
 $("regionChips").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; region=b.dataset.r; store.set("sc_region",region); render(); });
-["sortBy","sector"].forEach(id=>$(id).addEventListener("change",()=>render()));
+["sortBy","sector","kind"].forEach(id=>$(id).addEventListener("change",()=>render()));
 $("q").addEventListener("input",()=>render());
+$("file").addEventListener("click",e=>{ const g=e.target.closest("[data-goto]"); if(!g) return; selected=g.dataset.goto; $("q").value=""; render(); $("file").scrollTop=0; if(!window.matchMedia("(max-width:900px)").matches) window.scrollTo({top:0,behavior:"smooth"}); });
 $("rows").addEventListener("click",e=>{
   const st=e.target.closest("[data-star]"); if(st) return toggleWatch(st.dataset.star);
   const cp=e.target.closest("[data-cmp]"); if(cp) return toggleCmp(cp.dataset.cmp);
@@ -1231,7 +1408,23 @@ function holdingPrice(h){
   if(s&&s.live){ const p=conv(s.pr,s.cu,h.currency); if(p) return {p,live:true,day:s.live.day}; }
   return {p:+(h.currentPrice||h.pricePaid)||0,live:false};
 }
+function overlapNotes(){
+  const held=heldTickers(), A=all(), etfs=A.filter(x=>isETF(x)&&held.has(x.t)), notes=[];
+  for(const e of etfs) for(const [n,w,t] of e.inside?.top||[]) if(t&&held.has(t)) notes.push(`You own ${n} directly, and it's also about ${w}% of ${e.t}.`);
+  for(let i=0;i<etfs.length;i++) for(let j=i+1;j<etfs.length;j++){
+    const a=etfs[i], b=etfs[j];
+    if(a.grp===b.grp&&a.grp==="sp500") notes.push(`${a.t} and ${b.t} both track the S&P 500. Owning both adds fees and paperwork without spreading your money further.`);
+    else if(a.grp===b.grp&&a.grp==="allin") notes.push(`${a.t} and ${b.t} are both all-in-one global portfolios and hold nearly the same companies.`);
+    else if(a.grp===b.grp&&a.grp==="cadiv") notes.push(`${a.t} and ${b.t} are both Canadian dividend funds with many of the same banks and energy companies.`);
+    else { const al=[a,b].find(x=>x.grp==="allin"), o=[a,b].find(x=>x.grp!=="allin");
+      if(al&&o&&o.mk.every(m=>al.mk.includes(m))) notes.push(`${al.t} already includes ${o.mk.includes("us")?"the big US companies in "+o.t:"the Canadian companies in "+o.t}. Holding both tilts you further toward ${o.mk.includes("us")?"the US":"Canada"}.`);
+      else if(a.mk.length===1&&a.mk[0]==="ca"&&b.mk.length===1&&b.mk[0]==="ca") notes.push(`${a.t} and ${b.t} both hold Canada's biggest banks and energy companies.`); }
+  }
+  return notes;
+}
 function renderPortfolio(){
+  const ov=overlapNotes(), ovEl=$("pfOverlap");
+  if(ovEl) ovEl.innerHTML=ov.length?`<div class="panel"><div class="panel-head"><h3>Overlap check</h3></div><p class="small" style="margin:0 0 8px">Some of your holdings own the same companies. That isn't wrong, but you may have more in them than you realise.</p><ul class="list checks">${ov.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`:"";
   const sel=$("pfCur"); if(!sel.options.length){ sel.innerHTML=Object.keys(FX).map(c=>`<option value="${c}">${c} · ${CUR_NAME[c]}</option>`).join(""); }
   sel.value=pfCur;
   const active=pf.holdings.filter(h=>h.status!=="sold");
@@ -1447,7 +1640,7 @@ function refreshChrome(){
   const bn=[broker&&broker!=="none"?BROKERS[broker].name:null,afBroker&&afBroker!=="none"&&afBroker!=="family"?AF_BROKERS[afBroker].name:null].filter(Boolean).join(" + ");
   $("brokerPill").innerHTML=`<span class="dot ${bn?"on":""}"></span>${bn?esc(bn):broker?"No broker":"Choose your broker"}`;
   $("trustPrivacy").textContent=!STANDALONE?"Portfolio shared only with people you invite":DESKTOP?"Keys are encrypted on this computer":"Your keys and holdings stay in this browser";
-  $("trustData").textContent=p?`Live prices from ${p}; fundamentals are approximate mid-2026 figures`:"Fundamentals and prices are approximate mid-2026 figures";
+  $("trustData").textContent=p?`Live prices from ${p}; other figures are approximate 2026 values`:"Figures are approximate 2026 reference values";
   $("pfSub").textContent=!STANDALONE?"Shared with everyone you invite to this page. Changes show up for both of you straight away.":DESKTOP?"Saved on this computer.":"Saved in this browser on this device.";
 }
 $("dataPill").onclick=()=>showTab("set");
